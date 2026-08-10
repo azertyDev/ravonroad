@@ -43,7 +43,23 @@ export class PhotoWorker implements OnModuleInit, OnModuleDestroy {
   onModuleInit(): void {
     const workers = this.config.get<number>('PHOTO_WORKERS') ?? 1
     for (let index = 0; index < workers; index += 1) {
-      const timer = setInterval(() => void this.tick(index), POLL_INTERVAL_MS)
+      // Отказ прохода не должен ронять процесс: HTTP и обработка фотографий делят один
+      // процесс, и недоступная на секунду БД — не повод перестать принимать заявки.
+      // Без catch отклонённый промис здесь остаётся необработанным, а Node на таком
+      // завершается: приём заявок падал бы вместе с воркером.
+      const timer = setInterval(() => {
+        this.tick(index).catch((error: unknown) => {
+          const message = error instanceof Error ? error.message : String(error)
+          console.error(
+            JSON.stringify({
+              ts: new Date().toISOString(),
+              level: 'error',
+              msg: 'photo_worker_tick_failed',
+              error: message,
+            }),
+          )
+        })
+      }, POLL_INTERVAL_MS)
       // Незавершённый таймер не должен держать процесс живым при остановке контейнера.
       timer.unref()
       this.timers.push(timer)
