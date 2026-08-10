@@ -1,5 +1,6 @@
 export * from './catalog'
 export * from './errors'
+export * from './geo'
 export * from './health'
 export * from './locale'
 export * from './report'
