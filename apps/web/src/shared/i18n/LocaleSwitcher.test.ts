@@ -34,4 +34,10 @@ describe('LocaleSwitcher', () => {
     expect(markup.match(/(?<= lang=")[^"]*/g)).toEqual(['uz-Latn', 'ru'])
     expect(markup.match(/(?<=hreflang=")[^"]*/gi)).toEqual(['uz-Latn', 'ru'])
   })
+
+  it('помечает текущий язык как aria-current="page"', async () => {
+    const markup = await switcherMarkupAt('/ru/reports')
+
+    expect(markup.match(/(?<=aria-current=")[^"]*/g)).toEqual(['page'])
+  })
 })
