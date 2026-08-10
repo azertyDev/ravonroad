@@ -1,9 +1,10 @@
-# Dev — GCE e2-micro, 1 ГБ (SRS §12.2). Всплеск здесь не воспроизводится: dev —
-# среда разработки, а не уменьшенная копия прода.
+# Dev — GCE e2-micro, 1 ГБ (SRS §12.2). Сумма лимитов 560 МБ при ~604 МБ, доступных
+# после ОС и dockerd; числа измерены на живой машине, а не оценены. Всплеск здесь не
+# воспроизводится: dev — среда разработки, а не уменьшенная копия прода.
 
 services:
   db:
-    mem_limit: 320m
+    mem_limit: 256m
     # Порт нужен разработке: prisma CLI и pnpm dev ходят в базу с хоста. Привязка к
     # 127.0.0.1 обязательна — иначе Docker открыл бы 5432 всему интернету в обход
     # ufw. На проде порт не публикуется вовсе: туда ходят только контейнеры.
@@ -12,20 +13,20 @@ services:
     command:
       - postgres
       - -c
-      - shared_buffers=96MB
+      - shared_buffers=80MB
       - -c
       - work_mem=2MB
       - -c
       - maintenance_work_mem=32MB
       - -c
-      - max_connections=10
+      - max_connections=12
       - -c
       - huge_pages=off
 
   api:
-    mem_limit: 288m
+    mem_limit: 256m
     environment:
-      NODE_OPTIONS: --max-old-space-size=192
+      NODE_OPTIONS: --max-old-space-size=176
 
   edge:
-    mem_limit: 64m
+    mem_limit: 48m
