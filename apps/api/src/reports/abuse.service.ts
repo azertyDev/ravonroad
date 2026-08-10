@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { MAX_PHOTOS_PER_REPORT } from '@ravonroad/shared-types'
 import { ApiException } from '../common/api-error'
-import { RATE_LIMITS, RateLimiter } from '../common/rate-limit'
+import { RATE_LIMITS, rateLimitKey, RateLimiter } from '../common/rate-limit'
 
 /** Меньше пяти секунд при трёх приложенных фотографиях человеку недостижимо: их надо
  *  выбрать, дождаться сжатия и посмотреть на предпросмотр (PRD §10.3). При одной
@@ -43,7 +43,7 @@ export class AbuseService {
     // некого, значит правило неприменимо.
     if (clientIp === null) return 1
 
-    const verdict = this.limiter.hit(clientIp, RATE_LIMITS.reportsHard)
+    const verdict = this.limiter.hit(rateLimitKey('reports', clientIp), RATE_LIMITS.reportsHard)
     if (!verdict.allowed) {
       throw new ApiException('RATE_LIMITED', HttpStatus.TOO_MANY_REQUESTS, 'too many reports from this address', {
         headers: { 'Retry-After': String(verdict.retryAfterS) },
