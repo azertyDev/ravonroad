@@ -2,6 +2,7 @@ import { MAX_PHOTOS_PER_REPORT } from '@ravonroad/shared-types'
 import { useEffect, useId, useMemo, useState } from 'react'
 import { useI18n } from '../../../shared/i18n/useI18n'
 import type { UiKey } from '../../../shared/i18n/messages'
+import { randomUuid } from '../../../shared/lib/uuid'
 import { compressPhoto, type CompressedPhoto, type PhotoRejection } from './compress'
 
 export interface SelectedPhoto extends CompressedPhoto {
@@ -52,7 +53,7 @@ export function PhotoPicker({ photos, onChange, error }: PhotoPickerProps) {
     for (const file of chosen.slice(0, free)) {
       const result = await compressPhoto(file)
       // Один нечитаемый файл не отменяет остальные (SRS §5.2).
-      if (result.ok) added.push({ ...result.photo, id: crypto.randomUUID() })
+      if (result.ok) added.push({ ...result.photo, id: randomUuid() })
       else notices.push(`${file.name}: ${t(REJECTION_KEY[result.reason])}`)
     }
     setBusy(false)

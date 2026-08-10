@@ -14,6 +14,10 @@ ENV_FILE="$APP_DIR/.env"
 GCP_PROJECT=${GCP_PROJECT:-ravonroad-dev}
 GHCR_REPO=${GHCR_REPO:-ghcr.io/azertydev/ravonroad}
 PUBLIC_ORIGIN=${PUBLIC_ORIGIN:-http://34.46.68.126}
+# Экстракт карты. Имя файла содержит дату сборки: новый экстракт — новое значение здесь
+# и новое значение переменной репозитория VITE_MAP_PMTILES_URL в GitHub Actions.
+MAP_PMTILES_DEFAULT=https://storage.googleapis.com/ravonroad-dev-photos/map/tashkent-20260810.pmtiles
+VITE_MAP_PMTILES_URL=${VITE_MAP_PMTILES_URL:-$MAP_PMTILES_DEFAULT}
 
 FORCE=0
 [ "${1:-}" = "--force" ] && FORCE=1
@@ -87,6 +91,10 @@ S3_BUCKET=ravonroad-dev-photos
 S3_PUBLIC_BASE_URL=https://storage.googleapis.com/ravonroad-dev-photos
 S3_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID
 S3_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY
+
+# Тот же адрес, из которого edge собирает connect-src своей CSP. Пусто — браузер
+# заблокирует range-запросы к тайлам, и карта останется пустой при живом бандле.
+VITE_MAP_PMTILES_URL=$VITE_MAP_PMTILES_URL
 
 TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
 TELEGRAM_GROUP_CHAT_ID=$TELEGRAM_GROUP_CHAT_ID
