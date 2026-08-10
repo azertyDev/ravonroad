@@ -46,7 +46,8 @@ us-central1, Always Free. Обе поднимаются одним и тем ж�
 ### Чего в системе нет
 
 - Авторизации на сайте: ни JWT, ни OTP, ни таблицы `User`. Модератор идентифицируется
-  `telegram_user_id` из allowlist в переменной окружения.
+  `telegram_user_id` из allowlist в таблице `moderator`; `TELEGRAM_MODERATOR_IDS` —
+  только источник первичного засева этой таблицы (ADR-0005).
 - OpenAPI. API-контракт живёт в `packages/shared-types` и импортируется обеими сторонами
   напрямую. Генераторов клиента нет.
 
