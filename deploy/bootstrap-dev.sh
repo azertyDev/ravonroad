@@ -14,6 +14,8 @@ ENV_FILE="$APP_DIR/.env"
 GCP_PROJECT=${GCP_PROJECT:-ravonroad-dev}
 GHCR_REPO=${GHCR_REPO:-ghcr.io/azertydev/ravonroad}
 PUBLIC_ORIGIN=${PUBLIC_ORIGIN:-http://34.46.68.126}
+# sslip.io резолвит <ip>.sslip.io в сам ip — домен для сертификата, не покупая домен.
+TLS_DOMAIN=${TLS_DOMAIN:-34.46.68.126.sslip.io}
 # Экстракт карты. Имя файла содержит дату сборки: новый экстракт — новое значение здесь
 # и новое значение переменной репозитория VITE_MAP_PMTILES_URL в GitHub Actions.
 MAP_PMTILES_DEFAULT=https://storage.googleapis.com/ravonroad-dev-photos/map/tashkent-20260810.pmtiles
@@ -95,6 +97,14 @@ S3_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY
 # Тот же адрес, из которого edge собирает connect-src своей CSP. Пусто — браузер
 # заблокирует range-запросы к тайлам, и карта останется пустой при живом бандле.
 VITE_MAP_PMTILES_URL=$VITE_MAP_PMTILES_URL
+
+# https на стенде. Домен покупать не нужно: sslip.io отдаёт A-запись прямо из имени.
+# Без него браузер не даёт ни геолокацию, ни crypto.randomUUID, а Telegram не принимает
+# webhook. Сертификат выпускает deploy/issue-cert.sh; до первого выпуска edge работает
+# по http, и это рабочее состояние, а не поломка.
+TLS_DOMAIN=$TLS_DOMAIN
+LETSENCRYPT_DIR=$APP_DIR/letsencrypt
+CERTBOT_WEBROOT=$APP_DIR/certbot-webroot
 
 TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
 TELEGRAM_GROUP_CHAT_ID=$TELEGRAM_GROUP_CHAT_ID

@@ -84,8 +84,16 @@ services:
       # Тот же адрес, что запечён в бандл: из него envsubst собирает connect-src в CSP.
       # Разъедутся — браузер заблокирует тайлы, поэтому переменная в .env одна.
       MAP_PMTILES_URL: ${VITE_MAP_PMTILES_URL:-}
+      # Домен сертификата. Пусто — контейнер работает по http, как раньше.
+      TLS_DOMAIN: ${TLS_DOMAIN:-}
     ports:
       - '80:80'
+      - '443:443'
+    volumes:
+      # Сертификаты выпускает и продлевает certbot на хосте; nginx только читает.
+      - ${LETSENCRYPT_DIR:-./.letsencrypt}:/etc/letsencrypt:ro
+      # Каталог ACME-проверки общий с certbot: файл кладёт он, отдаёт nginx.
+      - ${CERTBOT_WEBROOT:-./.certbot}:/var/www/certbot
     depends_on:
       api:
         condition: service_started
