@@ -3,6 +3,7 @@ import {
   MAX_PHOTOS_PER_REPORT,
   type CreateReportResponse,
   type FieldError,
+  type ReportStatus,
 } from '@ravonroad/shared-types'
 import { ApiException } from '../common/api-error'
 import { DuplicatesService } from '../geo/duplicates.service'
@@ -15,10 +16,9 @@ import { sniffImageType } from './sniffer'
 import { generateTrackingToken } from './tracking-token'
 
 /** Файл, как его отдаёт multer. Объявлен здесь, а не взят из `@types/multer`: нужны
- *  ровно байты и размер, и ради двух полей ставить пакет типов незачем. */
+ *  ровно байты, и ради одного поля ставить пакет типов незачем. */
 export interface UploadedPhoto {
   buffer: Buffer
-  size: number
 }
 
 export interface CreateReportContext {
@@ -26,10 +26,27 @@ export interface CreateReportContext {
   clientIp: string | null
 }
 
+export interface CreateReportOutcome {
+  response: CreateReportResponse
+  /** `true` — заявка уже существовала: это повтор по тому же ключу, и ответ `200`. */
+  replayed: boolean
+}
+
+/** Уникальное ограничение нарушено. Prisma не даёт типа для кода ошибки драйвера,
+ *  а нам нужен ровно один: повтор вставки по `idempotency_key`. */
+const UNIQUE_VIOLATION = 'P2002'
+
 /** Номер показывается человеку только так: `RR-` — часть контракта, а не строка локали
  *  (SRS §4.2). Считает его сервер, иначе две локали фронта разъедутся между собой. */
 export function displayNumber(publicNumber: number): string {
   return `RR-${publicNumber}`
+}
+
+interface InsertedReport {
+  publicNumber: number
+  trackingToken: string
+  status: ReportStatus
+  createdAt: Date
 }
 
 @Injectable()
@@ -51,7 +68,13 @@ export class ReportsService {
     input: CreateReportInput,
     photos: UploadedPhoto[],
     context: CreateReportContext,
-  ): Promise<CreateReportResponse> {
+  ): Promise<CreateReportOutcome> {
+    // Повтор проверяется первым и стоит один индексный поиск: житель на плохой сети
+    // жмёт «повторить», не зная, дошла ли отправка, и вторая загрузка тех же трёх
+    // фотографий обошлась бы ему в трафик, а нам — в объекты в бакете (US-016).
+    const replay = await this.findByIdempotencyKey(context.idempotencyKey, input)
+    if (replay !== null) return { response: replay, replayed: true }
+
     if (photos.length === 0) {
       throw new ApiException('PHOTOS_REQUIRED', HttpStatus.BAD_REQUEST, 'at least one photo is required')
     }
@@ -65,8 +88,8 @@ export class ReportsService {
     }
 
     // Тип определяется по байтам, а не по заголовку от клиента (SRS §5.3 п.2).
-    const sniffed = photos.map((photo) => sniffImageType(photo.buffer))
-    if (sniffed.some((type) => type === null)) {
+    const types = photos.map((photo) => sniffImageType(photo.buffer))
+    if (types.some((type) => type === null)) {
       throw new ApiException(
         'UNSUPPORTED_MEDIA_TYPE',
         HttpStatus.UNSUPPORTED_MEDIA_TYPE,
@@ -94,65 +117,163 @@ export class ReportsService {
     }
 
     const duplicateCandidateOfId = await this.duplicates.findCandidateRootId(input.latitude, input.longitude)
+    const rawKeys = await this.storeRawPhotos(photos, types)
 
-    const raw = await this.storeRawPhotos(photos, sniffed)
-
-    const report = await this.prisma.$transaction(async (tx) => {
-      return tx.report.create({
-        data: {
-          categoryId: category.id,
-          districtCode,
-          latitude: input.latitude,
-          longitude: input.longitude,
-          landmark: input.landmark,
-          contactPhone: input.contactPhone,
-          contactTelegram: input.contactTelegram,
-          trackingToken: generateTrackingToken(),
-          idempotencyKey: context.idempotencyKey,
-          duplicateCandidateOfId,
-          createdIp: context.clientIp,
-          photos: {
-            create: raw.map((photo, index) => ({
-              kind: 'BEFORE' as const,
-              sortOrder: index,
-              rawKey: photo.key,
-            })),
-          },
-          // Первая запись истории: создание, `from_status` пуст (SRS §2.7).
-          history: { create: [{ fromStatus: null, toStatus: 'NEW' as const, actorType: 'SYSTEM' as const }] },
-        },
-        select: { publicNumber: true, trackingToken: true, status: true, createdAt: true },
-      })
+    const report = await this.insertReport({
+      input,
+      context,
+      categoryId: category.id,
+      districtCode,
+      duplicateCandidateOfId,
+      rawKeys,
     })
 
+    if (report === null) {
+      // Гонка двух «повторить» с одним ключом: уникальный индекс отдал вторую вставку
+      // назад, и заявка уже есть. Тот же повтор, только выясненный вставкой, а не чтением.
+      const replayed = await this.findByIdempotencyKey(context.idempotencyKey, input)
+      if (replayed === null) throw new Error('report vanished between insert conflict and re-read')
+      return { response: replayed, replayed: true }
+    }
+
     return {
-      number: report.publicNumber,
-      displayNumber: displayNumber(report.publicNumber),
-      trackingToken: report.trackingToken,
-      trackingPath: `/${input.locale}/z/${report.trackingToken}`,
-      districtCode,
-      status: report.status,
-      // Фотографии ещё в очереди. Заявка при этом принята целиком: она в БД, у неё есть
-      // номер, токен и место на карте (SRS §4.2).
-      photosPending: true,
-      createdAt: report.createdAt.toISOString(),
+      response: {
+        number: report.publicNumber,
+        displayNumber: displayNumber(report.publicNumber),
+        trackingToken: report.trackingToken,
+        trackingPath: `/${input.locale}/z/${report.trackingToken}`,
+        districtCode,
+        status: report.status,
+        // Фотографии ещё в очереди. Заявка при этом принята целиком: она в БД, у неё есть
+        // номер, токен и место на карте (SRS §4.2).
+        photosPending: true,
+        createdAt: report.createdAt.toISOString(),
+      },
+      replayed: false,
+    }
+  }
+
+  /** Заявка, фотографии в `PENDING`, первая запись истории — одной транзакцией.
+   *  Состояние «заявка есть, а задачи на обработку нет» невозможно by construction:
+   *  очередь это те же строки, и создаются они здесь же (ADR-0007).
+   *
+   *  `null` означает, что ключ идемпотентности уже занят. */
+  private async insertReport(args: {
+    input: CreateReportInput
+    context: CreateReportContext
+    categoryId: number
+    districtCode: string
+    duplicateCandidateOfId: number | null
+    rawKeys: string[]
+  }): Promise<InsertedReport | null> {
+    const { input, context, categoryId, districtCode, duplicateCandidateOfId, rawKeys } = args
+    try {
+      return await this.prisma.$transaction(async (tx) =>
+        tx.report.create({
+          data: {
+            categoryId,
+            districtCode,
+            latitude: input.latitude,
+            longitude: input.longitude,
+            landmark: input.landmark,
+            contactPhone: input.contactPhone,
+            contactTelegram: input.contactTelegram,
+            trackingToken: generateTrackingToken(),
+            idempotencyKey: context.idempotencyKey,
+            duplicateCandidateOfId,
+            createdIp: context.clientIp,
+            photos: {
+              create: rawKeys.map((rawKey, index) => ({
+                kind: 'BEFORE' as const,
+                sortOrder: index,
+                rawKey,
+              })),
+            },
+            // Первая запись истории: создание, `from_status` пуст (SRS §2.7).
+            history: {
+              create: [{ fromStatus: null, toStatus: 'NEW' as const, actorType: 'SYSTEM' as const }],
+            },
+          },
+          select: { publicNumber: true, trackingToken: true, status: true, createdAt: true },
+        }),
+      )
+    } catch (error) {
+      if (isUniqueViolation(error)) return null
+      throw error
+    }
+  }
+
+  /** Ответ на повтор с тем же `Idempotency-Key` (SRS §4.2).
+   *
+   *  Тот же ключ с **другим** содержимым — это ошибка клиента, а не повтор, и она
+   *  отвечает `409`: молча вернуть чужую заявку значило бы показать жителю номер,
+   *  к которому его фотографии не имеют отношения.
+   *
+   *  Сравниваются поля, которые мы храним. Фотографии в сравнение не входят: их
+   *  `sha256` появляется только после перекодирования в воркере, а форма держит ключ
+   *  вместе с уже сжатыми фотографиями и повторяет отправку тем же набором. */
+  private async findByIdempotencyKey(
+    idempotencyKey: string,
+    input: CreateReportInput,
+  ): Promise<CreateReportResponse | null> {
+    const existing = await this.prisma.report.findUnique({
+      where: { idempotencyKey },
+      select: {
+        publicNumber: true,
+        trackingToken: true,
+        districtCode: true,
+        status: true,
+        createdAt: true,
+        latitude: true,
+        longitude: true,
+        landmark: true,
+        contactPhone: true,
+        contactTelegram: true,
+        category: { select: { code: true } },
+        photos: { select: { state: true } },
+      },
+    })
+    if (existing === null) return null
+
+    const sameRequest =
+      existing.latitude.toNumber() === input.latitude &&
+      existing.longitude.toNumber() === input.longitude &&
+      existing.category.code === input.categoryCode &&
+      existing.landmark === input.landmark &&
+      existing.contactPhone === input.contactPhone &&
+      existing.contactTelegram === input.contactTelegram
+    if (!sameRequest) {
+      throw new ApiException(
+        'IDEMPOTENCY_CONFLICT',
+        HttpStatus.CONFLICT,
+        'this Idempotency-Key was used for a different report',
+      )
+    }
+
+    return {
+      number: existing.publicNumber,
+      displayNumber: displayNumber(existing.publicNumber),
+      trackingToken: existing.trackingToken,
+      trackingPath: `/${input.locale}/z/${existing.trackingToken}`,
+      districtCode: existing.districtCode,
+      status: existing.status,
+      // Состояние очереди читается заново: за время между попытками фотографии могли
+      // дойти до READY, и врать об этом ответу незачем.
+      photosPending: existing.photos.some((photo) => photo.state === 'PENDING'),
+      createdAt: existing.createdAt.toISOString(),
     }
   }
 
   /** Сырые байты уходят в `incoming/` одним PUT на файл — ноль процессорного времени.
    *  Хранилище недоступно → `503`: заявка не создаётся, клиент сохраняет черновик
-   *  и повторяет с тем же ключом (SRS §4.2). Принять заявку без фотографий нельзя —
-   *  фото это и есть основание для решения модератора (PRD §10.6). */
-  private async storeRawPhotos(
-    photos: UploadedPhoto[],
-    types: (string | null)[],
-  ): Promise<{ key: string }[]> {
+   *  и повторяет с тем же ключом (SRS §4.2). */
+  private async storeRawPhotos(photos: UploadedPhoto[], types: (string | null)[]): Promise<string[]> {
     try {
       return await Promise.all(
         photos.map(async (photo, index) => {
           const key = incomingKey()
           await this.s3.putRaw(key, photo.buffer, types[index] ?? 'application/octet-stream')
-          return { key }
+          return key
         }),
       )
     } catch {
@@ -163,4 +284,8 @@ export class ReportsService {
       )
     }
   }
+}
+
+function isUniqueViolation(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === UNIQUE_VIOLATION
 }

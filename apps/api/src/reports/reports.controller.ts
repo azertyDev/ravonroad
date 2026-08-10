@@ -5,12 +5,13 @@ import {
   HttpStatus,
   Post,
   Req,
+  Res,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common'
 import { FilesInterceptor } from '@nestjs/platform-express'
 import { MAX_PHOTO_BYTES, MAX_PHOTOS_PER_REPORT, type CreateReportResponse } from '@ravonroad/shared-types'
-import type { IncomingMessage } from 'node:http'
+import type { IncomingMessage, ServerResponse } from 'node:http'
 import { ApiException } from '../common/api-error'
 import { clientIp } from '../common/client-ip'
 import { parseCreateReport } from './create-report.input'
@@ -40,6 +41,7 @@ export class ReportsController {
     @Body() body: Record<string, unknown>,
     @Headers('idempotency-key') idempotencyKey: string | undefined,
     @Req() request: IncomingMessage,
+    @Res({ passthrough: true }) response: ServerResponse,
   ): Promise<CreateReportResponse> {
     // Ключ обязателен: без него три нажатия «повторить» на плохой сети дали бы три
     // заявки про одну яму, и разгребал бы это модератор (US-016).
@@ -54,9 +56,14 @@ export class ReportsController {
       throw new ApiException('VALIDATION_FAILED', HttpStatus.BAD_REQUEST, 'invalid form', parsed.errors)
     }
 
-    return this.reports.create(parsed.value, photos ?? [], {
+    const outcome = await this.reports.create(parsed.value, photos ?? [], {
       idempotencyKey,
       clientIp: clientIp(request),
     })
+
+    // Повтор отвечает 200, а не 201: заявка в этот раз не создавалась. Клиенту всё равно,
+    // но разница видна в логах, и по ней считается, сколько отправок доходит с первого раза.
+    response.statusCode = outcome.replayed ? HttpStatus.OK : HttpStatus.CREATED
+    return outcome.response
   }
 }
