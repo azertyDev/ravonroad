@@ -6,6 +6,7 @@ import { createReport, recordFormOpen } from '../../entities/report/api'
 import { ApiRequestError } from '../../shared/api/client'
 import { useI18n } from '../../shared/i18n/useI18n'
 import type { UiKey } from '../../shared/i18n/messages'
+import { clearDraft, loadDraft, saveDraft } from './draft'
 import { PointPicker } from './map-pin/PointPicker'
 import type { Point } from './map-pin/coordinates'
 import { PhotoPicker, type SelectedPhoto } from './photo/PhotoPicker'
@@ -21,6 +22,10 @@ const FIELD_ERROR: Record<FieldName, UiKey> = {
 const FIELD_CLASS =
   'min-h-[var(--touch-base)] w-full rounded-[var(--r-2)] border border-[var(--border-2)] bg-[var(--surface-card)] px-[var(--s-3)] text-[length:var(--t-min-input)]'
 
+/** Черновик пишется не на каждую букву: сохранение тащит за собой три сжатых кадра,
+ *  и делать это на каждом нажатии значило бы греть телефон впустую. */
+const SAVE_DEBOUNCE_MS = 500
+
 export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResponse) => void }) {
   const { locale, t, errorText } = useI18n()
 
@@ -32,15 +37,54 @@ export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResp
   const [contactTelegram, setContactTelegram] = useState('')
   const [website, setWebsite] = useState('')
   const [invalid, setInvalid] = useState<FieldName | null>(null)
+  const [restored, setRestored] = useState(false)
 
   /** Момент открытия формы и ключ идемпотентности заводятся один раз на заполнение:
    *  ключ обязан пережить и неудачную отправку, и нажатие «повторить» (US-016). */
-  const openedAt = useRef(new Date().toISOString())
-  const idempotencyKey = useRef(crypto.randomUUID())
+  const openedAt = useRef<string>(new Date().toISOString())
+  const idempotencyKey = useRef<string>(crypto.randomUUID())
 
   const anchors = useRef<Partial<Record<FieldName, HTMLElement | null>>>({})
+  /** Пока черновик не прочитан, писать нечего: иначе пустая форма затрёт сохранённую. */
+  const loaded = useRef(false)
 
   useEffect(recordFormOpen, [])
+
+  useEffect(() => {
+    void loadDraft().then((draft) => {
+      loaded.current = true
+      if (draft === null) return
+      idempotencyKey.current = draft.idempotencyKey
+      openedAt.current = draft.formOpenedAt
+      setPhotos(draft.photos)
+      setPoint(draft.point)
+      setCategoryCode(draft.categoryCode)
+      setLandmark(draft.landmark)
+      setContactPhone(draft.contactPhone)
+      setContactTelegram(draft.contactTelegram)
+      setRestored(true)
+    })
+  }, [])
+
+  // Обрыв сети на отправке сохраняет всё, что житель уже сделал, включая обработку
+  // фотографий: у бордюра ждать её второй раз — худшее, что можно предложить.
+  useEffect(() => {
+    if (!loaded.current) return
+    const timer = setTimeout(() => {
+      void saveDraft({
+        savedAt: Date.now(),
+        idempotencyKey: idempotencyKey.current,
+        formOpenedAt: openedAt.current,
+        point,
+        categoryCode,
+        landmark,
+        contactPhone,
+        contactTelegram,
+        photos,
+      })
+    }, SAVE_DEBOUNCE_MS)
+    return () => clearTimeout(timer)
+  }, [photos, point, categoryCode, landmark, contactPhone, contactTelegram])
 
   const categories = useQuery({
     queryKey: catalogKeys.categories,
@@ -67,7 +111,12 @@ export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResp
         idempotencyKey.current,
       )
     },
-    onSuccess: onCreated,
+    onSuccess: (report) => {
+      // Черновик и ключ живут ровно до успеха: следующая заявка — это новая заявка,
+      // и переиспользованный ключ вернул бы жителю чужой номер.
+      void clearDraft()
+      onCreated(report)
+    },
   })
 
   /** Первое незаполненное поле, в порядке следования на экране: туда переходит фокус,
@@ -103,6 +152,30 @@ export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResp
         <h1 className="t-h1">{t('form.title')}</h1>
         <p className="t-body text-[var(--text-2)]">{t('form.lead')}</p>
       </div>
+
+      {restored && (
+        <div className="flex flex-wrap items-center gap-[var(--s-3)] rounded-[var(--r-3)] bg-[var(--surface-sunken)] p-[var(--s-4)]">
+          <p className="t-caption flex-1 text-[var(--text-2)]">{t('form.draft.restored')}</p>
+          <button
+            type="button"
+            onClick={() => {
+              void clearDraft()
+              setPhotos([])
+              setPoint(null)
+              setCategoryCode('')
+              setLandmark('')
+              setContactPhone('')
+              setContactTelegram('')
+              // Новый ключ: очищенная форма — это другая заявка, а не та же самая.
+              idempotencyKey.current = crypto.randomUUID()
+              setRestored(false)
+            }}
+            className="t-label min-h-[var(--touch-base)] rounded-[var(--r-2)] border border-[var(--border-2)] px-[var(--s-4)]"
+          >
+            {t('form.draft.clear')}
+          </button>
+        </div>
+      )}
 
       <div ref={(element) => void (anchors.current.photos = element)} tabIndex={-1}>
         <PhotoPicker photos={photos} onChange={setPhotos} error={errorFor('photos')} />
