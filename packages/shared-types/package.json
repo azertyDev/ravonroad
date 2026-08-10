@@ -1,0 +1,26 @@
+{
+  "name": "@ravonroad/shared-types",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@ravonroad/eslint-config": "workspace:*",
+    "eslint": "^10.8.1",
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@ravonroad/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "peerDependencies": {
+    "eslint": "^10.0.0"
+  },
+  "dependencies": {
+    "@eslint/js": "^10.0.1",
+    "typescript-eslint": "^8.66.0"
+  },
+  "devDependencies": {
+    "eslint": "^10.8.1",
+    "typescript": "^6.0.3"
+  },
+  "scripts": {
+    "lint": "eslint ."
+  }
+}
