@@ -1,0 +1,56 @@
+name: deploy-dev
+
+# Выкатка идёт только после успешной сборки образов: разворачивать нечего, пока build
+# не положил в GHCR теги этого коммита. workflow_run запускает нас следом за build, а не
+# параллельно с ним.
+on:
+  workflow_run:
+    workflows: [build]
+    types: [completed]
+    branches: [dev]
+  # Ручной запуск нужен для отката: указывается тег, который уже лежит в GHCR.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: sha коммита, образы которого уже собраны
+        required: true
+
+permissions:
+  contents: read
+
+# Две выкатки одновременно на одну машину — гарантированная гонка за .env и compose.
+# cancel-in-progress: false — прерванный посередине деплой оставил бы стек между версиями.
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Разобрать, какой тег выкатываем
+        id: target
+        run: echo "sha=${{ inputs.tag || github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Подготовить ssh
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          # Внешний IP dev-машины эфемерный, поэтому ключ хоста не закреплён заранее,
+          # а снимается перед каждой выкаткой. Появится домен — сюда придёт постоянный
+          # known_hosts из секрета.
+          ssh-keyscan -T 10 "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      # Образы уже в GHCR, на сервере только docker pull: docker build на 1 ГБ запрещён
+      # (SRS §12.2 п.1). Красный health-check внутри deploy.sh = ненулевой код выхода
+      # ssh = красный workflow.
+      - name: Выкатить ${{ steps.target.outputs.sha }}
+        run: |
+          ssh -i ~/.ssh/id_deploy \
+            -o StrictHostKeyChecking=yes \
+            -o BatchMode=yes \
+            -o ConnectTimeout=15 \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "/opt/ravonroad/deploy/deploy.sh ${{ steps.target.outputs.sha }}"
