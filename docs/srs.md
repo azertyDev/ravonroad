@@ -1841,11 +1841,16 @@ per-instance — тогда либо sticky-балансировка, либо �
 - **CORS** — `origin: WEB_ORIGIN` списком, без `*`, без `credentials` (их нет).
 - **CSRF неприменим:** cookie и сессий не существует, авторизации нет; менять состояние
   без токена/allowlist невозможно.
-- **CSP** (заголовок nginx): `default-src 'self'; img-src 'self' data: <s3-host>;
-  script-src 'self' https://api-maps.yandex.ru; connect-src 'self' https://*.yandex.ru
-  https://*.yandex.net <s3-host>; frame-ancestors 'none'; base-uri 'none'`.
-  [требует проверки: точный перечень доменов, которые Яндекс JS API v3 запрашивает
-  под тайлы — уточняется по факту в консоли браузера]
+- **CSP** (заголовок nginx, шаблон `docker/edge/security-headers.conf.template`):
+  `default-src 'self'; img-src 'self' data: <s3-host>; script-src 'self';
+  worker-src 'self' blob:; connect-src 'self' ${MAP_PMTILES_URL};
+  frame-ancestors 'none'; base-uri 'none'`.
+  Стороннего скрипта в `script-src` нет ни одного: подложка своя (ADR-0008).
+  `worker-src 'self' blob:` обязателен — MapLibre поднимает воркер через
+  `URL.createObjectURL`, и без разрешения карта не стартует вовсе, молча.
+  В `connect-src` идёт полный URL архива, а не хост: путь в CSP сверяется целиком,
+  и разрешение получает ровно один файл, а не весь бакет. Значение подставляется
+  из переменной среды, потому что на dev это GCS, а на проде Cloupard.
 - Прочие заголовки: `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`,
   `Referrer-Policy: no-referrer`, `Permissions-Policy: geolocation=(self), camera=()`.
 - **Секреты** — только в `.env` на хосте и в GitHub Secrets. В образ не запекаются,
