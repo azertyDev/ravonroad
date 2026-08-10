@@ -35,6 +35,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Без этого шага сборка идёт драйвером `docker`, который не умеет экспортировать
+      # кэш: `cache-to: type=gha` падает с «Cache export is not supported for the docker
+      # driver». Действие поднимает билдер на драйвере `docker-container`, где экспорт
+      # работает. Кэш здесь не украшение: три образа собираются из общего pnpm-workspace,
+      # и без него каждый тянет зависимости заново.
+      - uses: docker/setup-buildx-action@v3
+
       - uses: docker/build-push-action@v6
         with:
           context: .
