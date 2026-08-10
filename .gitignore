@@ -8,6 +8,10 @@ coverage/
 .env.*
 !.env.example
 
+# Сертификаты и ACME-проверка при локальном запуске compose (на сервере они в APP_DIR)
+.letsencrypt/
+.certbot/
+
 .DS_Store
 *.log
 .vite/
