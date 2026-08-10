@@ -2,6 +2,7 @@
   "name": "@ravonroad/api",
   "private": true,
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "nest start --watch",
     "build": "nest build",
     "start": "node dist/main.js",
@@ -13,6 +14,7 @@
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.1.28",
     "@nestjs/platform-express": "^11.1.28",
+    "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
     "@ravonroad/shared-types": "workspace:*",
     "reflect-metadata": "^0.2.2",

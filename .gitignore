@@ -13,3 +13,6 @@ coverage/
 .vite/
 .idea/
 .vscode/
+
+# Prisma Client генерируется на postinstall (apps/api/prisma.config.ts)
+apps/api/src/generated/
