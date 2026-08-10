@@ -17,7 +17,6 @@ export const ruUi: Record<UiKey, string> = {
   'state.empty': 'Пока пусто',
   'form.title': 'Сообщить о яме',
   'form.lead': 'Сфотографируйте, отметьте место на карте и отправьте. Регистрация не нужна.',
-  'form.map.unavailable': 'Карта не загрузилась. Укажите место полями ниже.',
   'form.point.legend': 'Место ямы',
   'form.point.hint': 'Перетащите пин или введите координаты.',
   'form.point.myLocation': 'Моё местоположение',

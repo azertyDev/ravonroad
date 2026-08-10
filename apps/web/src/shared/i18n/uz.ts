@@ -19,7 +19,6 @@ export const uzUi = {
   'state.empty': 'Hozircha boʻsh',
   'form.title': 'Chuqur haqida xabar berish',
   'form.lead': 'Suratga oling, joyini xaritada belgilang va yuboring. Roʻyxatdan oʻtish shart emas.',
-  'form.map.unavailable': 'Xarita yuklanmadi. Joyni quyidagi maydonlar orqali koʻrsating.',
   'form.point.legend': 'Chuqur joylashuvi',
   'form.point.hint': 'Belgini suring yoki koordinatalarni kiriting.',
   'form.point.myLocation': 'Mening joylashuvim',
