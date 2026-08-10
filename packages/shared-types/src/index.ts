@@ -1,3 +1,5 @@
+export * from './errors'
+
 /** Жизненный цикл заявки на ремонт ямы. Сущность называется Report: Request в NestJS
     занят HTTP-запросом (преамбула docs/srs.md). */
 export const REPORT_STATUSES = [
