@@ -36,8 +36,8 @@ CREATE TABLE moderation_batch (
     chat_id                 BIGINT         NOT NULL,
     message_id              INTEGER,
     -- Защита от повторного применения. Строки истории, созданные пакетом, находятся
-    -- по равенству created_at = applied_at: в одной транзакции now() одинаков для всех
-    -- операторов, поэтому совпадение точное и отдельной колонки-связи не нужно.
+    -- по равенству created_at = applied_at: приложение проставляет обеим записям одно
+    -- и то же значение, поэтому отдельная колонка-связь не нужна.
     applied_at              TIMESTAMPTZ(3),
     applied_by_moderator_id INTEGER,
     created_at              TIMESTAMPTZ(3) NOT NULL DEFAULT now(),
