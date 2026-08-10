@@ -10,6 +10,8 @@ export interface Env {
   DATABASE_URL: string
   WEB_ORIGIN: string
   API_PORT: number
+  /** Одновременных запросов на приёме заявок. Восемь на проде, два на dev (SRS §12.2). */
+  INTAKE_CONCURRENCY: number
   S3_ENDPOINT: string
   S3_REGION: string
   S3_BUCKET: string
@@ -20,6 +22,7 @@ export interface Env {
 
 const DEFAULT_API_PORT = 3000
 const MAX_PORT = 65535
+const DEFAULT_INTAKE_CONCURRENCY = 8
 
 function requireString(source: Record<string, unknown>, name: string, errors: string[]): string {
   const value = source[name]
@@ -34,6 +37,7 @@ export function validateEnv(source: Record<string, unknown>): Env {
     DATABASE_URL: requireString(source, 'DATABASE_URL', errors),
     WEB_ORIGIN: requireString(source, 'WEB_ORIGIN', errors),
     API_PORT: DEFAULT_API_PORT,
+    INTAKE_CONCURRENCY: DEFAULT_INTAKE_CONCURRENCY,
     S3_ENDPOINT: requireString(source, 'S3_ENDPOINT', errors),
     S3_REGION: requireString(source, 'S3_REGION', errors),
     S3_BUCKET: requireString(source, 'S3_BUCKET', errors),
@@ -49,6 +53,16 @@ export function validateEnv(source: Record<string, unknown>): Env {
       errors.push(`API_PORT must be an integer between 1 and ${MAX_PORT}`)
     } else {
       env.API_PORT = port
+    }
+  }
+
+  const rawConcurrency = source['INTAKE_CONCURRENCY']
+  if (rawConcurrency !== undefined && rawConcurrency !== '') {
+    const permits = Number(rawConcurrency)
+    if (!Number.isInteger(permits) || permits < 1) {
+      errors.push('INTAKE_CONCURRENCY must be a positive integer')
+    } else {
+      env.INTAKE_CONCURRENCY = permits
     }
   }
 

@@ -44,6 +44,16 @@ describe('validateEnv', () => {
     expect(validateEnv({ ...complete, API_PORT: '8080' }).API_PORT).toBe(8080)
   })
 
+  it('подставляет восемь пропусков приёма и разбирает заданное число', () => {
+    expect(validateEnv(complete).INTAKE_CONCURRENCY).toBe(8)
+    expect(validateEnv({ ...complete, INTAKE_CONCURRENCY: '2' }).INTAKE_CONCURRENCY).toBe(2)
+  })
+
+  it('отклоняет ноль пропусков приёма: это остановленный приём, а не настройка', () => {
+    expect(() => validateEnv({ ...complete, INTAKE_CONCURRENCY: '0' })).toThrow(/INTAKE_CONCURRENCY/)
+    expect(() => validateEnv({ ...complete, INTAKE_CONCURRENCY: '-1' })).toThrow(/INTAKE_CONCURRENCY/)
+  })
+
   it('отклоняет порт вне диапазона и не целый', () => {
     expect(() => validateEnv({ ...complete, API_PORT: '70000' })).toThrow(/API_PORT/)
     expect(() => validateEnv({ ...complete, API_PORT: '3000.5' })).toThrow(/API_PORT/)
