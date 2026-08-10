@@ -9,4 +9,9 @@ COPY . .
 RUN pnpm install --frozen-lockfile --filter @ravonroad/api...
 
 WORKDIR /app/apps/api
-CMD ["pnpm", "exec", "prisma", "migrate", "deploy"]
+# Контейнер держит в окружении строку подключения к БД с паролем — работать под root
+# ему незачем. Как в Dockerfile.api.
+USER node
+# Прямо бинарь, а не `pnpm exec`: под другим пользователем corepack не видит свой кэш
+# из сборки и полез бы качать pnpm при каждом запуске миграций.
+CMD ["./node_modules/.bin/prisma", "migrate", "deploy"]
