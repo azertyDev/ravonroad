@@ -18,14 +18,17 @@ export function HomePage() {
         <p className="t-body-l text-[var(--text-2)]">{t('home.lead')}</p>
       </div>
 
+      {/* В DOM подпись идёт перед значением — иначе <dl> не связывает пару, и
+          скринридер объявляет «0» без «Отремонтировано ям». Число над подписью
+          возвращает flex-col-reverse: это порядок показа, а не чтения. */}
       <dl className="flex flex-wrap gap-[var(--s-8)]">
-        <div className="flex flex-col gap-[var(--s-1)]">
-          <dd className="t-counter">{formatNumber(REPAIRED)}</dd>
+        <div className="flex flex-col-reverse gap-[var(--s-1)]">
           <dt className="t-label text-[var(--text-2)]">{t('home.repairedLabel')}</dt>
+          <dd className="t-counter">{formatNumber(REPAIRED)}</dd>
         </div>
-        <div className="flex flex-col gap-[var(--s-1)]">
-          <dd className="t-counter">{formatNumber(CAMPAIGN_GOAL)}</dd>
+        <div className="flex flex-col-reverse gap-[var(--s-1)]">
           <dt className="t-label text-[var(--text-2)]">{t('home.goalLabel')}</dt>
+          <dd className="t-counter">{formatNumber(CAMPAIGN_GOAL)}</dd>
         </div>
       </dl>
     </div>
