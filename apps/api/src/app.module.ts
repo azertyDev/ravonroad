@@ -8,6 +8,7 @@ import { MediaModule } from './media/media.module'
 import { PrismaModule } from './prisma/prisma.module'
 import { ReportsModule } from './reports/reports.module'
 import { StatsModule } from './stats/stats.module'
+import { TelegramModule } from './telegram/telegram.module'
 
 // .env лежит в корне монорепозитория, а процесс запускается из apps/api — и `nest start`,
 // и `node dist/main.js`. Без явного пути ConfigModule искал бы файл в apps/api, не находил
@@ -33,6 +34,7 @@ const ROOT_ENV_FILE = resolve(process.cwd(), '../../.env')
     MediaModule,
     ReportsModule,
     StatsModule,
+    TelegramModule,
   ],
 })
 export class AppModule {}

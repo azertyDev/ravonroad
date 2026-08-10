@@ -59,3 +59,28 @@ export interface CreateReportResponse {
   photosPending: boolean
   createdAt: string
 }
+
+/** Коды причин, обязательных при переходах в `REJECTED` и `OUT_OF_SCOPE`
+ *  (PRD §5.2, глоссарий). Житель читает их на `/z/<token>`, значит клиент обязан иметь
+ *  строку на каждый код в обеих локалях — иначе `pnpm typecheck` красный (SRS §8.1).
+ *
+ *  Причины — код, а не данные, в отличие от категорий (SRS §2.5): их список меняется
+ *  вместе с машиной состояний, а не по решению координатора, и каждая новая причина
+ *  всё равно требует перевода. */
+export const REJECT_REASON_CODES = ['not_road_defect', 'unreadable_photo', 'spam', 'other'] as const
+
+export type RejectReasonCode = (typeof REJECT_REASON_CODES)[number]
+
+export const OUT_OF_SCOPE_REASON_CODES = [
+  'ground_sinkhole',
+  'utilities',
+  'highway',
+  'too_large',
+  'other',
+] as const
+
+export type OutOfScopeReasonCode = (typeof OUT_OF_SCOPE_REASON_CODES)[number]
+
+/** Текст при `other` вводит модератор, и он **не переводится**: показывается жителю
+ *  как введён, о чём написано рядом (PRD §5.2). */
+export type StatusReasonCode = RejectReasonCode | OutOfScopeReasonCode

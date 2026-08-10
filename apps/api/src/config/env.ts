@@ -1,11 +1,11 @@
 /** Валидация окружения на старте процесса.
  *
- * Проверяются только переменные, которые код действительно читает. `TELEGRAM_*` объявлены
- * в `.env.example`, но до среза 004 их никто не использует — требовать их сейчас значило бы
- * не пускать разработчика в приложение из-за незаполненного будущего.
+ * Проверяются только переменные, которые код действительно читает.
  *
- * `S3_*` с этого среза обязательны: без хранилища заявка не принимается вовсе, и узнать
- * об этом лучше на старте процесса, чем на первой фотографии от жителя. */
+ * `S3_*` обязательны с 002: без хранилища заявка не принимается вовсе, и узнать об этом
+ * лучше на старте процесса, чем на первой фотографии от жителя. `TELEGRAM_*` обязательны
+ * с 004 по той же причине: без них модерация не работает, а карточки молча копятся
+ * в очереди — отказ, который заметят через часы. */
 export interface Env {
   DATABASE_URL: string
   WEB_ORIGIN: string
@@ -22,6 +22,19 @@ export interface Env {
   S3_ACCESS_KEY_ID: string
   S3_SECRET_ACCESS_KEY: string
   S3_PUBLIC_BASE_URL: string
+  TELEGRAM_BOT_TOKEN: string
+  /** Группа волонтёров. Одна на среду, идентификатор supergroup со знаком минус. */
+  TELEGRAM_GROUP_CHAT_ID: string
+  /** Значение заголовка `X-Telegram-Bot-Api-Secret-Token` (SRS §9.3). */
+  TELEGRAM_WEBHOOK_SECRET: string
+  /** Случайный сегмент пути webhook — второй эшелон обороны (SRS §9.3). Не задан —
+   *  путь не проверяется: обязательная проверка здесь одна, и это secret-token. */
+  TELEGRAM_WEBHOOK_PATH?: string
+  /** Адрес Bot API. Подменяется заглушкой в интеграционных тестах и больше нигде. */
+  TELEGRAM_API_BASE_URL?: string
+  /** Источник **первичного** засева таблицы `moderator` (ADR-0005). После первого
+   *  развёртывания состав меняется в БД, а не здесь. */
+  TELEGRAM_MODERATOR_IDS?: string
 }
 
 const DEFAULT_API_PORT = 3000
@@ -34,6 +47,15 @@ function requireString(source: Record<string, unknown>, name: string, errors: st
   if (typeof value === 'string' && value.trim() !== '') return value.trim()
   errors.push(`${name} is required`)
   return ''
+}
+
+/** Необязательная переменная: пустая строка — это «не задана», а не «задана пустой».
+ *  В `.env` пустое значение остаётся от закомментированного примера чаще, чем
+ *  выставляется намеренно. */
+function optionalString(source: Record<string, unknown>, name: string): string | undefined {
+  const value = source[name]
+  if (typeof value !== 'string' || value.trim() === '') return undefined
+  return value.trim()
 }
 
 /** Возвращает `undefined`, если переменная не задана: тогда остаётся значение
@@ -70,7 +92,17 @@ export function validateEnv(source: Record<string, unknown>): Env {
     S3_ACCESS_KEY_ID: requireString(source, 'S3_ACCESS_KEY_ID', errors),
     S3_SECRET_ACCESS_KEY: requireString(source, 'S3_SECRET_ACCESS_KEY', errors),
     S3_PUBLIC_BASE_URL: requireString(source, 'S3_PUBLIC_BASE_URL', errors),
+    TELEGRAM_BOT_TOKEN: requireString(source, 'TELEGRAM_BOT_TOKEN', errors),
+    TELEGRAM_GROUP_CHAT_ID: requireString(source, 'TELEGRAM_GROUP_CHAT_ID', errors),
+    TELEGRAM_WEBHOOK_SECRET: requireString(source, 'TELEGRAM_WEBHOOK_SECRET', errors),
   }
+
+  const webhookPath = optionalString(source, 'TELEGRAM_WEBHOOK_PATH')
+  if (webhookPath !== undefined) env.TELEGRAM_WEBHOOK_PATH = webhookPath
+  const apiBaseUrl = optionalString(source, 'TELEGRAM_API_BASE_URL')
+  if (apiBaseUrl !== undefined) env.TELEGRAM_API_BASE_URL = apiBaseUrl
+  const moderatorIds = optionalString(source, 'TELEGRAM_MODERATOR_IDS')
+  if (moderatorIds !== undefined) env.TELEGRAM_MODERATOR_IDS = moderatorIds
 
   env.API_PORT = readInteger(source, 'API_PORT', 1, MAX_PORT, errors) ?? env.API_PORT
   env.INTAKE_CONCURRENCY =
