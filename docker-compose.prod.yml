@@ -1,0 +1,28 @@
+# Прод — VPS AHOST, 2 ГБ (SRS §12.1). Свободные ~380 МБ — расчёт, а не запас:
+# четвёртый постоянный контейнер требует пересмотра SRS §12.
+
+services:
+  db:
+    mem_limit: 640m
+    command:
+      - postgres
+      - -c
+      - shared_buffers=192MB
+      - -c
+      - work_mem=4MB
+      - -c
+      - maintenance_work_mem=64MB
+      - -c
+      - effective_cache_size=768MB
+      - -c
+      - max_connections=20
+      - -c
+      - huge_pages=off
+
+  api:
+    mem_limit: 576m
+    environment:
+      NODE_OPTIONS: --max-old-space-size=384
+
+  edge:
+    mem_limit: 96m

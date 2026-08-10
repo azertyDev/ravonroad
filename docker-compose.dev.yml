@@ -1,0 +1,26 @@
+# Dev — GCE e2-micro, 1 ГБ (SRS §12.2). Всплеск здесь не воспроизводится: dev —
+# среда разработки, а не уменьшенная копия прода.
+
+services:
+  db:
+    mem_limit: 320m
+    command:
+      - postgres
+      - -c
+      - shared_buffers=96MB
+      - -c
+      - work_mem=2MB
+      - -c
+      - maintenance_work_mem=32MB
+      - -c
+      - max_connections=10
+      - -c
+      - huge_pages=off
+
+  api:
+    mem_limit: 288m
+    environment:
+      NODE_OPTIONS: --max-old-space-size=192
+
+  edge:
+    mem_limit: 64m
