@@ -36,6 +36,8 @@ model District {
 
   geom Unsupported("geography(MultiPolygon, 4326)")
 
+  reports Report[]
+
   @@map("district")
 }
 
@@ -54,5 +56,89 @@ model Category {
   /** Вывод из оборота — `false`, не `DELETE`: старые заявки ссылаются на строку. */
   isActive  Boolean @default(true) @map("is_active")
 
+  reports Report[]
+
   @@map("category")
+}
+
+/** Заявка — единица работы всей системы. Три идентификатора с разными ролями (SRS §2.1):
+ *  `id` не покидает БД, `publicNumber` публичен и доступа не даёт, `trackingToken`
+ *  секретен и является единственной capability в системе. Вывести один из другого нельзя
+ *  ни хешем, ни подписью — это готовый IDOR (SRS §9.2).
+ *
+ *  Геометрии здесь нет: широта и долгота — обычные `Decimal`, поэтому таблица читается
+ *  и пишется штатным Prisma Client (ADR-0003). */
+model Report {
+  id Int @id @default(autoincrement())
+
+  /** `nextval`, а не `COUNT(*) + 1`: последовательность атомарна и не берёт блокировок,
+   *  а `COUNT` выдаёт дубликаты на первой же гонке. Пропуски номеров при откате
+   *  транзакции — не дефект: номер обязан быть уникальным, а не плотным (SRS §2.1). */
+  publicNumber Int @unique(map: "report_number_idx") @default(autoincrement()) @map("public_number")
+
+  status ReportStatus @default(NEW)
+
+  categoryId Int      @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  /** Считает сервер point-in-polygon; значение из клиента не принимается (SRS §9.7). */
+  districtCode String   @map("district_code") @db.VarChar(32)
+  district     District @relation(fields: [districtCode], references: [code])
+
+  latitude  Decimal @db.Decimal(9, 6)
+  longitude Decimal @db.Decimal(9, 6)
+
+  landmark String? @db.VarChar(200)
+
+  contactPhone      String?   @map("contact_phone") @db.VarChar(20)
+  contactTelegram   String?   @map("contact_telegram") @db.VarChar(64)
+  contactsDeletedAt DateTime? @map("contacts_deleted_at") @db.Timestamptz(3)
+
+  trackingToken  String  @unique(map: "report_token_idx") @map("tracking_token") @db.VarChar(24)
+  idempotencyKey String? @unique(map: "report_idem_idx") @map("idempotency_key") @db.Uuid
+
+  /** Решение модератора. */
+  duplicateOfId Int?     @map("duplicate_of_id")
+  duplicateOf   Report?  @relation("ReportDuplicate", fields: [duplicateOfId], references: [id])
+  duplicates    Report[] @relation("ReportDuplicate")
+
+  /** Гипотеза системы, а не решение: ближайшая открытая заявка в 50 м на момент
+   *  создания (SRS §3.2). Статус она не меняет никогда. */
+  duplicateCandidateOfId Int?     @map("duplicate_candidate_of_id")
+  duplicateCandidateOf   Report?  @relation("ReportDuplicateCandidate", fields: [duplicateCandidateOfId], references: [id])
+  duplicateCandidates    Report[] @relation("ReportDuplicateCandidate")
+
+  statusReason     String? @map("status_reason") @db.VarChar(48)
+  statusReasonText String? @map("status_reason_text") @db.VarChar(500)
+  publicationUrl   String? @map("publication_url") @db.VarChar(512)
+
+  /** Только антиабуз, публично не показывается, удаляется через 30 дней (SRS §9.8). */
+  createdIp String? @map("created_ip") @db.Inet
+
+  telegramAlbumMessageId Int? @map("telegram_album_message_id")
+  telegramCardMessageId  Int? @map("telegram_card_message_id")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  doneAt    DateTime? @map("done_at") @db.Timestamptz(3)
+
+  @@index([createdAt(sort: Desc), id(sort: Desc)], map: "report_list_idx")
+  @@index([latitude, longitude], map: "report_bbox_idx")
+  @@index([status], map: "report_status_idx")
+  @@index([districtCode, status], map: "report_district_idx")
+  @@map("report")
+}
+
+/** Семь значений глоссария. Начальное — `NEW`, и в этом срезе оно единственное:
+ *  переходы появляются вместе с кнопками бота в 004. */
+enum ReportStatus {
+  NEW
+  ACCEPTED
+  IN_PROGRESS
+  DONE
+  REJECTED
+  DUPLICATE
+  OUT_OF_SCOPE
+
+  @@map("report_status")
 }
