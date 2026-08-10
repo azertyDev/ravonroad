@@ -4,7 +4,20 @@
  * Список открыт кодами, которые нужны каркасу; каждый следующий срез добавляет свои.
  * Добавление кода без строки в словарях `uz`/`ru` ломает `pnpm typecheck`, а не прод:
  * словарь объявлен как `Record<ErrorCode, string>` (ADR-0006). */
-export const ERROR_CODES = ['VALIDATION_FAILED', 'NOT_FOUND', 'INTERNAL_ERROR'] as const
+export const ERROR_CODES = [
+  'VALIDATION_FAILED',
+  'NOT_FOUND',
+  'INTERNAL_ERROR',
+  /** Точка не попала ни в один из 12 полигонов (SRS §3.3). Единственная жёсткая
+   *  блокировка на входе — всё остальное в антиабузе только ставит флаг (PRD §10). */
+  'OUTSIDE_TASHKENT',
+  'PHOTOS_REQUIRED',
+  'IDEMPOTENCY_CONFLICT',
+  'PAYLOAD_TOO_LARGE',
+  'UNSUPPORTED_MEDIA_TYPE',
+  'RATE_LIMITED',
+  'STORAGE_UNAVAILABLE',
+] as const
 
 export type ErrorCode = (typeof ERROR_CODES)[number]
 
@@ -15,7 +28,8 @@ export function isErrorCode(value: string): value is ErrorCode {
 }
 
 /** Пара «поле → код» для подсветки конкретного поля формы (SRS §8.1).
- *  `code` пока `string`: словарь кодов уровня поля появляется вместе с формой в срезе 002. */
+ *  `code` — `string`: коды уровня поля описывают причину («слишком длинно», «не число»)
+ *  и словарём локали не переводятся; форма показывает свой текст рядом с полем. */
 export interface FieldError {
   field: string
   code: string

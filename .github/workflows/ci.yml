@@ -11,6 +11,10 @@ on:
 jobs:
   checks:
     runs-on: ubuntu-latest
+
+    # Базу под интеграционные тесты поднимает сам прогон через Testcontainers (SRS §11.3),
+    # поэтому service-контейнера здесь нет: Docker на ubuntu-latest уже есть.
+
     steps:
       - uses: actions/checkout@v4
 

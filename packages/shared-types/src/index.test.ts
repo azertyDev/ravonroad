@@ -40,7 +40,19 @@ describe('ApiErrorBody', () => {
     expect(notFound.error.code).toBe('NOT_FOUND')
   })
 
-  it('перечисляет коды, которые умеет вернуть каркас', () => {
-    expect([...ERROR_CODES]).toEqual(['VALIDATION_FAILED', 'NOT_FOUND', 'INTERNAL_ERROR'])
+  it('перечисляет коды, которые умеет вернуть сервер, без повторов', () => {
+    expect([...ERROR_CODES]).toEqual([
+      'VALIDATION_FAILED',
+      'NOT_FOUND',
+      'INTERNAL_ERROR',
+      'OUTSIDE_TASHKENT',
+      'PHOTOS_REQUIRED',
+      'IDEMPOTENCY_CONFLICT',
+      'PAYLOAD_TOO_LARGE',
+      'UNSUPPORTED_MEDIA_TYPE',
+      'RATE_LIMITED',
+      'STORAGE_UNAVAILABLE',
+    ])
+    expect(new Set(ERROR_CODES).size).toBe(ERROR_CODES.length)
   })
 })

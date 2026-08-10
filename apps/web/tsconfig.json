@@ -13,7 +13,12 @@
     "verbatimModuleSyntax": true,
     "types": [
       "vite/client"
-    ]
+    ],
+    "paths": {
+      "@ravonroad/shared-types": [
+        "../../packages/shared-types/src/index.ts"
+      ]
+    }
   },
   "include": [
     "src",

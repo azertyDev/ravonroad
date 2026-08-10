@@ -8,5 +8,281 @@ datasource db {
   provider = "postgresql"
 }
 
-// Ни одной модели: в этом срезе БД нужна только для SELECT 1 из /ready (SRS §10.1).
-// Таблицы приходят в 002 (заявка, фото, районы) и 004 (Telegram).
+// Миграции пишутся руками, а не `prisma migrate dev`. Схема содержит объекты, которых
+// Prisma не описывает: CHECK-инварианты (SRS §2.2), частичные индексы (§2.2, §2.4) и
+// колонку geography (§2.14). Сгенерированная миграция снесла бы их при следующем запуске.
+
+/** 12 районов Ташкента. Единственная таблица с геометрией во всей схеме (ADR-0003):
+ *  point-in-polygon и геозабор — один запрос по `geom`, у заявки же обычные широта
+ *  и долгота, доступные штатному Prisma Client.
+ *
+ *  `geom` — `Unsupported`, поэтому строка создаётся только сырым SQL. Это не помеха:
+ *  таблица наполняется миграцией из data/geo/tashkent-districts.geojson и после этого
+ *  не меняется. Появление второго `Unsupported` — повод пересмотреть ADR-0003. */
+model District {
+  code   String @id @db.VarChar(32)
+  nameUz String @map("name_uz") @db.VarChar(120)
+  nameRu String @map("name_ru") @db.VarChar(120)
+  nameEn String @map("name_en") @db.VarChar(120)
+  /** Из датасета хокимията. Хранится, чтобы сверять сид с источником (SRS §2.6). */
+  areaHa Int    @map("area_ha")
+
+  /** Считается при сиде из самой геометрии: «подогнать карту под район» (US-031)
+   *  не должно дёргать PostGIS на каждый показ. */
+  bboxMinLon Decimal @map("bbox_min_lon") @db.Decimal(9, 6)
+  bboxMinLat Decimal @map("bbox_min_lat") @db.Decimal(9, 6)
+  bboxMaxLon Decimal @map("bbox_max_lon") @db.Decimal(9, 6)
+  bboxMaxLat Decimal @map("bbox_max_lat") @db.Decimal(9, 6)
+
+  geom Unsupported("geography(MultiPolygon, 4326)")
+
+  reports Report[]
+
+  @@map("district")
+}
+
+/** Категория дефекта, которую выбирает житель (US-010).
+ *
+ *  Категории — данные, а не код (SRS §2.5): ни `enum` в Prisma, ни union в контракте.
+ *  Добавление, перевод и скрытие категории выполняются `INSERT`/`UPDATE` — без миграции
+ *  и без передеплоя. Отсюда же названия в таблице: переводы категорий не могут жить
+ *  в словаре локали, иначе новая строка требовала бы пересборки фронта. */
+model Category {
+  id        Int     @id @default(autoincrement())
+  code      String  @unique @db.VarChar(32)
+  nameUz    String  @map("name_uz") @db.VarChar(120)
+  nameRu    String  @map("name_ru") @db.VarChar(120)
+  sortOrder Int     @map("sort_order") @db.SmallInt
+  /** Вывод из оборота — `false`, не `DELETE`: старые заявки ссылаются на строку. */
+  isActive  Boolean @default(true) @map("is_active")
+
+  reports Report[]
+
+  @@map("category")
+}
+
+/** Заявка — единица работы всей системы. Три идентификатора с разными ролями (SRS §2.1):
+ *  `id` не покидает БД, `publicNumber` публичен и доступа не даёт, `trackingToken`
+ *  секретен и является единственной capability в системе. Вывести один из другого нельзя
+ *  ни хешем, ни подписью — это готовый IDOR (SRS §9.2).
+ *
+ *  Геометрии здесь нет: широта и долгота — обычные `Decimal`, поэтому таблица читается
+ *  и пишется штатным Prisma Client (ADR-0003). */
+model Report {
+  id Int @id @default(autoincrement())
+
+  /** `nextval`, а не `COUNT(*) + 1`: последовательность атомарна и не берёт блокировок,
+   *  а `COUNT` выдаёт дубликаты на первой же гонке. Пропуски номеров при откате
+   *  транзакции — не дефект: номер обязан быть уникальным, а не плотным (SRS §2.1). */
+  publicNumber Int @unique(map: "report_number_idx") @default(autoincrement()) @map("public_number")
+
+  status ReportStatus @default(NEW)
+
+  categoryId Int      @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  /** Считает сервер point-in-polygon; значение из клиента не принимается (SRS §9.7). */
+  districtCode String   @map("district_code") @db.VarChar(32)
+  district     District @relation(fields: [districtCode], references: [code])
+
+  latitude  Decimal @db.Decimal(9, 6)
+  longitude Decimal @db.Decimal(9, 6)
+
+  landmark String? @db.VarChar(200)
+
+  contactPhone      String?   @map("contact_phone") @db.VarChar(20)
+  contactTelegram   String?   @map("contact_telegram") @db.VarChar(64)
+  contactsDeletedAt DateTime? @map("contacts_deleted_at") @db.Timestamptz(3)
+
+  trackingToken  String  @unique(map: "report_token_idx") @map("tracking_token") @db.VarChar(24)
+  idempotencyKey String? @unique(map: "report_idem_idx") @map("idempotency_key") @db.Uuid
+
+  /** Решение модератора. */
+  duplicateOfId Int?     @map("duplicate_of_id")
+  duplicateOf   Report?  @relation("ReportDuplicate", fields: [duplicateOfId], references: [id])
+  duplicates    Report[] @relation("ReportDuplicate")
+
+  /** Гипотеза системы, а не решение: ближайшая открытая заявка в 50 м на момент
+   *  создания (SRS §3.2). Статус она не меняет никогда. */
+  duplicateCandidateOfId Int?     @map("duplicate_candidate_of_id")
+  duplicateCandidateOf   Report?  @relation("ReportDuplicateCandidate", fields: [duplicateCandidateOfId], references: [id])
+  duplicateCandidates    Report[] @relation("ReportDuplicateCandidate")
+
+  statusReason     String? @map("status_reason") @db.VarChar(48)
+  statusReasonText String? @map("status_reason_text") @db.VarChar(500)
+  publicationUrl   String? @map("publication_url") @db.VarChar(512)
+
+  /** Только антиабуз, публично не показывается, удаляется через 30 дней (SRS §9.8). */
+  createdIp String? @map("created_ip") @db.Inet
+
+  telegramAlbumMessageId Int? @map("telegram_album_message_id")
+  telegramCardMessageId  Int? @map("telegram_card_message_id")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  doneAt    DateTime? @map("done_at") @db.Timestamptz(3)
+
+  photos       ReportPhoto[]
+  abuseSignals AbuseSignal[]
+  history      ReportStatusHistory[]
+
+  @@index([createdAt(sort: Desc), id(sort: Desc)], map: "report_list_idx")
+  @@index([latitude, longitude], map: "report_bbox_idx")
+  @@index([status], map: "report_status_idx")
+  @@index([districtCode, status], map: "report_district_idx")
+  @@map("report")
+}
+
+/** Семь значений глоссария. Начальное — `NEW`, и в этом срезе оно единственное:
+ *  переходы появляются вместе с кнопками бота в 004. */
+enum ReportStatus {
+  NEW
+  ACCEPTED
+  IN_PROGRESS
+  DONE
+  REJECTED
+  DUPLICATE
+  OUT_OF_SCOPE
+
+  @@map("report_status")
+}
+
+/** Фотография заявки — **и одновременно задача её обработки** (ADR-0007).
+ *
+ *  Отдельной таблицы задач нет: очередь это `state = 'PENDING'` под частичным индексом.
+ *  Вторая строка на то же фото означала бы два состояния, которые надо синхронизировать,
+ *  а размер индекса равен глубине очереди, а не числу фотографий (SRS §2.4). */
+model ReportPhoto {
+  id       Int    @id @default(autoincrement())
+  reportId Int    @map("report_id")
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  kind      PhotoKind
+  sortOrder Int        @map("sort_order") @db.SmallInt
+  state     PhotoState @default(PENDING)
+
+  /** Сырые байты в `incoming/`, живут минуты: воркер удаляет объект после обработки,
+   *  а забытые подчищает lifecycle-правило бакета (SRS §5.5). */
+  rawKey     String? @map("raw_key") @db.VarChar(160)
+  objectKey  String? @map("object_key") @db.VarChar(160)
+  previewKey String? @map("preview_key") @db.VarChar(160)
+
+  /** Хеш **итоговых** байт, после перекодирования. Хеш исходника бесполезен: у двух
+   *  жителей, снявших одну яму, байты разные, а у одного файла, доставленного дважды,
+   *  одинаковые именно после нормализации (SRS §5.3). */
+  sha256 String? @db.Char(64)
+
+  width  Int? @db.SmallInt
+  height Int? @db.SmallInt
+  bytes  Int?
+
+  attempts      Int      @default(0) @db.SmallInt
+  nextAttemptAt DateTime @default(now()) @map("next_attempt_at") @db.Timestamptz(3)
+  lastError     String?  @map("last_error") @db.VarChar(500)
+
+  uploadedByTelegramUserId BigInt? @map("uploaded_by_telegram_user_id")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  /** Предел «3 фото каждого вида на заявку» держит БД, а не проверка в сервисе:
+   *  приложению остаётся вернуть внятную ошибку (US-008). */
+  @@unique([reportId, kind, sortOrder], map: "photo_slot_idx")
+  /** NULL в sha256 уникальности не нарушает, поэтому необработанные строки
+   *  друг другу не мешают (SRS §2.4). */
+  @@unique([reportId, kind, sha256], map: "photo_dedup_idx")
+  @@map("report_photo")
+}
+
+enum PhotoKind {
+  BEFORE
+  AFTER
+
+  @@map("photo_kind")
+}
+
+enum PhotoState {
+  PENDING
+  READY
+  FAILED
+
+  @@map("photo_state")
+}
+
+/** Сработавшее правило антиабуза. Отдельная таблица, а не булев флаг в заявке:
+ *  карточка модератора перечисляет, **какие именно** правила сработали (US-025),
+ *  а пороги пересматриваются на 30-й день — по этой таблице видно, какое шумит. */
+model AbuseSignal {
+  id       Int    @id @default(autoincrement())
+  reportId Int    @map("report_id")
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  rule AbuseRule
+  /** `{"fillMs":1200}`, `{"perHour":14}`. Без адреса: он в `report.created_ip`. */
+  detail Json?
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([reportId], map: "abuse_signal_report_idx")
+  @@map("abuse_signal")
+}
+
+enum AbuseRule {
+  HONEYPOT
+  FAST_FILL
+  IP_RATE
+
+  @@map("abuse_rule")
+}
+
+/** Открытия формы за сутки — знаменатель метрики конверсии P-1 (SRS §2.13).
+ *  Ни cookie, ни идентификаторов, ни IP: посуточного числа для метрики достаточно,
+ *  а всё остальное было бы профилированием, запрещённым PRD §9.4. */
+model FormOpenCounter {
+  day   DateTime @id @db.Date
+  count Int
+
+  @@map("form_open_counter")
+}
+
+/** Публичная последовательность статусов заявки (SRS §2.7, US-004).
+ *
+ *  Отмена перехода — **новая строка**, а не правка старой: история не переписывается
+ *  задним числом (PRD §5.3.4). Наружу отдаются только `toStatus`, `createdAt`
+ *  и признак отмены; `actor*` и `moderatorId` сервер не покидают (PRD §6.2). */
+model ReportStatusHistory {
+  id       Int    @id @default(autoincrement())
+  reportId Int    @map("report_id")
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  /** `null` только у первой записи — создания заявки. */
+  fromStatus ReportStatus? @map("from_status")
+  toStatus   ReportStatus  @map("to_status")
+
+  actorType           ActorType @map("actor_type")
+  actorTelegramUserId BigInt?   @map("actor_telegram_user_id")
+  moderatorId         Int?      @map("moderator_id")
+
+  reason        String? @db.VarChar(48)
+  reasonText    String? @map("reason_text") @db.VarChar(500)
+  duplicateOfId Int?    @map("duplicate_of_id")
+
+  undoneAt DateTime? @map("undone_at") @db.Timestamptz(3)
+  /** Уникальность делает двойную отмену одного перехода невозможной на уровне БД,
+   *  а не «маловероятной» из-за проверки в коде (SRS §2.7). */
+  undoesHistoryId Int?                 @unique(map: "history_undo_once_idx") @map("undoes_history_id")
+  undoes          ReportStatusHistory? @relation("HistoryUndo", fields: [undoesHistoryId], references: [id])
+  undoneBy        ReportStatusHistory? @relation("HistoryUndo")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([reportId, createdAt], map: "history_report_idx")
+  @@map("report_status_history")
+}
+
+enum ActorType {
+  SYSTEM
+  MODERATOR
+  VOLUNTEER
+
+  @@map("actor_type")
+}

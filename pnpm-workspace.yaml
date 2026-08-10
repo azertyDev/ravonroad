@@ -1,6 +1,12 @@
 packages:
   - apps/*
   - packages/*
+# Транзитивные зависимости testcontainers. Их build-скрипты собирают нативные ускорители
+# ssh2, которыми мы не пользуемся: контейнер поднимается через сокет докера. Пока решение
+# не записано явно, pnpm выходит с ошибкой и роняет pnpm build.
 allowBuilds:
   '@prisma/engines': true
+  cpu-features: false
   prisma: true
+  protobufjs: false
+  ssh2: false
