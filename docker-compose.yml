@@ -76,6 +76,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.web
+      # Vite запекает VITE_* в бандл при сборке образа, а не читает их в рантайме.
+      args:
+        VITE_MAP_PMTILES_URL: ${VITE_MAP_PMTILES_URL:-}
+        VITE_CAMPAIGN_CONTACT_URL: ${VITE_CAMPAIGN_CONTACT_URL:-}
+    environment:
+      # Тот же адрес, что запечён в бандл: из него envsubst собирает connect-src в CSP.
+      # Разъедутся — браузер заблокирует тайлы, поэтому переменная в .env одна.
+      MAP_PMTILES_URL: ${VITE_MAP_PMTILES_URL:-}
     ports:
       - '80:80'
     depends_on:
