@@ -46,7 +46,8 @@ us-central1, Always Free. Обе поднимаются одним и тем ж�
 ### Чего в системе нет
 
 - Авторизации на сайте: ни JWT, ни OTP, ни таблицы `User`. Модератор идентифицируется
-  `telegram_user_id` из allowlist в переменной окружения.
+  `telegram_user_id` из allowlist в таблице `moderator`; `TELEGRAM_MODERATOR_IDS` —
+  только источник первичного засева этой таблицы (ADR-0005).
 - OpenAPI. API-контракт живёт в `packages/shared-types` и импортируется обеими сторонами
   напрямую. Генераторов клиента нет.
 
@@ -76,9 +77,10 @@ specs/NNN-slug/       спецификации вертикальных срез
 | `pnpm build` | Сборка всех пакетов в порядке зависимостей |
 | `pnpm lint` | ESLint по всем пакетам |
 | `pnpm typecheck` | `tsc --noEmit` по всем пакетам |
+| `pnpm test` | Vitest по всем пакетам, где есть тесты |
 
-Тестовый раннер не выбран — решение принимается отдельно, вместе с первым срезом,
-которому нужны тесты. До этого `pnpm test` не существует.
+Тестовый раннер — **Vitest**. Тест лежит рядом с кодом, который проверяет:
+`number.ts` → `number.test.ts`. Отдельного каталога тестов нет.
 
 Точечно: `pnpm --filter @ravonroad/api <script>`, `pnpm --filter @ravonroad/web <script>`.
 
@@ -115,11 +117,11 @@ specs/NNN-slug/       спецификации вертикальных срез
 | Файлы React-компонентов | PascalCase | `RequestForm.tsx` |
 | Хуки, утилиты | camelCase | `useRequestList.ts` |
 | Файлы NestJS | kebab-case с суффиксом роли | `request.service.ts` |
-| Классы и типы | PascalCase | `RequestStatus` |
+| Классы и типы | PascalCase | `ReportStatus` |
 | Переменные и функции | camelCase | `repairedCount` |
-| Константы-литералы | UPPER_SNAKE_CASE | `REQUEST_STATUSES` |
+| Константы-литералы | UPPER_SNAKE_CASE | `REPORT_STATUSES` |
 | Таблицы и колонки БД | snake_case | `request`, `created_at` |
-| Пути API | kebab-case, множественное число | `/requests/:id/status` |
+| Пути API | kebab-case, множественное число | `/reports/:id/status` |
 | Ветки | `<тип>/NNN-slug` | `feat/001-request-form` |
 | Каталоги срезов | `NNN-slug` | `specs/001-request-form/` |
 
@@ -132,6 +134,6 @@ specs/NNN-slug/       спецификации вертикальных срез
   и импортируется обеими сторонами. Дублирование типов на стороне — ошибка ревью.
 - Ничего «на будущее»: ни абстракций под одну реализацию, ни заготовок папок,
   ни TODO-заглушек. Понадобится — тогда и напишем.
-- Проверка перед тем, как считать работу сделанной: `pnpm typecheck` и `pnpm lint`.
-  Не прошло — чинится, а не объясняется.
+- Проверка перед тем, как считать работу сделанной: `pnpm typecheck`, `pnpm lint`
+  и `pnpm test` — те же три команды, что гоняет CI. Не прошло — чинится, а не объясняется.
 - Документ противоречит коду — верь коду, потом почини документ в этом же изменении.

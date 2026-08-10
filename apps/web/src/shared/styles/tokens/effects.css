@@ -1,0 +1,50 @@
+/* RavonRoad — тени и обводки. Тень холодная, из asphalt-950. */
+:root {
+  --e-1: 0 1px 2px rgba(18, 22, 28, .08);              /* карточка */
+  --e-2: 0 2px 8px rgba(18, 22, 28, .12);              /* плавающее над картой */
+  --e-3: 0 -6px 28px rgba(18, 22, 28, .18);            /* нижний лист */
+  --e-pin: 0 2px 4px rgba(18, 22, 28, .35);
+  --e-pin-selected: 0 6px 14px rgba(18, 22, 28, .35);
+  --e-fab: 0 4px 14px rgba(18, 22, 28, .25);
+
+  /* В светлой теме глубину даёт тень, кромка не нужна. Объявлять её всё равно
+     обязательно: иначе в светлой теме var(--edge-highlight) развернётся в пустоту
+     и сломает свойство, в которое подставлен. Прозрачная, а не none — ширина
+     сохраняется, и элемент не прыгает при переключении темы. */
+  --edge-highlight: 1px solid transparent;
+
+  --pin-border: 2px solid var(--pin-stroke);
+  --pin-border-selected: 3px solid var(--pin-stroke);
+  --pin-border-internal: 2px dashed var(--pin-stroke);
+
+  /* Штриховка внутренних статусов: «этого нет на публичной карте» */
+  --hatch-internal: repeating-linear-gradient(115deg, rgba(180,186,199,.14) 0 6px, transparent 6px 12px);
+  /* Предупреждающая лента — только кромка страницы и разделитель разделов */
+  --hazard-tape: repeating-linear-gradient(115deg, var(--signal-500) 0 18px, var(--asphalt-950) 18px 36px);
+
+  --focus-outline: 3px solid var(--focus-ring);
+  --focus-outline-offset: 2px;
+  --focus-shadow: 0 0 0 6px var(--focus-halo);
+}
+
+/* Тёмная тема объявлена дважды: под системной настройкой и под явным переключателем.
+   Иначе она недостижима — [data-theme] никто не выставляет, и тёмные значения лежат
+   мёртвым грузом. `:not([data-theme="light"])` нужен, чтобы выбранная вручную светлая
+   тема пережила тёмную системную. Списки обязаны совпадать: за этим следит theme.test.ts. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --e-1: 0 1px 2px rgba(0, 0, 0, .4);
+    --e-2: 0 2px 8px rgba(0, 0, 0, .5);
+    --e-3: 0 -6px 28px rgba(0, 0, 0, .55);
+    /* На тёмной теме глубину даёт светлая кромка, а не тень */
+    --edge-highlight: 1px solid rgba(255, 255, 255, .07);
+  }
+}
+
+[data-theme="dark"] {
+  --e-1: 0 1px 2px rgba(0, 0, 0, .4);
+  --e-2: 0 2px 8px rgba(0, 0, 0, .5);
+  --e-3: 0 -6px 28px rgba(0, 0, 0, .55);
+  /* На тёмной теме глубину даёт светлая кромка, а не тень */
+  --edge-highlight: 1px solid rgba(255, 255, 255, .07);
+}

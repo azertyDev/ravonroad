@@ -1,0 +1,17 @@
+# Одноразовый контейнер миграций (SRS §12.2 п.2): накатывает и завершается.
+# Отдельный образ, потому что prisma CLI — devDependency и в рантайм api не попадает.
+FROM node:22-alpine
+
+RUN corepack enable
+WORKDIR /app
+
+COPY . .
+RUN pnpm install --frozen-lockfile --filter @ravonroad/api...
+
+WORKDIR /app/apps/api
+# Контейнер держит в окружении строку подключения к БД с паролем — работать под root
+# ему незачем. Как в Dockerfile.api.
+USER node
+# Прямо бинарь, а не `pnpm exec`: под другим пользователем corepack не видит свой кэш
+# из сборки и полез бы качать pnpm при каждом запуске миграций.
+CMD ["./node_modules/.bin/prisma", "migrate", "deploy"]

@@ -1,0 +1,42 @@
+# Прод — VPS AHOST, 2 ГБ (SRS §12.1). Свободные ~380 МБ — расчёт, а не запас:
+# четвёртый постоянный контейнер требует пересмотра SRS §12.
+
+services:
+  db:
+    mem_limit: 640m
+    environment:
+      # `:?` вместо `:-` из базового файла: не заданный пароль обязан ронять запуск,
+      # а не молча подставлять значение, которое лежит в публичном репозитории.
+      # Строка подключения api собирается из этой же переменной и остаётся согласованной.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in production}
+    command:
+      - postgres
+      - -c
+      - shared_buffers=192MB
+      - -c
+      - work_mem=4MB
+      - -c
+      - maintenance_work_mem=64MB
+      - -c
+      - effective_cache_size=768MB
+      - -c
+      - max_connections=20
+      - -c
+      - huge_pages=off
+
+  # Сборка образов на сервере запрещена (SRS §12.2 п.1): на 2 ГБ она упирается в память,
+  # образы приезжают готовыми из GHCR. `!reset` снимает build: из базового файла — без
+  # него `docker compose up --build` и `docker compose run migrate` на голой машине
+  # начали бы собирать прямо на проде.
+  api:
+    build: !reset null
+    mem_limit: 576m
+    environment:
+      NODE_OPTIONS: --max-old-space-size=384
+
+  edge:
+    build: !reset null
+    mem_limit: 96m
+
+  migrate:
+    build: !reset null

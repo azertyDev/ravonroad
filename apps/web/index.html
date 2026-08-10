@@ -1,9 +1,15 @@
 <!doctype html>
-<html lang="uz">
+<html lang="uz-Latn">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Обе темы поддержаны: браузер красит холст, скроллбары и поля формы под
+         системную настройку, не дожидаясь загрузки CSS. -->
+    <meta name="color-scheme" content="light dark" />
     <title>RavonRoad</title>
+    <!-- Шрифты локальные: сторонний CDN добавил бы DNS и TLS к первому экрану,
+         а на мобильном интернете это заметные секунды (PRD §8.1). -->
+    <link rel="stylesheet" href="/fonts/fonts.css" />
   </head>
   <body>
     <div id="root"></div>

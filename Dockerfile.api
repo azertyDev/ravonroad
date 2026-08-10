@@ -1,0 +1,30 @@
+# Образ api. Собирается в GitHub Actions и публикуется в GHCR: docker build на e2-micro
+# упирается в память и в 0,25 vCPU baseline (SRS §12.2 п.1).
+
+FROM node:22-alpine AS build
+RUN corepack enable
+WORKDIR /app
+COPY . .
+# postinstall внутри apps/api порождает Prisma Client из schema.prisma.
+RUN pnpm install --frozen-lockfile --filter @ravonroad/api...
+RUN pnpm --filter @ravonroad/shared-types build && pnpm --filter @ravonroad/api build
+
+FROM node:22-alpine AS runtime
+ENV NODE_ENV=production
+RUN corepack enable
+WORKDIR /app
+# Зависимости ставятся заново, только production: prisma CLI, nest CLI и typescript
+# весят больше самого приложения и в рантайме не нужны. --ignore-scripts потому,
+# что скрипты сборки живут в devDependencies, которых здесь уже нет.
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY packages/shared-types/package.json packages/shared-types/
+COPY apps/api/package.json apps/api/
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts --filter @ravonroad/api...
+COPY --from=build --chown=node:node /app/packages/shared-types/dist packages/shared-types/dist
+COPY --from=build --chown=node:node /app/apps/api/dist apps/api/dist
+
+USER node
+WORKDIR /app/apps/api
+EXPOSE 3000
+# Размер кучи задаётся в оверлее compose через NODE_OPTIONS: он разный на проде и dev.
+CMD ["node", "dist/main.js"]

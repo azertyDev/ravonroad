@@ -1,1 +1,58 @@
 @import "tailwindcss";
+@import "./shared/styles/tokens/index.css";
+
+@layer base {
+  body {
+    font: var(--t-body);
+    color: var(--text-1);
+    background: var(--surface-page);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Фокус виден на каждом шаге обхода с клавиатуры (PRD §8.2). */
+  :focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: var(--focus-outline-offset);
+  }
+}
+
+/* Шрифтовые шорткаты дизайн-системы. Раскладка — Tailwind, типографика — токены:
+   иначе кегли и межстрочные разъезжаются по компонентам. */
+.t-display { font: var(--t-display); }
+.t-h1 { font: var(--t-h1); }
+.t-body-l { font: var(--t-body-l); }
+.t-caption { font: var(--t-caption); }
+
+.t-label,
+.t-brand {
+  font: var(--t-label);
+  letter-spacing: var(--t-label-tracking);
+}
+
+/* Верхний регистр — свойство лейбла, а не всего, что набрано этим кеглем: имя
+   кампании записано в словарях как RavonRoad, и класс не вправе делать из него
+   RAVONROAD. Отсюда отдельный .t-brand с той же метрикой. */
+.t-label {
+  text-transform: uppercase;
+}
+
+.t-counter {
+  font: var(--t-counter);
+  letter-spacing: var(--t-counter-tracking);
+  font-variant-numeric: var(--numeric);
+}
+
+/* Анимаций пока нет, но карта из 003 приносит и движение пинов, и нижний лист.
+   Правило стоит здесь, а не в каждом будущем компоненте: настройку системы человек
+   выставил заранее и не обязан ждать, пока мы вспомним про неё в очередном срезе
+   (WCAG 2.3.3). Не ноль, а 0.01 ms — иначе не сработает onTransitionEnd. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

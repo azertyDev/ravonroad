@@ -1,0 +1,93 @@
+# Одна и та же composition поднимается на проде и на dev; различаются только лимиты
+# памяти и настройки Postgres, они лежат в оверлеях (SRS §12).
+#
+#   локально   docker compose up
+#   прод       docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#   dev        docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#
+# Миграции — отдельный одноразовый запуск: docker compose run --rm migrate
+
+name: ravonroad
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: '3'
+
+services:
+  db:
+    image: postgis/postgis:17-3.5
+    # Образ публикуется только под amd64; на arm64-машине разработчика он идёт
+    # через эмуляцию, оба сервера кампании — amd64.
+    platform: linux/amd64
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ravonroad}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ravonroad}
+      POSTGRES_DB: ${POSTGRES_DB:-ravonroad}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-ravonroad} -d ${POSTGRES_DB:-ravonroad}']
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+    logging: *logging
+
+  api:
+    image: ${API_IMAGE:-ravonroad-api:local}
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      API_PORT: 3000
+      # Внутри composition база доступна по имени сервиса; DATABASE_URL из .env
+      # описывает доступ с хоста и здесь не годится.
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ravonroad}:${POSTGRES_PASSWORD:-ravonroad}@db:5432/${POSTGRES_DB:-ravonroad}?schema=public
+      WEB_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '-', 'http://127.0.0.1:3000/health']
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 10s
+    restart: unless-stopped
+    logging: *logging
+
+  edge:
+    image: ${EDGE_IMAGE:-ravonroad-edge:local}
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - '80:80'
+    depends_on:
+      api:
+        condition: service_started
+    restart: unless-stopped
+    logging: *logging
+
+  # Одноразовый: поднимается через docker compose run, накатывает миграции и выходит.
+  # Профиль держит его вне docker compose up — постоянного контейнера под миграции нет
+  # (SRS §12.2 п.2).
+  migrate:
+    image: ${MIGRATE_IMAGE:-ravonroad-migrate:local}
+    build:
+      context: .
+      dockerfile: Dockerfile.migrate
+    profiles: ['tools']
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ravonroad}:${POSTGRES_PASSWORD:-ravonroad}@db:5432/${POSTGRES_DB:-ravonroad}?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: 'no'
+    logging: *logging
+
+volumes:
+  db-data:

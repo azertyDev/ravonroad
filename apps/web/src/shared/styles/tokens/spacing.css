@@ -1,0 +1,39 @@
+/* RavonRoad — отступы, радиусы, зона нажатия. Шаг 4. */
+:root {
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+
+  --gutter: var(--s-4);        /* поле экрана */
+  --field-gap: var(--s-5);     /* между полями формы */
+  --block-gap: var(--s-8);     /* между блоками */
+
+  --r-1: 4px;
+  --r-2: 8px;
+  --r-3: 12px;
+  --r-4: 16px;
+  --r-5: 20px;
+  --r-pill: 999px;
+
+  --touch-min: 44px;   /* WCAG 2.2 §2.5.8 */
+  --touch-base: 48px;  /* рабочий стандарт */
+  --touch-cta: 52px;   /* основная кнопка */
+  --touch-gap: 8px;    /* минимальный зазор между целями */
+
+  --pin-size: 30px;
+  --pin-size-selected: 44px;
+  --pin-hit: 44px;
+  --cluster-size: 34px;
+
+  --sheet-peek: 96px;
+  --sheet-half: 50%;
+  --sheet-full: 92%;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}

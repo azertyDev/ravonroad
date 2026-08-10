@@ -1,0 +1,12 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Ни одной модели: в этом срезе БД нужна только для SELECT 1 из /ready (SRS §10.1).
+// Таблицы приходят в 002 (заявка, фото, районы) и 004 (Telegram).

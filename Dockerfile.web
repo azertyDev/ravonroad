@@ -1,0 +1,15 @@
+# Образ edge: nginx со статикой web внутри. Отдельного контейнера под статику нет —
+# её отдаёт тот же nginx, который проксирует /api (SRS §1.1).
+
+FROM node:22-alpine AS build
+RUN corepack enable
+WORKDIR /app
+COPY . .
+RUN pnpm install --frozen-lockfile --filter @ravonroad/web...
+RUN pnpm --filter @ravonroad/shared-types build && pnpm --filter @ravonroad/web build
+
+FROM nginx:1.29-alpine AS runtime
+COPY docker/edge/nginx.conf /etc/nginx/nginx.conf
+COPY docker/edge/security-headers.conf /etc/nginx/conf.d/security-headers.conf
+COPY --from=build /app/apps/web/dist /usr/share/nginx/html
+EXPOSE 80
