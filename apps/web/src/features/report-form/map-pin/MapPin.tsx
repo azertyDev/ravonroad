@@ -1,6 +1,7 @@
 import { Map as MapLibreMap, Marker, type LngLat } from 'maplibre-gl'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { basemapStyle, MAX_ZOOM, MIN_ZOOM } from '../../../shared/map/basemap'
+import { LoadingState } from '../../../shared/ui/state/LoadingState'
 import { roundCoordinate, TASHKENT_CENTER, type Point } from './coordinates'
 
 const ZOOM = 16
@@ -16,6 +17,7 @@ interface MapPinProps {
 export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
   const container = useRef<HTMLDivElement>(null)
   const marker = useRef<Marker | null>(null)
+  const [drawn, setDrawn] = useState(false)
   const latest = useRef(onChange)
   latest.current = onChange
 
@@ -45,6 +47,9 @@ export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
         attributionControl: { compact: true },
       })
     map.touchZoomRotate.disableRotation()
+    // Первый тайл приходит через несколько секунд: PMTiles читает заголовок, каталог
+    // и лист последовательно. До этого показывается загрузка, а не пустой прямоугольник.
+    map.once('idle', () => setDrawn(true))
 
     // Свой элемент, а не встроенный маркер MapLibre: тот рисует свою синюю каплю и
     // принимает цвет строкой в SVG-атрибут `fill`, где `var()` не резолвится. Форму
@@ -86,9 +91,13 @@ export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
   }, [value])
 
   return (
-    <div
-      ref={container}
-      className="h-[240px] w-full overflow-hidden rounded-[var(--r-3)] border border-[var(--border-1)]"
-    />
+    <div className="relative h-[240px] w-full overflow-hidden rounded-[var(--r-3)] border border-[var(--border-1)]">
+      <div ref={container} className="h-full w-full" />
+      {!drawn && (
+        <div className="pointer-events-none absolute inset-0 grid place-items-center bg-[var(--surface-sunken)]">
+          <LoadingState />
+        </div>
+      )}
+    </div>
   )
 }

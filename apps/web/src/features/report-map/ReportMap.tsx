@@ -6,6 +6,7 @@ import { formatNumber } from '../../shared/format/number'
 import { useI18n } from '../../shared/i18n/useI18n'
 import { basemapStyle, MAX_ZOOM, MIN_ZOOM } from '../../shared/map/basemap'
 import { TASHKENT_BOUNDS, type Bounds } from '../../shared/map/tashkent'
+import { LoadingState } from '../../shared/ui/state/LoadingState'
 import { StatusMark } from '../../shared/ui/status/StatusMark'
 import { isMapStatus, MARKER_LOOK, type MapStatus } from './markers'
 
@@ -132,6 +133,7 @@ export default function ReportMap({
   const map = useRef<MapLibreMap | null>(null)
   const held = useRef(new Map<string, HeldMarker>())
   const [entries, setEntries] = useState<MarkerEntry[]>([])
+  const [drawn, setDrawn] = useState(false)
 
   // Карта создаётся один раз, а колбэки и данные меняются на каждый рендер: эффект
   // читает их через ref, иначе пересоздание карты означало бы заново скачанные тайлы
@@ -210,6 +212,10 @@ export default function ReportMap({
       setEntries(next)
     }
 
+    // `load` наступает, когда разобран стиль, а не когда видна карта: PMTiles ходит
+    // за тайлом четырьмя последовательными range-запросами, и первая картинка приходит
+    // секунд через десять. `idle` — первый момент, когда рисовать уже нечего.
+    instance.once('idle', () => setDrawn(true))
     instance.on('load', () => {
       instance.addSource(SOURCE, {
         type: 'geojson',
@@ -293,6 +299,12 @@ export default function ReportMap({
   return (
     <>
       <div ref={container} className="h-full w-full" />
+      {/* Пустой серый прямоугольник житель читает как поломку, а не как загрузку. */}
+      {!drawn && (
+        <div className="pointer-events-none absolute inset-0 grid place-items-center bg-[var(--surface-sunken)]">
+          <LoadingState />
+        </div>
+      )}
       {entries.map((entry) =>
         createPortal(
           entry.kind === 'cluster' ? (
