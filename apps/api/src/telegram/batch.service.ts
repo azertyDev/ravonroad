@@ -171,6 +171,10 @@ export class BatchService {
          WHERE id = ANY(${targets}) AND status = 'NEW'
         RETURNING id, public_number`
 
+      // Один и тот же момент проставляется строкам истории и пакету: отмена находит
+      // «свои» строки по равенству `created_at = applied_at`, и это равенство держится
+      // тем, что значение одно, а не тем, что две функции времени сойдутся.
+      const appliedAt = new Date()
       for (const row of applied) {
         await tx.reportStatusHistory.create({
           data: {
@@ -182,16 +186,14 @@ export class BatchService {
             moderatorId: input.moderator.id,
             reason: input.reason ?? null,
             duplicateOfId: root,
+            createdAt: appliedAt,
           },
         })
       }
-      // `now()`, а не время процесса: строки истории выше получили `created_at`
-      // по умолчанию, то есть время транзакции, и отмена пакета ищет их по равенству
-      // с `applied_at`. Значение из JS отличалось бы на миллисекунды и не нашло бы ничего.
-      await tx.$executeRaw`
-        UPDATE moderation_batch
-           SET applied_at = now(), applied_by_moderator_id = ${input.moderator.id}
-         WHERE id = ${input.batchId}`
+      await tx.moderationBatch.update({
+        where: { id: input.batchId },
+        data: { appliedAt, appliedByModeratorId: input.moderator.id },
+      })
       await this.cards.enqueueEditMany(
         tx,
         applied.map((row) => row.id),

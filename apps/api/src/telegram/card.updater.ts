@@ -25,9 +25,14 @@ export class CardUpdater {
    *  отмены) при этом переживает схлопывание — у неё срок позже. */
   async enqueueEdit(tx: Prisma.TransactionClient, reportId: number, delayMs = 0): Promise<void> {
     const dueAt = new Date(Date.now() + delayMs)
-    await tx.telegramOutbox.deleteMany({
-      where: { reportId, kind: 'CARD_EDIT', sentAt: null, nextAttemptAt: { lte: dueAt } },
-    })
+    // Схлопывает только немедленная правка и только немедленные: смысл имеет последнее
+    // состояние, но отложенная — снятие кнопки отмены — не заменяет собой ту, что должна
+    // уйти сейчас. Она ставится сразу после неё и стёрла бы её условием «всё, что раньше».
+    if (delayMs === 0) {
+      await tx.telegramOutbox.deleteMany({
+        where: { reportId, kind: 'CARD_EDIT', sentAt: null, nextAttemptAt: { lte: dueAt } },
+      })
+    }
     await tx.telegramOutbox.create({
       data: { reportId, kind: 'CARD_EDIT', payload: {}, nextAttemptAt: dueAt },
     })

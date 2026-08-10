@@ -10,6 +10,9 @@ const complete = {
   S3_ACCESS_KEY_ID: 'key',
   S3_SECRET_ACCESS_KEY: 'secret',
   S3_PUBLIC_BASE_URL: 'https://storage.googleapis.com/ravonroad-dev-photos',
+  TELEGRAM_BOT_TOKEN: '1234:token',
+  TELEGRAM_GROUP_CHAT_ID: '-1001234567890',
+  TELEGRAM_WEBHOOK_SECRET: 'secret',
 }
 
 function without(name: keyof typeof complete): Record<string, string> {
@@ -30,6 +33,22 @@ describe('validateEnv', () => {
   it('требует хранилище фотографий: без него заявка не принимается вовсе', () => {
     // Узнать об этом на старте процесса дешевле, чем на первой фотографии от жителя.
     expect(() => validateEnv(without('S3_BUCKET'))).toThrow(/S3_BUCKET is required/)
+  })
+
+  it('требует доступ к Telegram: без него модерация встаёт молча', () => {
+    // Карточки копились бы в очереди, и отказ заметили бы через часы, а не на старте.
+    expect(() => validateEnv(without('TELEGRAM_BOT_TOKEN'))).toThrow(/TELEGRAM_BOT_TOKEN is required/)
+    expect(() => validateEnv(without('TELEGRAM_WEBHOOK_SECRET'))).toThrow(/TELEGRAM_WEBHOOK_SECRET is required/)
+  })
+
+  it('оставляет необязательными путь webhook, адрес Bot API и засев модераторов', () => {
+    const env = validateEnv(complete)
+    expect(env.TELEGRAM_WEBHOOK_PATH).toBeUndefined()
+    expect(env.TELEGRAM_API_BASE_URL).toBeUndefined()
+    // Пустая строка — это «не задано»: в .env она чаще остаётся от примера, чем
+    // выставляется намеренно.
+    expect(validateEnv({ ...complete, TELEGRAM_MODERATOR_IDS: '  ' }).TELEGRAM_MODERATOR_IDS).toBeUndefined()
+    expect(validateEnv({ ...complete, TELEGRAM_MODERATOR_IDS: '1,2' }).TELEGRAM_MODERATOR_IDS).toBe('1,2')
   })
 
   it('не принимает пустую строку за заданное значение', () => {
