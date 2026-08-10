@@ -1,4 +1,5 @@
 export * from './errors'
+export * from './health'
 
 /** Жизненный цикл заявки на ремонт ямы. Сущность называется Report: Request в NestJS
     занят HTTP-запросом (преамбула docs/srs.md). */
