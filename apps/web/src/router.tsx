@@ -1,5 +1,6 @@
 import { createRootRoute, createRoute, createRouter, Navigate, Outlet, redirect } from '@tanstack/react-router'
 import { HomePage } from './routes/$locale/index'
+import { NewReportPage } from './routes/$locale/new'
 import { LocaleLayout } from './routes/$locale/route'
 import { DEFAULT_LOCALE, detectLocale, isLocale } from './shared/i18n/locale'
 
@@ -38,7 +39,16 @@ const homeRoute = createRoute({
   component: HomePage,
 })
 
-const routeTree = rootRoute.addChildren([rootRedirectRoute, localeRoute.addChildren([homeRoute])])
+const newReportRoute = createRoute({
+  getParentRoute: () => localeRoute,
+  path: 'new',
+  component: NewReportPage,
+})
+
+const routeTree = rootRoute.addChildren([
+  rootRedirectRoute,
+  localeRoute.addChildren([homeRoute, newReportRoute]),
+])
 
 export const router = createRouter({
   routeTree,
