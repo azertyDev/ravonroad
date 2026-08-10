@@ -11,7 +11,7 @@ export function AppHeader() {
         <Link
           to="/$locale"
           params={{ locale }}
-          className="t-label inline-flex min-h-[var(--touch-min)] items-center rounded-[var(--r-2)]"
+          className="t-brand inline-flex min-h-[var(--touch-min)] items-center rounded-[var(--r-2)]"
         >
           {t('app.name')}
         </Link>

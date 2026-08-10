@@ -23,9 +23,16 @@
 .t-body-l { font: var(--t-body-l); }
 .t-caption { font: var(--t-caption); }
 
-.t-label {
+.t-label,
+.t-brand {
   font: var(--t-label);
   letter-spacing: var(--t-label-tracking);
+}
+
+/* Верхний регистр — свойство лейбла, а не всего, что набрано этим кеглем: имя
+   кампании записано в словарях как RavonRoad, и класс не вправе делать из него
+   RAVONROAD. Отсюда отдельный .t-brand с той же метрикой. */
+.t-label {
   text-transform: uppercase;
 }
 
