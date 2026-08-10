@@ -6,6 +6,7 @@ import { createReport, recordFormOpen } from '../../entities/report/api'
 import { ApiRequestError } from '../../shared/api/client'
 import { useI18n } from '../../shared/i18n/useI18n'
 import type { UiKey } from '../../shared/i18n/messages'
+import { randomUuid } from '../../shared/lib/uuid'
 import { clearDraft, loadDraft, saveDraft } from './draft'
 import { PointPicker } from './map-pin/PointPicker'
 import type { Point } from './map-pin/coordinates'
@@ -42,7 +43,7 @@ export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResp
   /** Момент открытия формы и ключ идемпотентности заводятся один раз на заполнение:
    *  ключ обязан пережить и неудачную отправку, и нажатие «повторить» (US-016). */
   const openedAt = useRef<string>(new Date().toISOString())
-  const idempotencyKey = useRef<string>(crypto.randomUUID())
+  const idempotencyKey = useRef<string>(randomUuid())
 
   const anchors = useRef<Partial<Record<FieldName, HTMLElement | null>>>({})
   /** Пока черновик не прочитан, писать нечего: иначе пустая форма затрёт сохранённую. */
@@ -167,7 +168,7 @@ export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResp
               setContactPhone('')
               setContactTelegram('')
               // Новый ключ: очищенная форма — это другая заявка, а не та же самая.
-              idempotencyKey.current = crypto.randomUUID()
+              idempotencyKey.current = randomUuid()
               setRestored(false)
             }}
             className="t-label min-h-[var(--touch-base)] rounded-[var(--r-2)] border border-[var(--border-2)] px-[var(--s-4)]"
