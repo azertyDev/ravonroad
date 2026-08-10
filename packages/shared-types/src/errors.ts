@@ -8,6 +8,12 @@ export const ERROR_CODES = ['VALIDATION_FAILED', 'NOT_FOUND', 'INTERNAL_ERROR'] 
 
 export type ErrorCode = (typeof ERROR_CODES)[number]
 
+/** Код приходит по сети и может оказаться из более новой версии сервера,
+ *  чем собранный клиент, — поэтому проверяется, а не приводится типом. */
+export function isErrorCode(value: string): value is ErrorCode {
+  return (ERROR_CODES as readonly string[]).includes(value)
+}
+
 /** Пара «поле → код» для подсветки конкретного поля формы (SRS §8.1).
  *  `code` пока `string`: словарь кодов уровня поля появляется вместе с формой в срезе 002. */
 export interface FieldError {
