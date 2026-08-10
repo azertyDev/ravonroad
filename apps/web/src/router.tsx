@@ -1,6 +1,7 @@
 import { createRootRoute, createRoute, createRouter, Navigate, Outlet, redirect } from '@tanstack/react-router'
 import { HomePage } from './routes/$locale/index'
 import { NewReportPage } from './routes/$locale/new'
+import { ReportDetailPage } from './routes/$locale/reports/$number'
 import { LocaleLayout } from './routes/$locale/route'
 import { DEFAULT_LOCALE, detectLocale, isLocale } from './shared/i18n/locale'
 
@@ -45,9 +46,17 @@ const newReportRoute = createRoute({
   component: NewReportPage,
 })
 
+/** Карточка заявки по публичному номеру (US-004). Номер публичен по замыслу и доступа
+ *  ни к чему не даёт: заявки и так публичны, перебор даёт то же, что и карта (SRS §9.2). */
+const reportDetailRoute = createRoute({
+  getParentRoute: () => localeRoute,
+  path: 'reports/$number',
+  component: ReportDetailPage,
+})
+
 const routeTree = rootRoute.addChildren([
   rootRedirectRoute,
-  localeRoute.addChildren([homeRoute, newReportRoute]),
+  localeRoute.addChildren([homeRoute, newReportRoute, reportDetailRoute]),
 ])
 
 export const router = createRouter({
