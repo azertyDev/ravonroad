@@ -9,6 +9,10 @@ CREATE TABLE bot_prompt (
     message_id  INTEGER         NOT NULL,
     report_id   INTEGER         NOT NULL,
     kind        bot_prompt_kind NOT NULL,
+    -- Куда ведёт переход, ради которого спрошен текст. У DUPLICATE_NUMBER цель одна
+    -- и известна, у REASON_TEXT их две — «отклонить» и «не по силам», — и различить их
+    -- в момент ответа больше нечем: ответ приходит обычным сообщением, без callback_data.
+    target_status report_status,
     -- Отвечать может только тот, кто начал переход. Проверка серверная (SRS §6.5).
     moderator_id INTEGER        NOT NULL,
     expires_at  TIMESTAMPTZ(3)  NOT NULL,

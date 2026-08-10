@@ -367,6 +367,9 @@ model BotPrompt {
   report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
 
   kind BotPromptKind
+  /** Куда ведёт переход, ради которого спрошен текст: у `REASON_TEXT` целей две,
+   *  а ответ приходит обычным сообщением, без `callback_data`. */
+  targetStatus ReportStatus? @map("target_status")
 
   moderatorId Int       @map("moderator_id")
   moderator   Moderator @relation(fields: [moderatorId], references: [id], onDelete: Restrict)
