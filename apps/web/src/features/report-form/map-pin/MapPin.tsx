@@ -1,5 +1,16 @@
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { addProtocol, Map as MapLibreMap, Marker, type LngLat, type MapOptions } from 'maplibre-gl'
+import {
+  addProtocol,
+  importScriptInWorkers,
+  Map as MapLibreMap,
+  Marker,
+  prewarm,
+  setWorkerUrl,
+  type LngLat,
+  type MapOptions,
+} from 'maplibre-gl'
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
+import pmtilesProtocolUrl from './pmtilesProtocol?worker&url'
 import { Protocol } from 'pmtiles'
 import { useEffect, useRef } from 'react'
 import { roundCoordinate, TASHKENT_CENTER, type Point } from './coordinates'
@@ -19,9 +30,9 @@ const OUTSIDE = '#E6E8EE' // asphalt-100 — за границей города 
 const EARTH = '#F8F9FB' // surface-sunken — город светлее окраины, и край данных виден сам
 const GREEN = '#E7EDE7'
 const WATER = '#CCDCE8'
-const BUILDING = '#EDEEF1' // basemap-light
-const ROAD = '#D2D6DF' // asphalt-200
-const BOUNDARY = '#B4BAC7' // asphalt-300
+const BUILDING = '#E6E8EE' // asphalt-100
+const ROAD = '#B4BAC7' // asphalt-300 — на ступень темнее кварталов, иначе сетка улиц
+const BOUNDARY = '#8F97A8' // asphalt-400  не читается на 240 пикселях высоты
 
 /** Зелень OSM приходит десятком видов; красить каждый по-своему значит спорить с пином. */
 const GREEN_KINDS = [
@@ -46,6 +57,26 @@ const WATERWAY_KINDS = ['river', 'canal', 'stream', 'ditch']
  *  Ни ключей, ни лимитов, ни чужого API на пути жителя к форме. Протокол регистрируется
  *  один раз на страницу, а модуль грузится лениво: на маршрутах без карты не выполняется. */
 addProtocol('pmtiles', new Protocol().tile)
+
+/** Свой воркер MapLibre ищет сам, собирая путь из `import.meta.url` и переменной, —
+ *  статически такой адрес не разрешает ни один сборщик, и в собранном виде запрос уходит
+ *  на /assets/maplibre-gl-worker.mjs, которого там нет. В dev-сервере это незаметно:
+ *  Vite отдаёт файл прямо из node_modules по тому же относительному пути. Поэтому адрес
+ *  задаётся явно: `?worker&url` заставляет Vite собрать воркер вместе с его собственными
+ *  импортами и вернуть адрес готового файла. Без этого карта молча остаётся пустой —
+ *  тайлы разбирает воркер, и не стартовав, он их не запрашивает. */
+setWorkerUrl(workerUrl)
+
+/** Тайлы читает воркер, и протокол, объявленный выше в главном потоке, до него не
+ *  доходит: оттуда уходит только запрос TileJSON, а дальше карта молча остаётся пустой,
+ *  без единой ошибки. MapLibre v6 требует зарегистрировать протокол ещё и в воркере.
+ *  `prewarm` здесь обязателен, а не оптимизация: до первой карты пула воркеров нет,
+ *  и сообщение некому доставить.
+ *  Промис не ждут — он и не разрешается; так же он вызывается и в примере самого
+ *  MapLibre. Гонки нет: сообщение уходит воркеру раньше, чем карта успевает запросить
+ *  первый тайл, — до этого ей нужно загрузить стиль и TileJSON. */
+prewarm()
+void importScriptInWorkers(pmtilesProtocolUrl)
 
 interface MapPinProps {
   archiveUrl: string
@@ -170,19 +201,6 @@ export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
     if (root === null) return
 
     const start = value ?? TASHKENT_CENTER
-    const map = new MapLibreMap({
-      container: root,
-      style: basemapStyle(archiveUrl),
-      center: [start.longitude, start.latitude],
-      zoom: ZOOM,
-      minZoom: MIN_ZOOM,
-      maxZoom: MAX_ZOOM,
-      // Поворот выключен: выбору точки он ничего не даёт, а вернуть карту на север
-      // без компаса житель уже не сможет.
-      dragRotate: false,
-      attributionControl: { compact: true },
-    })
-    map.touchZoomRotate.disableRotation()
 
     const report = (lngLat: LngLat): void => {
       latest.current({
@@ -191,13 +209,27 @@ export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
       })
     }
 
+    const map = new MapLibreMap({
+      container: root,
+        style: basemapStyle(archiveUrl),
+        center: [start.longitude, start.latitude],
+        zoom: ZOOM,
+        minZoom: MIN_ZOOM,
+        maxZoom: MAX_ZOOM,
+        // Поворот выключен: выбору точки он ничего не даёт, а вернуть карту на север
+        // без компаса житель уже не сможет.
+        dragRotate: false,
+        attributionControl: { compact: true },
+      })
+    map.touchZoomRotate.disableRotation()
+
     // Свой элемент, а не встроенный маркер MapLibre: тот рисует свою синюю каплю и
     // принимает цвет строкой в SVG-атрибут `fill`, где `var()` не резолвится. Форму
     // терять нельзя — при дейтеранопии статусы различаются ею, а не цветом
     // (colors.css). Переменные в inline-стилях читаются живыми, и смена темы
     // доезжает до пина сама.
     const pin = document.createElement('div')
-    // Позицию задаёт Marker: он пишет собственный transform, и свой здесь был бы стёрт.
+    // Позицию задаёт Marker: он пишет свой transform, и наш здесь был бы стёрт.
     pin.style.width = 'var(--pin-size-selected)'
     pin.style.height = 'var(--pin-size-selected)'
     pin.style.background = 'var(--status-new-pin)'
