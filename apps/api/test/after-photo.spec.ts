@@ -28,8 +28,21 @@ const CARD_MESSAGE_ID = 78
 const VOLUNTEER_TG_ID = 900_000_001
 const MODERATOR_TG_ID = 900_000_002
 
-/** Буфер альбома — 2 секунды (SRS §6.8 п.5). */
-const ALBUM_WAIT_MS = 2400
+/** Буфер альбома — 2 секунды (SRS §6.8 п.5). Ждём результат, а не срок: фиксированный
+ *  сон под нагрузкой начинает промахиваться мимо таймера и роняет тест не там, где сломан
+ *  код. Потолок вдвое больше окна — если за него не уложились, сломан именно код. */
+async function waitForAfterPhotos(reportId: number, expected: number): Promise<number> {
+  const deadline = Date.now() + 2 * ALBUM_WINDOW_MS
+  let count = 0
+  while (Date.now() < deadline) {
+    count = await prisma.reportPhoto.count({ where: { reportId, kind: 'AFTER' } })
+    if (count >= expected) return count
+    await new Promise((resolve) => setTimeout(resolve, 50))
+  }
+  return count
+}
+
+const ALBUM_WINDOW_MS = 2000
 
 beforeAll(async () => {
   telegram = await startFakeTelegram()
@@ -115,9 +128,7 @@ describe('Фото «после» закрывают заявку (US-028, BR-00
       sendPhoto({ replyTo: ALBUM_MESSAGE_ID, mediaGroupId: 'album-1' }),
       sendPhoto({ replyTo: ALBUM_MESSAGE_ID, mediaGroupId: 'album-1' }),
     ])
-    await new Promise((resolve) => setTimeout(resolve, ALBUM_WAIT_MS))
-
-    expect(await prisma.reportPhoto.count({ where: { reportId: report.id, kind: 'AFTER' } })).toBe(3)
+    expect(await waitForAfterPhotos(report.id, 3)).toBe(3)
     // Один переход, а не три: иначе два из них получили бы «статус уже изменён».
     expect(await prisma.reportStatusHistory.count({ where: { reportId: report.id, toStatus: 'DONE' } })).toBe(1)
   })

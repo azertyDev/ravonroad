@@ -53,6 +53,9 @@ beforeEach(async () => {
   await truncateData(prisma)
   await resetTelegramTables(prisma)
   telegram.reset()
+  // Бюджет отправки живёт в памяти воркера и за один прогон файла не истекает:
+  // без свежего экземпляра двадцать первое сообщение файла уже никуда не уходит.
+  worker = buildOutboxWorker(prisma)
   firstModeratorId = await seedModerator(prisma, FIRST_TG_ID, 'Первый')
   secondModeratorId = await seedModerator(prisma, SECOND_TG_ID, 'Второй')
 })
@@ -62,6 +65,19 @@ afterAll(async () => {
   await telegram.close()
   await prisma.$disconnect()
 })
+
+/** Есть ли в базе транзакция, ждущая чужую блокировку строки. Отдельное соединение,
+ *  потому что оба участника гонки заняты. */
+async function waitForBlockedUpdate(): Promise<void> {
+  const deadline = Date.now() + 5000
+  while (Date.now() < deadline) {
+    const rows = await prisma.$queryRaw<{ blocked: bigint }[]>`
+      SELECT count(*) AS blocked FROM pg_locks WHERE NOT granted`
+    if (Number(rows[0]?.blocked ?? 0) > 0) return
+    await new Promise((resolve) => setTimeout(resolve, 25))
+  }
+  throw new Error('вторая транзакция так и не упёрлась в блокировку строки')
+}
 
 async function press(data: string, fromId = FIRST_TG_ID): Promise<Response> {
   return postUpdate(app.baseUrl, callbackUpdate({ data, fromId, messageId: CARD_MESSAGE_ID }))
@@ -160,26 +176,37 @@ describe('Гонка двух модераторов (US-026, PRD 5.3.6)', () =>
     // читает `NEW` до того, как первая зафиксирована, и её `UPDATE` дожидается снятия
     // блокировки, чтобы обнаружить, что ожидаемого статуса больше нет (SRS §6.6).
     let release = (): void => undefined
+    let updated = (): void => undefined
     const gate = new Promise<void>((resolve) => {
       release = resolve
+    })
+    // Ждём факт, а не время: под нагрузкой сон в сто миллисекунд перестаёт быть
+    // гарантией порядка, и тест начинает падать не там, где сломан код.
+    const firstUpdated = new Promise<void>((resolve) => {
+      updated = resolve
     })
 
     const first = prisma.$transaction(async (tx) => {
       const result = await applyTransition(tx, { publicNumber: report.publicNumber, to: 'ACCEPTED', actor })
+      updated()
       await gate
       return result
     })
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await firstUpdated
     const second = prisma.$transaction((tx) =>
       applyTransition(tx, { publicNumber: report.publicNumber, to: 'REJECTED', reason: 'spam', actor }),
     )
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    // Ждём, пока вторая упрётся в блокировку строки, и только тогда отпускаем первую.
+    // Это тот самый момент, ради которого тест написан: вторая прочитала `NEW`, а её
+    // `UPDATE` увидит уже `ACCEPTED`. Спрашиваем Postgres, а не часы.
+    await waitForBlockedUpdate()
     release()
 
     const [firstOutcome, secondOutcome] = await Promise.all([first, second])
     expect(firstOutcome.ok).toBe(true)
     expect(secondOutcome).toEqual({ ok: false, code: 'CHANGED', status: 'ACCEPTED' })
     expect((await prisma.report.findUniqueOrThrow({ where: { id: report.id } })).status).toBe('ACCEPTED')
+    expect(await prisma.reportStatusHistory.count({ where: { reportId: report.id, fromStatus: 'NEW' } })).toBe(1)
   })
 })
 
