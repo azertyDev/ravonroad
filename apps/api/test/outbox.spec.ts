@@ -203,6 +203,34 @@ describe('Digest при очереди больше тридцати (AC-9, SRS 
   })
 })
 
+describe('Приоритет очереди при формировании пакета (SRS §6.14)', () => {
+  it('крупные кластеры идут первыми, заявки с флагом — последними', async () => {
+    // Тридцать одна заявка включает digest; в пакет попадают первые десять по приоритету.
+    const plain = await seedQueue(29)
+    const flagged = await seedReport(prisma, {})
+    await prisma.abuseSignal.create({ data: { reportId: flagged.id, rule: 'HONEYPOT' } })
+    await queueCard(flagged)
+
+    const root = await seedReport(prisma, {})
+    await queueCard(root)
+    for (let index = 0; index < 2; index += 1) {
+      const member = await seedReport(prisma, { duplicateCandidateOfId: root.id })
+      await queueCard(member)
+    }
+
+    await worker.tick()
+    const batch = await prisma.moderationBatch.findFirstOrThrow()
+
+    // Кластер из трёх закрывается одним нажатием и убирает из очереди три позиции —
+    // это самая выгодная работа, поэтому его корень первый.
+    expect(batch.reportIds[0]).toBe(root.id)
+    // Флаг антиабуза требует внимания и не должен занимать модератора, пока есть
+    // очевидная работа: он в конце очереди из тридцати с лишним, то есть не в пакете.
+    expect(batch.reportIds).not.toContain(flagged.id)
+    expect(batch.reportIds).toContain(plain[0]?.id)
+  })
+})
+
 describe('Пакетные действия (AC-10, SRS §6.14)', () => {
   async function digestBatch(): Promise<{ id: number; reportIds: number[] }> {
     await seedQueue(31)
