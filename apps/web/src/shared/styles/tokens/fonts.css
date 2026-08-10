@@ -13,7 +13,10 @@
 
    ВАЖНО: в IBM Plex Mono НЕТ U+2009 (тонкий пробел). Разделитель разрядов в числах —
    U+00A0, см. shared/format/number.ts. */
-@import url("/fonts/fonts.css");
+/* @font-face объявлены в public/fonts/fonts.css и подключены <link> из index.html.
+   Через @import отсюда они не работают: правило оказывается после слоёв Tailwind,
+   а @import обязан стоять в начале файла — сборщик молча его выбрасывал, и страница
+   рисовалась системным шрифтом. */
 
 :root {
   --font-sans: 'Noto Sans', system-ui, sans-serif;

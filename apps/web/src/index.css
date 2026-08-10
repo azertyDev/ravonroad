@@ -1,1 +1,36 @@
 @import "tailwindcss";
+@import "./shared/styles/tokens/index.css";
+
+@layer base {
+  body {
+    font: var(--t-body);
+    color: var(--text-1);
+    background: var(--surface-page);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Фокус виден на каждом шаге обхода с клавиатуры (PRD §8.2). */
+  :focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: var(--focus-outline-offset);
+  }
+}
+
+/* Шрифтовые шорткаты дизайн-системы. Раскладка — Tailwind, типографика — токены:
+   иначе кегли и межстрочные разъезжаются по компонентам. */
+.t-display { font: var(--t-display); }
+.t-h1 { font: var(--t-h1); }
+.t-body-l { font: var(--t-body-l); }
+.t-caption { font: var(--t-caption); }
+
+.t-label {
+  font: var(--t-label);
+  letter-spacing: var(--t-label-tracking);
+  text-transform: uppercase;
+}
+
+.t-counter {
+  font: var(--t-counter);
+  letter-spacing: var(--t-counter-tracking);
+  font-variant-numeric: var(--numeric);
+}
