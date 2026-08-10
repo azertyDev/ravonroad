@@ -52,6 +52,7 @@ describe('ApiErrorBody', () => {
       'UNSUPPORTED_MEDIA_TYPE',
       'RATE_LIMITED',
       'STORAGE_UNAVAILABLE',
+      'INVALID_CURSOR',
     ])
     expect(new Set(ERROR_CODES).size).toBe(ERROR_CODES.length)
   })
