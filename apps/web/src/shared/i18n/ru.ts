@@ -104,4 +104,5 @@ export const ruError: Record<ErrorCode, string> = {
   UNSUPPORTED_MEDIA_TYPE: 'Этот формат файла не поддерживается',
   RATE_LIMITED: 'Слишком много попыток, подождите немного',
   STORAGE_UNAVAILABLE: 'Хранилище фотографий временно недоступно, повторите',
+  INVALID_CURSOR: 'Не удалось загрузить список, обновите страницу',
 }

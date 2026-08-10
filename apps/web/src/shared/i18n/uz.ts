@@ -110,4 +110,5 @@ export const uzError: Record<ErrorCode, string> = {
   UNSUPPORTED_MEDIA_TYPE: 'Bu fayl formati qoʻllab-quvvatlanmaydi',
   RATE_LIMITED: 'Juda koʻp urinish, biroz kuting',
   STORAGE_UNAVAILABLE: 'Suratlar ombori vaqtincha ishlamayapti, qayta urining',
+  INVALID_CURSOR: 'Roʻyxatni yuklashda xato, sahifani yangilang',
 }

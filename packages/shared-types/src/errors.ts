@@ -17,6 +17,9 @@ export const ERROR_CODES = [
   'UNSUPPORTED_MEDIA_TYPE',
   'RATE_LIMITED',
   'STORAGE_UNAVAILABLE',
+  /** Курсор пагинации не разбирается. Молчаливый сброс на первую страницу маскировал бы
+   *  баг пагинации, поэтому это ошибка, а не поведение по умолчанию (SRS §4.3). */
+  'INVALID_CURSOR',
 ] as const
 
 export type ErrorCode = (typeof ERROR_CODES)[number]
