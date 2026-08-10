@@ -1,12 +1,21 @@
 /** Валидация окружения на старте процесса.
  *
- * Проверяются только переменные, которые код действительно читает. `S3_*` и `TELEGRAM_*`
- * объявлены в `.env.example`, но их никто не использует до срезов 002 и 004 — требовать
- * их сейчас значило бы не пускать разработчика в приложение из-за незаполненного будущего. */
+ * Проверяются только переменные, которые код действительно читает. `TELEGRAM_*` объявлены
+ * в `.env.example`, но до среза 004 их никто не использует — требовать их сейчас значило бы
+ * не пускать разработчика в приложение из-за незаполненного будущего.
+ *
+ * `S3_*` с этого среза обязательны: без хранилища заявка не принимается вовсе, и узнать
+ * об этом лучше на старте процесса, чем на первой фотографии от жителя. */
 export interface Env {
   DATABASE_URL: string
   WEB_ORIGIN: string
   API_PORT: number
+  S3_ENDPOINT: string
+  S3_REGION: string
+  S3_BUCKET: string
+  S3_ACCESS_KEY_ID: string
+  S3_SECRET_ACCESS_KEY: string
+  S3_PUBLIC_BASE_URL: string
 }
 
 const DEFAULT_API_PORT = 3000
@@ -25,6 +34,12 @@ export function validateEnv(source: Record<string, unknown>): Env {
     DATABASE_URL: requireString(source, 'DATABASE_URL', errors),
     WEB_ORIGIN: requireString(source, 'WEB_ORIGIN', errors),
     API_PORT: DEFAULT_API_PORT,
+    S3_ENDPOINT: requireString(source, 'S3_ENDPOINT', errors),
+    S3_REGION: requireString(source, 'S3_REGION', errors),
+    S3_BUCKET: requireString(source, 'S3_BUCKET', errors),
+    S3_ACCESS_KEY_ID: requireString(source, 'S3_ACCESS_KEY_ID', errors),
+    S3_SECRET_ACCESS_KEY: requireString(source, 'S3_SECRET_ACCESS_KEY', errors),
+    S3_PUBLIC_BASE_URL: requireString(source, 'S3_PUBLIC_BASE_URL', errors),
   }
 
   const rawPort = source['API_PORT']
