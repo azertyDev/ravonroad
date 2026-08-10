@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { lazy, Suspense, useState } from 'react'
-import { EMPTY_FILTERS, fetchReportMap, reportKeys } from '../../entities/report/api'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { EMPTY_FILTERS, fetchReportMap, reportKeys, type ReportFilters } from '../../entities/report/api'
 import { apiErrorCode } from '../../shared/api/client'
 import { useI18n } from '../../shared/i18n/useI18n'
 import type { Bounds } from '../../shared/map/tashkent'
@@ -21,16 +21,28 @@ const MAP_STALE_TIME = 30_000
  *  Область экрана огрубляется до сетки и становится частью ключа запроса, а не поводом
  *  сбросить кэш: вернувшись к прежней области, житель видит её точки мгновенно и без
  *  запроса (SRS §7.5). */
-export function PublicMap() {
+interface PublicMapProps {
+  /** Один и тот же фильтр обязан давать один и тот же набор в списке и на карте (US-003). */
+  filters?: ReportFilters
+  /** Куда подогнать границы снаружи: выбранный район (US-031). */
+  focus?: Bounds | null
+}
+
+export function PublicMap({ filters = EMPTY_FILTERS, focus: requested = null }: PublicMapProps = {}) {
   const { t } = useI18n()
   const [bbox, setBbox] = useState(CITY_BBOX)
   const [selected, setSelected] = useState<number | null>(null)
-  const [focus, setFocus] = useState<Bounds | null>(null)
+  const [focus, setFocus] = useState<Bounds | null>(requested)
+
+  // Район из фильтра и кнопка «моё местоположение» двигают карту одним и тем же способом.
+  useEffect(() => {
+    if (requested !== null) setFocus(requested)
+  }, [requested])
   const archiveUrl = import.meta.env.VITE_MAP_PMTILES_URL
 
   const map = useQuery({
-    queryKey: reportKeys.map(bbox, EMPTY_FILTERS),
-    queryFn: () => fetchReportMap(bbox, EMPTY_FILTERS),
+    queryKey: reportKeys.map(bbox, filters),
+    queryFn: () => fetchReportMap(bbox, filters),
     staleTime: MAP_STALE_TIME,
     // Пока едет ответ по новой области, на карте остаются точки прежней: иначе карта
     // мигала бы пустотой на каждый жест.
