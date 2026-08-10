@@ -1,4 +1,9 @@
-import type { TrackView } from '@ravonroad/shared-types'
+import {
+  OUT_OF_SCOPE_REASON_CODES,
+  REJECT_REASON_CODES,
+  type StatusReasonCode,
+  type TrackView,
+} from '@ravonroad/shared-types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useParams } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -8,23 +13,16 @@ import { useI18n } from '../../../shared/i18n/useI18n'
 import { ErrorState } from '../../../shared/ui/state/ErrorState'
 import { LoadingState } from '../../../shared/ui/state/LoadingState'
 
-/** Причины из глоссария. Код приходит с сервера и может оказаться из более новой версии,
- *  чем собранный клиент, — незнакомый показывается как «другое», а не пустой строкой. */
-const REASONS = [
-  'not_road_defect',
-  'unreadable_photo',
-  'spam',
-  'ground_sinkhole',
-  'utilities',
-  'highway',
-  'too_large',
-  'other',
-] as const
+/** Список кодов — из контракта, а не свой: причины объявляет машина состояний, и вторая
+ *  копия здесь разъехалась бы с ней молча. Код приходит с сервера и может оказаться
+ *  из более новой версии, чем собранный клиент, — незнакомый показывается как «другое»,
+ *  а не пустой строкой. */
+const REASONS: readonly string[] = [...REJECT_REASON_CODES, ...OUT_OF_SCOPE_REASON_CODES]
 
-type ReasonKey = `reason.${(typeof REASONS)[number]}`
+type ReasonKey = `reason.${StatusReasonCode}`
 
 function reasonKey(code: string): ReasonKey {
-  return (REASONS as readonly string[]).includes(code) ? (`reason.${code}` as ReasonKey) : 'reason.other'
+  return REASONS.includes(code) ? (`reason.${code}` as ReasonKey) : 'reason.other'
 }
 
 /** Страница отслеживания (US-013).
