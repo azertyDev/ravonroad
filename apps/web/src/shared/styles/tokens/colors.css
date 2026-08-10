@@ -1,0 +1,112 @@
+/* RavonRoad — цвет. Нейтралы: холодный сдвиг мокрого асфальта (hue ≈ 258).
+   Акцент: сигнальный жёлтый жилета бригады. Акцентный hue не используется
+   ни одним статусом — действие никогда не путается с состоянием ямы.
+
+   Контраст проверен расчётом: 21 пара из 21 проходит WCAG AA.
+   Различимость пинов при дихромазии (ΔE76, матрицы Brettel–Viénot):
+   нормальное 61.8, протанопия 27.9, дейтеранопия 12.5, тританопия 12.1.
+   Две последние пары спасает форма: каждому статусу назначена своя геометрия. */
+:root {
+  /* Asphalt — нейтральная шкала */
+  --asphalt-0: #FBFBFD;
+  --asphalt-50: #F2F3F7;
+  --asphalt-100: #E6E8EE;
+  --asphalt-200: #D2D6DF;
+  --asphalt-300: #B4BAC7;
+  --asphalt-400: #8F97A8;
+  --asphalt-500: #6E768A;
+  --asphalt-600: #545C6E;
+  --asphalt-700: #3E4553;
+  --asphalt-800: #2B313C;
+  --asphalt-900: #1D222A;
+  --asphalt-950: #12161C;
+
+  /* Signal — акцент действия */
+  --signal-400: #FFF08A;
+  --signal-500: #FFDD00;
+  --signal-600: #E6C400;
+  --signal-700: #8A7400; /* жёлтый как текст на светлом фоне, 4.59:1 */
+
+  /* Статусы — pin fill (карта) */
+  --status-new-pin: #D8368F;
+  --status-accepted-pin: #EE6A21;
+  --status-progress-pin: #2F5FD0;
+  --status-done-pin: #0F9FA6;
+  --status-rejected-pin: #B33344;
+  --status-duplicate-pin: #6E768A;
+  --status-outofscope-pin: #6C5CBF;
+
+  /* Статусы — pin fill на тёмной карте и спутнике (на ступень светлее) */
+  --status-progress-pin-dark: #4E7BE8;
+  --status-done-pin-sat: #0FB3BA;
+
+  /* Статусы — solid плашка + текст по контрасту */
+  --status-new-solid: #B02171;
+  --status-accepted-solid: #A8410F;
+  --status-progress-solid: #24427F;
+  --status-done-solid: #0A6E73;
+  --status-rejected-solid: #8F2735;
+  --status-duplicate-solid: #545C6E;
+  --status-outofscope-solid: #4F42A0;
+  --status-on-solid: #FFFFFF;
+
+  /* Статусы — светлая тема: фон / текст / контур */
+  --status-new-tint: #FBE9F3;      --status-new-ink: #8E1A5C;      --status-new-line: #F3C8DF;
+  --status-accepted-tint: #FDEDE1; --status-accepted-ink: #8E3308; --status-accepted-line: #F6D2B4;
+  --status-progress-tint: #E9EFFC; --status-progress-ink: #1B4093; --status-progress-line: #C3D3F6;
+  --status-done-tint: #E2F5F6;     --status-done-ink: #0A5D62;     --status-done-line: #B7E1E3;
+  --status-rejected-tint: #FBEAEC; --status-rejected-ink: #8A1F2D; --status-rejected-line: #E0A5AD;
+  --status-duplicate-tint: #EFF0F4;--status-duplicate-ink: #454C5C;--status-duplicate-line: #C0C5D1;
+  --status-outofscope-tint: #EEEBFA;--status-outofscope-ink: #3F3487;--status-outofscope-line: #C6BDEC;
+
+  /* Семантика — светлая тема (по умолчанию) */
+  --text-1: var(--asphalt-950);
+  --text-2: var(--asphalt-600);
+  /* asphalt-400 не проходит AA как текст ни на одной светлой поверхности (2.93:1 на белом).
+     Минимум на белом — asphalt-500 (4.54:1); на sunken-поверхностях asphalt-600. */
+  --text-3: var(--asphalt-500);
+  --text-3-sunken: var(--asphalt-600);
+  --text-on-accent: var(--asphalt-950);
+  --surface-page: var(--asphalt-50);
+  --surface-card: #FFFFFF;
+  --surface-sunken: #F8F9FB;
+  --border-1: var(--asphalt-100);
+  --border-2: var(--asphalt-200);
+  --border-strong: var(--asphalt-950);
+  --accent: var(--signal-500);
+  --accent-hover: #FFE84D;
+  --accent-press: var(--signal-600);
+  --focus-ring: var(--asphalt-950);
+  --focus-halo: rgba(255, 221, 0, .5);
+
+  /* Подложки карты (для превью и легенды) */
+  --basemap-light: #EDEEF1;
+  --basemap-dark: #171B22;
+  --pin-stroke: #FFFFFF;
+  --pin-stroke-sat-outer: rgba(18, 22, 28, .5);
+}
+
+[data-theme="dark"] {
+  --text-1: var(--asphalt-0);
+  --text-2: var(--asphalt-300);
+  /* На тёмной теме asphalt-400 проходит: 5.45:1 на asphalt-900, 6.19:1 на asphalt-950 */
+  --text-3: var(--asphalt-400);
+  --text-3-sunken: var(--asphalt-400);
+  --surface-page: var(--asphalt-950);
+  --surface-card: var(--asphalt-900);
+  --surface-sunken: #232833;
+  --border-1: var(--asphalt-800);
+  --border-2: var(--asphalt-700);
+  --border-strong: var(--asphalt-0);
+  --focus-ring: var(--asphalt-0);
+
+  --status-new-tint: #3A1128;      --status-new-ink: #F7A9CF;      --status-new-line: #6B2249;
+  --status-accepted-tint: #3A1D0A; --status-accepted-ink: #FFBE93; --status-accepted-line: #6E3A16;
+  --status-progress-tint: #101F42; --status-progress-ink: #A9C2F7; --status-progress-line: #24427F;
+  --status-done-tint: #06282B;     --status-done-ink: #8FDDE1;     --status-done-line: #12565B;
+  --status-rejected-tint: #341216; --status-rejected-ink: #F4A8B1; --status-rejected-line: #6B2A33;
+  --status-duplicate-tint: #23272F;--status-duplicate-ink: #C1C7D4;--status-duplicate-line: #454C5C;
+  --status-outofscope-tint: #1E1A38;--status-outofscope-ink: #C0B6F0;--status-outofscope-line: #3F3775;
+
+  --status-progress-pin: var(--status-progress-pin-dark);
+}
