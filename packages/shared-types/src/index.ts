@@ -1,5 +1,6 @@
-/** Жизненный цикл заявки на ремонт ямы. */
-export const REQUEST_STATUSES = [
+/** Жизненный цикл заявки на ремонт ямы. Сущность называется Report: Request в NestJS
+    занят HTTP-запросом (преамбула docs/srs.md). */
+export const REPORT_STATUSES = [
   'NEW',
   'ACCEPTED',
   'IN_PROGRESS',
@@ -9,4 +10,4 @@ export const REQUEST_STATUSES = [
   'OUT_OF_SCOPE',
 ] as const
 
-export type RequestStatus = (typeof REQUEST_STATUSES)[number]
+export type ReportStatus = (typeof REPORT_STATUSES)[number]

@@ -115,11 +115,11 @@ specs/NNN-slug/       спецификации вертикальных срез
 | Файлы React-компонентов | PascalCase | `RequestForm.tsx` |
 | Хуки, утилиты | camelCase | `useRequestList.ts` |
 | Файлы NestJS | kebab-case с суффиксом роли | `request.service.ts` |
-| Классы и типы | PascalCase | `RequestStatus` |
+| Классы и типы | PascalCase | `ReportStatus` |
 | Переменные и функции | camelCase | `repairedCount` |
-| Константы-литералы | UPPER_SNAKE_CASE | `REQUEST_STATUSES` |
+| Константы-литералы | UPPER_SNAKE_CASE | `REPORT_STATUSES` |
 | Таблицы и колонки БД | snake_case | `request`, `created_at` |
-| Пути API | kebab-case, множественное число | `/requests/:id/status` |
+| Пути API | kebab-case, множественное число | `/reports/:id/status` |
 | Ветки | `<тип>/NNN-slug` | `feat/001-request-form` |
 | Каталоги срезов | `NNN-slug` | `specs/001-request-form/` |
 
