@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useId, useRef, useState } from 'react'
 import { useI18n } from '../../../shared/i18n/useI18n'
 import { formatCoordinate, parseCoordinate, roundCoordinate, type Point } from './coordinates'
 
-/** Виджет и сам API Яндекса грузятся только здесь и только по требованию: на маршрутах
+/** MapLibre и стиль карты грузятся только здесь и только по требованию: на маршрутах
  *  без карты ни байта из них не попадает в первую загрузку (SRS §7.4, PRD §8.1). */
 const MapPin = lazy(() => import('./MapPin'))
 
@@ -30,7 +30,7 @@ export function PointPicker({ value, onChange, error }: PointPickerProps) {
   const [latitudeText, setLatitudeText] = useState(value === null ? '' : formatCoordinate(value.latitude))
   const [longitudeText, setLongitudeText] = useState(value === null ? '' : formatCoordinate(value.longitude))
   const [locating, setLocating] = useState<Locating>('idle')
-  const styleUrl = import.meta.env.VITE_MAP_STYLE_URL
+  const archiveUrl = import.meta.env.VITE_MAP_PMTILES_URL
 
   // Пин передвинули на карте или кнопкой — поля показывают то же самое. Эффект
   // зависит только от значения, а тексты полей читает через ref: включи их в зависимости,
@@ -82,9 +82,9 @@ export function PointPicker({ value, onChange, error }: PointPickerProps) {
 
       {/* Тайлов нет — карты нет, и никакого пустого прямоугольника на её месте:
           сразу показывается тот путь выбора точки, который работает (PRD §8.2). */}
-      {styleUrl !== undefined && styleUrl !== '' && (
+      {archiveUrl !== undefined && archiveUrl !== '' && (
         <Suspense fallback={null}>
-          <MapPin styleUrl={styleUrl} value={value} onChange={onChange} />
+          <MapPin archiveUrl={archiveUrl} value={value} onChange={onChange} />
         </Suspense>
       )}
 
