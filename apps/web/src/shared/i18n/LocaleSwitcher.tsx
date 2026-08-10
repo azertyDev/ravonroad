@@ -6,7 +6,10 @@ import { useI18n } from './useI18n'
 const LABEL_KEY: Record<Locale, UiKey> = { uz: 'locale.uz', ru: 'locale.ru' }
 
 /** Меняет только сегмент локали: путь и search-параметры сохраняются, иначе
- *  переключение языка сбрасывало бы выбранные фильтры (US-015). */
+ *  переключение языка сбрасывало бы выбранные фильтры (US-015).
+ *
+ *  Без `from` — намеренно: он задаёт базу, относительно которой считается `to`, и
+ *  зафиксированный `/$locale` сводил бы «.» к корню локали, отбрасывая всё, что ниже. */
 export function LocaleSwitcher() {
   const { locale, t } = useI18n()
 
@@ -15,7 +18,6 @@ export function LocaleSwitcher() {
       {LOCALES.map((value) => (
         <Link
           key={value}
-          from="/$locale"
           to="."
           params={{ locale: value }}
           search={(previous) => previous}
