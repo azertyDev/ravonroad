@@ -37,11 +37,10 @@ export function parseApiError(status: number, body: unknown, correlationId: stri
     return new ApiRequestError(status === 404 ? 'NOT_FOUND' : 'INTERNAL_ERROR', correlationId)
   }
   const { error } = parsed
-  return new ApiRequestError(
-    error.code,
-    error.correlationId,
-    error.code === 'VALIDATION_FAILED' ? error.details : [],
-  )
+  // Тип обещает массив, сеть — нет: форма разбирает details через map, и объект вместо
+  // массива уронил бы её TypeError'ом вместо того, чтобы показать текст ошибки.
+  const details = error.code === 'VALIDATION_FAILED' && Array.isArray(error.details) ? error.details : []
+  return new ApiRequestError(error.code, error.correlationId, details)
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {

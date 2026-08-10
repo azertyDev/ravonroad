@@ -28,6 +28,17 @@ describe('parseApiError', () => {
     expect(error.details).toEqual([])
   })
 
+  it('не принимает details, которые не массив', () => {
+    for (const details of [{ field: 'photos' }, 'photos', 1, null]) {
+      const error = parseApiError(400, {
+        error: { code: 'VALIDATION_FAILED', message: 'bad', correlationId: CORRELATION, details },
+      }, '')
+
+      expect(error.code).toBe('VALIDATION_FAILED')
+      expect(error.details).toEqual([])
+    }
+  })
+
   it('переводит стандартный 404 Nest в NOT_FOUND и берёт id из заголовка', () => {
     const error = parseApiError(404, { message: 'Cannot GET /api/nope', error: 'Not Found', statusCode: 404 }, CORRELATION)
 
