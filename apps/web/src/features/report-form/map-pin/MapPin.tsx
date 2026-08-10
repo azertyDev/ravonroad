@@ -1,16 +1,5 @@
 import 'maplibre-gl/dist/maplibre-gl.css'
-import {
-  addProtocol,
-  importScriptInWorkers,
-  Map as MapLibreMap,
-  Marker,
-  prewarm,
-  setWorkerUrl,
-  type LngLat,
-  type MapOptions,
-} from 'maplibre-gl'
-import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
-import pmtilesProtocolUrl from './pmtilesProtocol?worker&url'
+import { addProtocol, Map as MapLibreMap, Marker, type LngLat, type MapOptions } from 'maplibre-gl'
 import { Protocol } from 'pmtiles'
 import { useEffect, useRef } from 'react'
 import { roundCoordinate, TASHKENT_CENTER, type Point } from './coordinates'
@@ -57,26 +46,6 @@ const WATERWAY_KINDS = ['river', 'canal', 'stream', 'ditch']
  *  Ни ключей, ни лимитов, ни чужого API на пути жителя к форме. Протокол регистрируется
  *  один раз на страницу, а модуль грузится лениво: на маршрутах без карты не выполняется. */
 addProtocol('pmtiles', new Protocol().tile)
-
-/** Свой воркер MapLibre ищет сам, собирая путь из `import.meta.url` и переменной, —
- *  статически такой адрес не разрешает ни один сборщик, и в собранном виде запрос уходит
- *  на /assets/maplibre-gl-worker.mjs, которого там нет. В dev-сервере это незаметно:
- *  Vite отдаёт файл прямо из node_modules по тому же относительному пути. Поэтому адрес
- *  задаётся явно: `?worker&url` заставляет Vite собрать воркер вместе с его собственными
- *  импортами и вернуть адрес готового файла. Без этого карта молча остаётся пустой —
- *  тайлы разбирает воркер, и не стартовав, он их не запрашивает. */
-setWorkerUrl(workerUrl)
-
-/** Тайлы читает воркер, и протокол, объявленный выше в главном потоке, до него не
- *  доходит: оттуда уходит только запрос TileJSON, а дальше карта молча остаётся пустой,
- *  без единой ошибки. MapLibre v6 требует зарегистрировать протокол ещё и в воркере.
- *  `prewarm` здесь обязателен, а не оптимизация: до первой карты пула воркеров нет,
- *  и сообщение некому доставить.
- *  Промис не ждут — он и не разрешается; так же он вызывается и в примере самого
- *  MapLibre. Гонки нет: сообщение уходит воркеру раньше, чем карта успевает запросить
- *  первый тайл, — до этого ей нужно загрузить стиль и TileJSON. */
-prewarm()
-void importScriptInWorkers(pmtilesProtocolUrl)
 
 interface MapPinProps {
   archiveUrl: string
