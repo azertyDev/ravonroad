@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { CatalogModule } from './catalog/catalog.module'
 import { validateEnv } from './config/env'
 import { HealthModule } from './health/health.module'
 import { PrismaModule } from './prisma/prisma.module'
@@ -16,6 +17,7 @@ const ROOT_ENV_FILE = resolve(process.cwd(), '../../.env')
     ConfigModule.forRoot({ isGlobal: true, cache: true, envFilePath: ROOT_ENV_FILE, validate: validateEnv }),
     PrismaModule,
     HealthModule,
+    CatalogModule,
   ],
 })
 export class AppModule {}
