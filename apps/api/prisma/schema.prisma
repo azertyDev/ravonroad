@@ -125,6 +125,8 @@ model Report {
   photos       ReportPhoto[]
   abuseSignals AbuseSignal[]
   history      ReportStatusHistory[]
+  outbox       TelegramOutbox[]
+  prompts      BotPrompt[]
 
   @@index([createdAt(sort: Desc), id(sort: Desc)], map: "report_list_idx")
   @@index([latitude, longitude], map: "report_bbox_idx")
@@ -258,9 +260,10 @@ model ReportStatusHistory {
   fromStatus ReportStatus? @map("from_status")
   toStatus   ReportStatus  @map("to_status")
 
-  actorType           ActorType @map("actor_type")
-  actorTelegramUserId BigInt?   @map("actor_telegram_user_id")
-  moderatorId         Int?      @map("moderator_id")
+  actorType           ActorType  @map("actor_type")
+  actorTelegramUserId BigInt?    @map("actor_telegram_user_id")
+  moderatorId         Int?       @map("moderator_id")
+  moderator           Moderator? @relation(fields: [moderatorId], references: [id], onDelete: Restrict)
 
   reason        String? @db.VarChar(48)
   reasonText    String? @map("reason_text") @db.VarChar(500)
@@ -285,4 +288,127 @@ enum ActorType {
   VOLUNTEER
 
   @@map("actor_type")
+}
+
+/** Allowlist модераторов (SRS §2.8, ADR-0005). Единственная привилегия в системе —
+ *  право менять статус заявки, и она определяется наличием строки здесь.
+ *
+ *  Таблица, а не переменная окружения: состав меняется без передеплоя (US-024), каждое
+ *  решение в истории ссылается на `id`, а снятие полномочий — `isActive = false`,
+ *  потому что при `DELETE` внешние ключи истории пришлось бы обнулять. */
+model Moderator {
+  id             Int     @id @default(autoincrement())
+  telegramUserId BigInt  @unique @map("telegram_user_id")
+  displayName    String? @map("display_name") @db.VarChar(120)
+  isActive       Boolean @default(true) @map("is_active")
+
+  addedAt             DateTime   @default(now()) @map("added_at") @db.Timestamptz(3)
+  /** `null` только у засеянных при первом развёртывании. */
+  addedByModeratorId  Int?       @map("added_by_moderator_id")
+  addedBy             Moderator? @relation("ModeratorAddedBy", fields: [addedByModeratorId], references: [id])
+  added               Moderator[] @relation("ModeratorAddedBy")
+  deactivatedAt       DateTime?  @map("deactivated_at") @db.Timestamptz(3)
+
+  decisions       ReportStatusHistory[]
+  appliedBatches  ModerationBatch[]
+  prompts         BotPrompt[]
+
+  @@map("moderator")
+}
+
+/** Очередь исходящих вызовов Bot API (SRS §2.10).
+ *
+ *  Заявка никогда не ждёт Telegram: строка ставится в очередь в транзакции перехода,
+ *  а отправка идёт отдельно и позже. Dead-letter нет — карточка обязана дойти (US-018). */
+model TelegramOutbox {
+  id       BigInt  @id @default(autoincrement())
+  /** `null` у digest: пакет ссылается на десять заявок сразу. */
+  reportId Int?    @map("report_id")
+  report   Report? @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  kind TelegramOutboxKind
+  /** Аргументы вызова для `REPLY` и `ALERT`. У карточек пусто: текст и клавиатура
+   *  рендерятся в момент отправки, иначе схлопнутая правка ушла бы устаревшей. */
+  payload Json
+
+  nextAttemptAt DateTime  @default(now()) @map("next_attempt_at") @db.Timestamptz(3)
+  attempts      Int       @default(0) @db.SmallInt
+  lastError     String?   @map("last_error") @db.VarChar(500)
+  sentAt        DateTime? @map("sent_at") @db.Timestamptz(3)
+
+  @@map("telegram_outbox")
+}
+
+enum TelegramOutboxKind {
+  CARD_CREATE
+  CARD_EDIT
+  REPLY
+  ALERT
+
+  @@map("telegram_outbox_kind")
+}
+
+/** Первый рубеж идемпотентности: строка вставляется в той же транзакции, что и эффект
+ *  апдейта, поэтому повторная доставка отваливается на конфликте PK (SRS §6.11). */
+model ProcessedUpdate {
+  updateId  BigInt   @id @map("update_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("processed_update")
+}
+
+/** Состояние двухшагового перехода, требующего текста (SRS §2.12): «другое» и номер
+ *  оригинала. Ключ — сообщение бота с `ForceReply`, потому что ответ приходит на него. */
+model BotPrompt {
+  chatId    BigInt @map("chat_id")
+  messageId Int    @map("message_id")
+
+  reportId Int    @map("report_id")
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  kind BotPromptKind
+
+  moderatorId Int       @map("moderator_id")
+  moderator   Moderator @relation(fields: [moderatorId], references: [id], onDelete: Restrict)
+
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(3)
+
+  @@id([chatId, messageId])
+  @@map("bot_prompt")
+}
+
+enum BotPromptKind {
+  REASON_TEXT
+  DUPLICATE_NUMBER
+
+  @@map("bot_prompt_kind")
+}
+
+/** Пакет заявок, к которым модератор применяет решение одним нажатием (SRS §2.15).
+ *
+ *  Состав фиксируется массивом в момент отправки сообщения: пересчёт при нажатии дал бы
+ *  модератору один список на экране и другой — в применении. Для `DUPLICATE_CLUSTER`
+ *  первый элемент `reportIds` — корень кластера. */
+model ModerationBatch {
+  id        Int                 @id @default(autoincrement())
+  kind      ModerationBatchKind
+  reportIds Int[]               @map("report_ids")
+
+  chatId    BigInt @map("chat_id")
+  messageId Int?   @map("message_id")
+
+  appliedAt            DateTime?  @map("applied_at") @db.Timestamptz(3)
+  appliedByModeratorId Int?       @map("applied_by_moderator_id")
+  appliedBy            Moderator? @relation(fields: [appliedByModeratorId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("moderation_batch")
+}
+
+enum ModerationBatchKind {
+  DIGEST
+  DUPLICATE_CLUSTER
+
+  @@map("moderation_batch_kind")
 }
