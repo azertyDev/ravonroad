@@ -10,3 +10,11 @@
 export interface DistrictCodeRow {
   code: string
 }
+
+/** Кандидат в дубли: заявка в 50 м от новой точки (SRS §3.2). `duplicate_candidate_of_id`
+ *  нужен, чтобы новая заявка цеплялась к корню кластера, а не к его ветке. Имена колонок —
+ *  как в БД: строку отдаёт `$queryRaw`, и переименование здесь означало бы `AS` в SQL. */
+export interface DuplicateCandidateRow {
+  id: number
+  duplicate_candidate_of_id: number | null
+}
