@@ -6,10 +6,14 @@ import { RateLimitModule } from '../common/rate-limit.module'
 import { AbuseService } from './abuse.service'
 import { ReportsController } from './reports.controller'
 import { ReportsService } from './reports.service'
+import { UndoService } from './undo.service'
 
 @Module({
   imports: [PrismaModule, GeoModule, MediaModule, RateLimitModule],
   controllers: [ReportsController],
-  providers: [ReportsService, AbuseService],
+  providers: [ReportsService, AbuseService, UndoService],
+  // Отмену перехода вызывает бот: кнопка живёт в карточке, а правило — здесь,
+  // рядом с машиной состояний (SRS §6.10).
+  exports: [UndoService],
 })
 export class ReportsModule {}
