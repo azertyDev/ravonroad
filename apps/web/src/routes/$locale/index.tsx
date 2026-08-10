@@ -1,3 +1,4 @@
+import { PublicMap } from '../../features/report-map/PublicMap'
 import { formatNumber } from '../../shared/format/number'
 import { useI18n } from '../../shared/i18n/useI18n'
 
@@ -31,6 +32,8 @@ export function HomePage() {
           <dd className="t-counter">{formatNumber(CAMPAIGN_GOAL)}</dd>
         </div>
       </dl>
+
+      <PublicMap />
     </div>
   )
 }
