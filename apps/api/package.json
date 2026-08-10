@@ -26,6 +26,7 @@
     "@nestjs/cli": "^11.0.24",
     "@nestjs/schematics": "^11.1.0",
     "@ravonroad/eslint-config": "workspace:*",
+    "@testcontainers/postgresql": "^12.1.0",
     "@types/node": "^26.2.0",
     "eslint": "^10.8.1",
     "prisma": "^7.9.1",

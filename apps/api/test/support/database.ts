@@ -6,14 +6,9 @@ import type { PrismaService } from '../../src/prisma/prisma.service'
  *  в моках — `ST_Contains` по мультиполигону, CHECK-инварианты, `SKIP LOCKED`
  *  и гонка последовательности (SRS §11.3).
  *
- *  База берётся из `TEST_DATABASE_URL` в окружении оболочки, по умолчанию — та же,
- *  что поднимает docker-compose для разработки. Из `.env` она не читается намеренно:
- *  прогон не должен зависеть от файла, который у каждого свой, и тем более трогать
- *  боевые ключи хранилища из него. */
-export const TEST_DATABASE_URL =
-  process.env['TEST_DATABASE_URL'] ??
-  process.env['DATABASE_URL'] ??
-  'postgresql://ravonroad:ravonroad@localhost:5432/ravonroad?schema=public'
+ *  Адрес ставит `global-setup`, подняв контейнер на прогон. Умолчания нет намеренно:
+ *  молчаливый откат на локальную базу однажды вычистил бы чужую рабочую. */
+export const TEST_DATABASE_URL = process.env['TEST_DATABASE_URL'] ?? ''
 
 /** Сервисы принимают `PrismaService`, но пользуются только клиентом: единственное, что
  *  сервис добавляет поверх, — `onModuleDestroy`, то есть жизненный цикл Nest, которого
