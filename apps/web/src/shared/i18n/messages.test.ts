@@ -1,8 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { LOCALES } from './locale'
+import { LOCALES, type Locale } from './locale'
 import { MESSAGES } from './messages'
 
 const [reference, ...rest] = LOCALES
+
+/** Проверки словаря идут по всем группам сообщений: житель одинаково видит и подпись
+ *  кнопки, и текст ошибки, и делить их по строгости незачем. */
+function allValues(locale: Locale): string[] {
+  return [...Object.values(MESSAGES[locale].ui), ...Object.values(MESSAGES[locale].error)]
+}
 
 describe('словари локалей', () => {
   it('покрывают все объявленные локали', () => {
@@ -25,14 +31,14 @@ describe('словари локалей', () => {
 
   it('не содержат пустых строк', () => {
     for (const locale of LOCALES) {
-      for (const value of [...Object.values(MESSAGES[locale].ui), ...Object.values(MESSAGES[locale].error)]) {
+      for (const value of allValues(locale)) {
         expect(value.trim()).not.toBe('')
       }
     }
   })
 
   it('пишет узбекскую латиницу модификаторными буквами, а не ASCII-апострофом', () => {
-    for (const value of Object.values(MESSAGES.uz.ui)) {
+    for (const value of allValues('uz')) {
       expect(value).not.toMatch(/['\u2018\u2019]/)
     }
   })
