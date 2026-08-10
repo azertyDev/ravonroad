@@ -54,6 +54,12 @@ describe('validateEnv', () => {
     expect(() => validateEnv({ ...complete, INTAKE_CONCURRENCY: '-1' })).toThrow(/INTAKE_CONCURRENCY/)
   })
 
+  it('принимает ноль воркеров фото: так очередь останавливают, не трогая приём', () => {
+    expect(validateEnv({ ...complete, PHOTO_WORKERS: '0' }).PHOTO_WORKERS).toBe(0)
+    expect(validateEnv(complete).PHOTO_WORKERS).toBe(1)
+    expect(() => validateEnv({ ...complete, PHOTO_WORKERS: '-1' })).toThrow(/PHOTO_WORKERS/)
+  })
+
   it('отклоняет порт вне диапазона и не целый', () => {
     expect(() => validateEnv({ ...complete, API_PORT: '70000' })).toThrow(/API_PORT/)
     expect(() => validateEnv({ ...complete, API_PORT: '3000.5' })).toThrow(/API_PORT/)

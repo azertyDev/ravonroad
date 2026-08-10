@@ -12,6 +12,10 @@ export interface Env {
   API_PORT: number
   /** Одновременных запросов на приёме заявок. Восемь на проде, два на dev (SRS §12.2). */
   INTAKE_CONCURRENCY: number
+  /** Воркеров обработки фотографий. Один даёт 5–8 фото/с при всплеске в 0,83 фото/с,
+   *  но при задержке хранилища в 200 мс запас исчезает — тогда их становится два,
+   *  и это одна переменная, а не правка кода (SRS §5.4). */
+  PHOTO_WORKERS: number
   S3_ENDPOINT: string
   S3_REGION: string
   S3_BUCKET: string
@@ -23,12 +27,33 @@ export interface Env {
 const DEFAULT_API_PORT = 3000
 const MAX_PORT = 65535
 const DEFAULT_INTAKE_CONCURRENCY = 8
+const DEFAULT_PHOTO_WORKERS = 1
 
 function requireString(source: Record<string, unknown>, name: string, errors: string[]): string {
   const value = source[name]
   if (typeof value === 'string' && value.trim() !== '') return value.trim()
   errors.push(`${name} is required`)
   return ''
+}
+
+/** Возвращает `undefined`, если переменная не задана: тогда остаётся значение
+ *  по умолчанию. Неверное значение — ошибка, а не молчаливый откат к умолчанию:
+ *  опечатка в лимите не должна выглядеть как работающая настройка. */
+function readInteger(
+  source: Record<string, unknown>,
+  name: string,
+  minimum: number,
+  maximum: number,
+  errors: string[],
+): number | undefined {
+  const raw = source[name]
+  if (raw === undefined || raw === '') return undefined
+  const value = Number(raw)
+  if (!Number.isInteger(value) || value < minimum || value > maximum) {
+    errors.push(`${name} must be an integer between ${minimum} and ${maximum}`)
+    return undefined
+  }
+  return value
 }
 
 export function validateEnv(source: Record<string, unknown>): Env {
@@ -38,6 +63,7 @@ export function validateEnv(source: Record<string, unknown>): Env {
     WEB_ORIGIN: requireString(source, 'WEB_ORIGIN', errors),
     API_PORT: DEFAULT_API_PORT,
     INTAKE_CONCURRENCY: DEFAULT_INTAKE_CONCURRENCY,
+    PHOTO_WORKERS: DEFAULT_PHOTO_WORKERS,
     S3_ENDPOINT: requireString(source, 'S3_ENDPOINT', errors),
     S3_REGION: requireString(source, 'S3_REGION', errors),
     S3_BUCKET: requireString(source, 'S3_BUCKET', errors),
@@ -46,25 +72,13 @@ export function validateEnv(source: Record<string, unknown>): Env {
     S3_PUBLIC_BASE_URL: requireString(source, 'S3_PUBLIC_BASE_URL', errors),
   }
 
-  const rawPort = source['API_PORT']
-  if (rawPort !== undefined && rawPort !== '') {
-    const port = Number(rawPort)
-    if (!Number.isInteger(port) || port < 1 || port > MAX_PORT) {
-      errors.push(`API_PORT must be an integer between 1 and ${MAX_PORT}`)
-    } else {
-      env.API_PORT = port
-    }
-  }
-
-  const rawConcurrency = source['INTAKE_CONCURRENCY']
-  if (rawConcurrency !== undefined && rawConcurrency !== '') {
-    const permits = Number(rawConcurrency)
-    if (!Number.isInteger(permits) || permits < 1) {
-      errors.push('INTAKE_CONCURRENCY must be a positive integer')
-    } else {
-      env.INTAKE_CONCURRENCY = permits
-    }
-  }
+  env.API_PORT = readInteger(source, 'API_PORT', 1, MAX_PORT, errors) ?? env.API_PORT
+  env.INTAKE_CONCURRENCY =
+    readInteger(source, 'INTAKE_CONCURRENCY', 1, 64, errors) ?? env.INTAKE_CONCURRENCY
+  // Ноль воркеров — рабочая настройка, а не ошибка: так очередь останавливают,
+  // не трогая приём заявок. Именно этим проверяется, что заявка принимается
+  // и при остановленной обработке (AC-5).
+  env.PHOTO_WORKERS = readInteger(source, 'PHOTO_WORKERS', 0, 8, errors) ?? env.PHOTO_WORKERS
 
   if (errors.length > 0) {
     throw new Error(`Invalid environment: ${errors.join('; ')}`)

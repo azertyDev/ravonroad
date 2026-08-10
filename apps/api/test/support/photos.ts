@@ -1,9 +1,13 @@
 import sharp from 'sharp'
 
 /** Настоящий JPEG, а не четыре байта сигнатуры: те же данные проходят и приём,
- *  и воркер, поэтому тест очереди не приходится кормить отдельной подделкой. */
-export function makeJpeg(width = 40, height = 30): Promise<Buffer> {
-  return sharp({ create: { width, height, channels: 3, background: { r: 90, g: 90, b: 90 } } })
+ *  и воркер, поэтому тест очереди не приходится кормить отдельной подделкой.
+ *
+ *  Цвет — параметр, потому что ключ в хранилище определяется содержимым: два снимка
+ *  разного размера, но одного цвета после ресайза дают побайтово одно и то же
+ *  изображение, и «две разные фотографии» пришлось бы делать различимыми. */
+export function makeJpeg(width = 40, height = 30, tone = 90): Promise<Buffer> {
+  return sharp({ create: { width, height, channels: 3, background: { r: tone, g: tone, b: tone } } })
     .jpeg()
     .toBuffer()
 }
