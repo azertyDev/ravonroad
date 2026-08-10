@@ -5,6 +5,7 @@ import { CatalogModule } from './catalog/catalog.module'
 import { validateEnv } from './config/env'
 import { HealthModule } from './health/health.module'
 import { PrismaModule } from './prisma/prisma.module'
+import { ReportsModule } from './reports/reports.module'
 
 // .env лежит в корне монорепозитория, а процесс запускается из apps/api — и `nest start`,
 // и `node dist/main.js`. Без явного пути ConfigModule искал бы файл в apps/api, не находил
@@ -14,10 +15,20 @@ const ROOT_ENV_FILE = resolve(process.cwd(), '../../.env')
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, cache: true, envFilePath: ROOT_ENV_FILE, validate: validateEnv }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      envFilePath: ROOT_ENV_FILE,
+      // В тестах окружение задаёт стенд, а не .env разработчика. Без этого прогон
+      // подхватывал бы боевые ключи S3 и писал бы мусор в настоящий бакет кампании —
+      // значения из файла в @nestjs/config перекрывают process.env, а не наоборот.
+      ignoreEnvFile: process.env['NODE_ENV'] === 'test',
+      validate: validateEnv,
+    }),
     PrismaModule,
     HealthModule,
     CatalogModule,
+    ReportsModule,
   ],
 })
 export class AppModule {}
