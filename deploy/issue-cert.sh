@@ -39,6 +39,15 @@ docker run --rm \
   --non-interactive --agree-tos --register-unsafely-without-email --keep-until-expiring
 
 echo "==> перезапускаю edge, чтобы он подхватил сертификат"
+# Имена образов обязаны быть в окружении: без них compose берёт значение по умолчанию
+# `ravonroad-edge:local` и уходит собирать образ на месте, а `docker build` на машине
+# с 1 ГБ запрещён (SRS §12.2 п.1). Тег берётся тот же, что развёрнут сейчас.
+: "${GHCR_REPO:?GHCR_REPO не задан в .env}"
+: "${IMAGE_TAG:?IMAGE_TAG не задан в .env — сначала выкатка, потом сертификат}"
+export API_IMAGE="$GHCR_REPO-api:$IMAGE_TAG"
+export EDGE_IMAGE="$GHCR_REPO-edge:$IMAGE_TAG"
+export MIGRATE_IMAGE="$GHCR_REPO-migrate:$IMAGE_TAG"
+
 docker compose -f "$APP_DIR/docker-compose.yml" -f "$APP_DIR/docker-compose.dev.yml" \
   --project-directory "$APP_DIR" up -d --force-recreate --no-deps edge
 
