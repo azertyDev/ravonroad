@@ -32,6 +32,10 @@ export class ApiExceptionFilter implements ExceptionFilter {
           ? { code, message: messageOf(exception), correlationId, details }
           : { code, message: messageOf(exception), correlationId },
     }
+    if (exception instanceof ApiException) {
+      for (const [name, value] of Object.entries(exception.headers)) response.setHeader(name, value)
+    }
+
     response.statusCode = status
     response.setHeader('Content-Type', 'application/json; charset=utf-8')
     response.end(JSON.stringify(body))

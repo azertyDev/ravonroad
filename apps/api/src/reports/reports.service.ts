@@ -6,6 +6,8 @@ import {
   type ReportStatus,
 } from '@ravonroad/shared-types'
 import { ApiException } from '../common/api-error'
+import { Prisma } from '../generated/prisma/client'
+import { AbuseService, type AbuseSignalDraft } from './abuse.service'
 import { DuplicatesService } from '../geo/duplicates.service'
 import { GeoService } from '../geo/geo.service'
 import { incomingKey } from '../media/object-keys'
@@ -56,6 +58,7 @@ export class ReportsService {
     private readonly geo: GeoService,
     private readonly duplicates: DuplicatesService,
     private readonly s3: S3Service,
+    private readonly abuse: AbuseService,
   ) {}
 
   /** Порядок шагов жёсткий и повторяет SRS §5.3: сначала то, что ничего не стоит,
@@ -75,6 +78,10 @@ export class ReportsService {
     const replay = await this.findByIdempotencyKey(context.idempotencyKey, input)
     if (replay !== null) return { response: replay, replayed: true }
 
+    // Считается после проверки повтора: три нажатия «повторить» — это одна заявка,
+    // и тратить на них лимит адреса было бы наказанием за плохую сеть.
+    const reportsThisHour = this.abuse.admit(context.clientIp)
+
     if (photos.length === 0) {
       throw new ApiException('PHOTOS_REQUIRED', HttpStatus.BAD_REQUEST, 'at least one photo is required')
     }
@@ -83,7 +90,7 @@ export class ReportsService {
         'VALIDATION_FAILED',
         HttpStatus.BAD_REQUEST,
         `at most ${MAX_PHOTOS_PER_REPORT} photos are accepted`,
-        [{ field: 'photos', code: 'TOO_MANY' }],
+        { details: [{ field: 'photos', code: 'TOO_MANY' }] },
       )
     }
 
@@ -103,7 +110,7 @@ export class ReportsService {
     })
     if (category === null) {
       const details: FieldError[] = [{ field: 'categoryCode', code: 'UNKNOWN' }]
-      throw new ApiException('VALIDATION_FAILED', HttpStatus.BAD_REQUEST, 'unknown category', details)
+      throw new ApiException('VALIDATION_FAILED', HttpStatus.BAD_REQUEST, 'unknown category', { details })
     }
 
     // Геозабор — до единого байта в S3 и до единой строки в БД (SRS §5.3 п.3).
@@ -117,6 +124,12 @@ export class ReportsService {
     }
 
     const duplicateCandidateOfId = await this.duplicates.findCandidateRootId(input.latitude, input.longitude)
+    const signals = this.abuse.signalsFor({
+      honeypotFilled: input.honeypotFilled,
+      formOpenedAt: input.formOpenedAt,
+      photoCount: photos.length,
+      reportsThisHour,
+    })
     const rawKeys = await this.storeRawPhotos(photos, types)
 
     const report = await this.insertReport({
@@ -126,6 +139,7 @@ export class ReportsService {
       districtCode,
       duplicateCandidateOfId,
       rawKeys,
+      signals,
     })
 
     if (report === null) {
@@ -165,8 +179,9 @@ export class ReportsService {
     districtCode: string
     duplicateCandidateOfId: number | null
     rawKeys: string[]
+    signals: AbuseSignalDraft[]
   }): Promise<InsertedReport | null> {
-    const { input, context, categoryId, districtCode, duplicateCandidateOfId, rawKeys } = args
+    const { input, context, categoryId, districtCode, duplicateCandidateOfId, rawKeys, signals } = args
     try {
       return await this.prisma.$transaction(async (tx) =>
         tx.report.create({
@@ -192,6 +207,13 @@ export class ReportsService {
             // Первая запись истории: создание, `from_status` пуст (SRS §2.7).
             history: {
               create: [{ fromStatus: null, toStatus: 'NEW' as const, actorType: 'SYSTEM' as const }],
+            },
+            // Сигналы пишутся той же транзакцией: заявка с флагом и заявка без него
+            // не должны существовать как два разных исхода одной отправки.
+            abuseSignals: {
+              // Prisma отличает JSON-значение null от отсутствия значения; в колонке
+              // нужен именно SQL NULL, поэтому DbNull, а не литерал.
+              create: signals.map((signal) => ({ rule: signal.rule, detail: signal.detail ?? Prisma.DbNull })),
             },
           },
           select: { publicNumber: true, trackingToken: true, status: true, createdAt: true },

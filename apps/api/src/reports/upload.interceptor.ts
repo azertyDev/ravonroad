@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable, type CallHandler, type ExecutionContext, type NestInterceptor } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { MAX_UPLOAD_BYTES } from '@ravonroad/shared-types'
-import type { IncomingMessage, ServerResponse } from 'node:http'
+import type { IncomingMessage } from 'node:http'
 import { finalize, type Observable } from 'rxjs'
 import { ApiException } from '../common/api-error'
 import { Semaphore, SemaphoreTimeoutError } from '../common/semaphore'
@@ -47,8 +47,9 @@ export class UploadInterceptor implements NestInterceptor {
       if (!(error instanceof SemaphoreTimeoutError)) throw error
       // Единственный жёсткий отказ на пути подачи, и он про исчерпание памяти,
       // а не про подозрительность отправителя (SRS §5.7).
-      http.getResponse<ServerResponse>().setHeader('Retry-After', String(ACQUIRE_TIMEOUT_S))
-      throw new ApiException('RATE_LIMITED', HttpStatus.TOO_MANY_REQUESTS, 'intake is at capacity')
+      throw new ApiException('RATE_LIMITED', HttpStatus.TOO_MANY_REQUESTS, 'intake is at capacity', {
+        headers: { 'Retry-After': String(ACQUIRE_TIMEOUT_S) },
+      })
     }
 
     // finalize, а не then: пропуск обязан вернуться и при ошибке в обработчике,

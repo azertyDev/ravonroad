@@ -46,14 +46,16 @@ export class ReportsController {
     // Ключ обязателен: без него три нажатия «повторить» на плохой сети дали бы три
     // заявки про одну яму, и разгребал бы это модератор (US-016).
     if (idempotencyKey === undefined || !UUID.test(idempotencyKey)) {
-      throw new ApiException('VALIDATION_FAILED', HttpStatus.BAD_REQUEST, 'Idempotency-Key must be a uuid', [
-        { field: 'Idempotency-Key', code: 'REQUIRED' },
-      ])
+      throw new ApiException('VALIDATION_FAILED', HttpStatus.BAD_REQUEST, 'Idempotency-Key must be a uuid', {
+        details: [{ field: 'Idempotency-Key', code: 'REQUIRED' }],
+      })
     }
 
     const parsed = parseCreateReport(body)
     if (!parsed.ok) {
-      throw new ApiException('VALIDATION_FAILED', HttpStatus.BAD_REQUEST, 'invalid form', parsed.errors)
+      throw new ApiException('VALIDATION_FAILED', HttpStatus.BAD_REQUEST, 'invalid form', {
+        details: parsed.errors,
+      })
     }
 
     const outcome = await this.reports.create(parsed.value, photos ?? [], {

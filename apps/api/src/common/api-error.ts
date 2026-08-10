@@ -7,10 +7,19 @@ import type { ErrorCode, FieldError } from '@ravonroad/shared-types'
 export class ApiException extends HttpException {
   readonly code: ErrorCode
   readonly details: FieldError[]
+  /** Заголовки, без которых отказ бесполезен: `429` без `Retry-After` заставляет клиента
+   *  гадать, а гадает он тесным циклом. Проставляет их фильтр — там же, где тело. */
+  readonly headers: Record<string, string>
 
-  constructor(code: ErrorCode, status: number, message: string, details: FieldError[] = []) {
+  constructor(
+    code: ErrorCode,
+    status: number,
+    message: string,
+    options: { details?: FieldError[]; headers?: Record<string, string> } = {},
+  ) {
     super(message, status)
     this.code = code
-    this.details = details
+    this.details = options.details ?? []
+    this.headers = options.headers ?? {}
   }
 }
