@@ -56,7 +56,7 @@ export function ReportPopup({ number, onClose }: ReportPopupProps) {
             // Фото ещё в очереди обработки: заявка принята целиком, превью появится
             // через секунды (SRS §4.2). Пустое место на его месте читалось бы как
             // «фото нет вовсе».
-            <p className="t-caption grid h-[72px] w-[72px] shrink-0 place-items-center rounded-[var(--r-2)] bg-[var(--surface-sunken)] text-center text-[var(--text-2)]">
+            <p className="grid h-[72px] w-[72px] shrink-0 place-items-center overflow-hidden rounded-[var(--r-2)] bg-[var(--surface-sunken)] px-[var(--s-1)] text-center text-[length:10px] leading-tight text-[var(--text-2)]">
               {t('report.photosPending')}
             </p>
           ) : (

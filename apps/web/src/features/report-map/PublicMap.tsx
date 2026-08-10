@@ -1,5 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { lazy, Suspense, useEffect, useState } from 'react'
+import type { ReportMapResponse } from '@ravonroad/shared-types'
 import { EMPTY_FILTERS, fetchReportMap, reportKeys, type ReportFilters } from '../../entities/report/api'
 import { apiErrorCode } from '../../shared/api/client'
 import { useI18n } from '../../shared/i18n/useI18n'
@@ -15,6 +16,16 @@ const ReportMap = lazy(() => import('./ReportMap'))
 
 /** Пан и зум не должны бить в API на каждый кадр (SRS §7.5). */
 const MAP_STALE_TIME = 30_000
+
+/** Пустые значения — модульные константы, а не литералы в разметке.
+ *
+ *  Литерал `?? []` создаёт новый массив на каждый рендер, эффект карты видит новые
+ *  зависимости, зовёт `setData`, тот поднимает `sourcedata`, пересчёт маркеров вызывает
+ *  `setState` — и рендер начинается заново. Цикл занимает главный поток, MapLibre
+ *  не получает кадра, и карта не доходит до события `load`: тайлы не грузятся,
+ *  маркеров нет, в консоли пусто. */
+const NO_POINTS: ReportMapResponse['points'] = []
+const NO_STATUSES: ReportMapResponse['statuses'] = []
 
 /** Публичная карта заявок: точки, кластеры, выбор заявки и своя геопозиция.
  *
@@ -60,8 +71,8 @@ export function PublicMap({ filters = EMPTY_FILTERS, focus: requested = null }: 
         <Suspense fallback={null}>
           <ReportMap
             archiveUrl={archiveUrl}
-            points={map.data?.points ?? []}
-            statuses={map.data?.statuses ?? []}
+            points={map.data?.points ?? NO_POINTS}
+            statuses={map.data?.statuses ?? NO_STATUSES}
             selected={selected}
             onSelect={setSelected}
             onBoundsChange={(bounds) => setBbox(quantizeBbox(bounds))}

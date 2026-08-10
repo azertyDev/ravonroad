@@ -146,11 +146,11 @@ export default function ReportMap({
     const instance = new MapLibreMap({
       container: root,
       style: basemapStyle(archiveUrl),
-      // Житель, не давший геопозицию, видит город целиком, а не «где-то в Ташкенте» (US-002).
-      bounds: [
-        [TASHKENT_BOUNDS.minLon, TASHKENT_BOUNDS.minLat],
-        [TASHKENT_BOUNDS.maxLon, TASHKENT_BOUNDS.maxLat],
+      center: [
+        (TASHKENT_BOUNDS.minLon + TASHKENT_BOUNDS.maxLon) / 2,
+        (TASHKENT_BOUNDS.minLat + TASHKENT_BOUNDS.maxLat) / 2,
       ],
+      zoom: MIN_ZOOM,
       minZoom: MIN_ZOOM,
       maxZoom: MAX_ZOOM,
       // Поворот выключен: заявкам он ничего не даёт, а вернуть карту на север
@@ -218,6 +218,28 @@ export default function ReportMap({
         clusterRadius: CLUSTER_RADIUS,
         clusterMaxZoom: CLUSTER_MAX_ZOOM,
       })
+      // Невидимый слой — обязателен, а не декорация: MapLibre грузит тайлы источника
+      // только под слой, который на него ссылается. Без него источник хранит точки,
+      // `querySourceFeatures` возвращает пустоту, и маркеров на карте не появляется
+      // ни одного — молча, без единой строки в консоли. Рисуют пины элементы DOM,
+      // поэтому слою здесь остаётся только одна работа: заставить кластеризацию считать.
+      instance.addLayer({
+        id: `${SOURCE}-anchor`,
+        type: 'circle',
+        source: SOURCE,
+        paint: { 'circle-radius': 1, 'circle-opacity': 0 },
+      })
+      // Житель, не давший геопозицию, видит город целиком, а не «где-то в Ташкенте»
+      // (US-002). Подгонка идёт после загрузки, а не параметром `bounds` конструктора:
+      // с ним карта не доходит до события `load` вовсе — стиль остаётся неразобранным,
+      // источник не добавляется, и маркеров не появляется ни одного, молча.
+      instance.fitBounds(
+        [
+          [TASHKENT_BOUNDS.minLon, TASHKENT_BOUNDS.minLat],
+          [TASHKENT_BOUNDS.maxLon, TASHKENT_BOUNDS.maxLat],
+        ],
+        { duration: 0 },
+      )
       reportBounds()
     })
     instance.on('moveend', () => {

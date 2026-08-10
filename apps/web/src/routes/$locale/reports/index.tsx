@@ -99,7 +99,7 @@ export function ReportListPage() {
               className="flex gap-[var(--s-3)] rounded-[var(--r-3)] border border-[var(--border-1)] bg-[var(--surface-card)] p-[var(--s-3)]"
             >
               {item.previewUrl === null ? (
-                <span className="t-caption grid h-[72px] w-[72px] shrink-0 place-items-center rounded-[var(--r-2)] bg-[var(--surface-sunken)] text-center text-[var(--text-2)]">
+                <span className="grid h-[72px] w-[72px] shrink-0 place-items-center overflow-hidden rounded-[var(--r-2)] bg-[var(--surface-sunken)] px-[var(--s-1)] text-center text-[length:10px] leading-tight text-[var(--text-2)]">
                   {t('report.photosPending')}
                 </span>
               ) : (

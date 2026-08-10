@@ -4,6 +4,11 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+  // .env лежит в корне монорепозитория, а Vite по умолчанию ищет его рядом с собой,
+  // в apps/web. Без этого dev-сервер поднимался с пустой VITE_MAP_PMTILES_URL, и карта
+  // молча заменялась сообщением «карта недоступна» — при том что в образе она работала:
+  // туда значение приходит build-аргументом (Dockerfile.web).
+  envDir: fileURLToPath(new URL('../..', import.meta.url)),
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
