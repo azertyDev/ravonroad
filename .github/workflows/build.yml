@@ -23,7 +23,7 @@ jobs:
           - name: migrate
             dockerfile: Dockerfile.migrate
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
 
       # GHCR принимает только строчные имена, а владелец репозитория пишется смешанным.
       - id: name
