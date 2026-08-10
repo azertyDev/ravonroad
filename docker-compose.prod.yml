@@ -24,10 +24,19 @@ services:
       - -c
       - huge_pages=off
 
+  # Сборка образов на сервере запрещена (SRS §12.2 п.1): на 2 ГБ она упирается в память,
+  # образы приезжают готовыми из GHCR. `!reset` снимает build: из базового файла — без
+  # него `docker compose up --build` и `docker compose run migrate` на голой машине
+  # начали бы собирать прямо на проде.
   api:
+    build: !reset null
     mem_limit: 576m
     environment:
       NODE_OPTIONS: --max-old-space-size=384
 
   edge:
+    build: !reset null
     mem_limit: 96m
+
+  migrate:
+    build: !reset null
