@@ -24,6 +24,7 @@ const MAX_ATTEMPTS = 5
 
 interface ClaimedPhoto {
   id: number
+  report_id: number
   raw_key: string | null
   attempts: number
 }
@@ -103,7 +104,7 @@ export class PhotoWorker implements OnModuleInit, OnModuleDestroy {
                     ORDER BY next_attempt_at
                     LIMIT 1
                       FOR UPDATE SKIP LOCKED)
-      RETURNING id, raw_key, attempts`
+      RETURNING id, report_id, raw_key, attempts`
     return rows[0] ?? null
   }
 
@@ -142,9 +143,28 @@ export class PhotoWorker implements OnModuleInit, OnModuleDestroy {
       // бакета чистит `incoming/` старше суток, — поэтому неудача здесь не откатывает
       // уже готовую фотографию.
       await this.s3.deleteObject(photo.raw_key).catch(() => undefined)
+      await this.enqueueCard(photo.report_id)
     } catch (error) {
       await this.fail(photo, error instanceof Error ? error.message : 'unknown error')
     }
+  }
+
+  /** Карточка ставится в очередь, когда обработано **последнее** `BEFORE`-фото заявки
+   *  (SRS §1.3 п.7): раньше в группу ушла бы карточка без фотографий, ради которых её
+   *  и смотрят.
+   *
+   *  Один `INSERT ... SELECT` вместо чтения и проверки в коде: два воркера, дошедшие
+   *  до последней фотографии одновременно, иначе поставили бы две карточки. Условие
+   *  смотрит на `PENDING`, а не на `READY`, поэтому фотография, не пережившая пять
+   *  попыток, карточку не задерживает — заявка уходит с оставшимися (T-074). */
+  private async enqueueCard(reportId: number): Promise<void> {
+    await this.prisma.$executeRaw`
+      INSERT INTO telegram_outbox (report_id, kind, payload)
+      SELECT ${reportId}, 'CARD_CREATE', '{}'::jsonb
+       WHERE NOT EXISTS (SELECT 1 FROM report_photo p
+                          WHERE p.report_id = ${reportId} AND p.kind = 'BEFORE' AND p.state = 'PENDING')
+         AND NOT EXISTS (SELECT 1 FROM telegram_outbox o
+                          WHERE o.report_id = ${reportId} AND o.kind = 'CARD_CREATE')`
   }
 
   private async fail(photo: ClaimedPhoto, message: string): Promise<void> {
@@ -160,6 +180,9 @@ export class PhotoWorker implements OnModuleInit, OnModuleDestroy {
         nextAttemptAt: new Date(Date.now() + backoffMs),
       },
     })
+    // Последняя попытка исчерпана — фотографии не будет никогда, и ждать её карточке
+    // больше незачем: заявка уходит в группу с оставшимися (T-074).
+    if (exhausted) await this.enqueueCard(photo.report_id)
   }
 }
 
