@@ -35,12 +35,21 @@ CREATE TABLE moderation_batch (
     report_ids              INTEGER[]      NOT NULL,
     chat_id                 BIGINT         NOT NULL,
     message_id              INTEGER,
-    -- Защита от повторного применения. Строки истории, созданные пакетом, находятся
-    -- по равенству created_at = applied_at: приложение проставляет обеим записям одно
-    -- и то же значение, поэтому отдельная колонка-связь не нужна.
+    -- Защита от повторного применения: второе нажатие получает «пакет уже обработан».
     applied_at              TIMESTAMPTZ(3),
     applied_by_moderator_id INTEGER,
     created_at              TIMESTAMPTZ(3) NOT NULL DEFAULT now(),
 
     CONSTRAINT moderation_batch_applied_by_fkey FOREIGN KEY (applied_by_moderator_id) REFERENCES moderator (id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
+
+-- Строка истории знает свой пакет. Связь по внешнему ключу, а не по совпадению времени:
+-- отмена пакета правит опубликованные статусы, и держать её на равенстве created_at
+-- значило бы, что любая будущая вставка истории отдельной транзакцией или перенос данных
+-- ломают отмену молча и задним числом.
+ALTER TABLE report_status_history
+    ADD COLUMN batch_id INTEGER,
+    ADD CONSTRAINT report_status_history_batch_id_fkey FOREIGN KEY (batch_id) REFERENCES moderation_batch (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- Частичный: заполнен только у пакетных решений, а их доля в истории мала.
+CREATE INDEX history_batch_idx ON report_status_history (batch_id) WHERE batch_id IS NOT NULL;

@@ -98,12 +98,10 @@ export class BatchService {
         return { undone: 0, code: 'EXPIRED' as const }
       }
 
-      // Строки истории, созданные пакетом, находятся по равенству `created_at`:
-      // в одной транзакции `now()` одинаков для всех операторов, поэтому совпадение
-      // точное и отдельной колонки-связи не нужно.
-      const rows = await tx.$queryRaw<{ id: number }[]>`
-        SELECT id FROM report_status_history
-         WHERE report_id = ANY(${batch.reportIds}) AND created_at = ${batch.appliedAt} AND undone_at IS NULL`
+      const rows = await tx.reportStatusHistory.findMany({
+        where: { batchId: input.batchId, undoneAt: null },
+        select: { id: true },
+      })
 
       let undone = 0
       for (const row of rows) {
@@ -171,10 +169,6 @@ export class BatchService {
          WHERE id = ANY(${targets}) AND status = 'NEW'
         RETURNING id, public_number`
 
-      // Один и тот же момент проставляется строкам истории и пакету: отмена находит
-      // «свои» строки по равенству `created_at = applied_at`, и это равенство держится
-      // тем, что значение одно, а не тем, что две функции времени сойдутся.
-      const appliedAt = new Date()
       for (const row of applied) {
         await tx.reportStatusHistory.create({
           data: {
@@ -186,13 +180,14 @@ export class BatchService {
             moderatorId: input.moderator.id,
             reason: input.reason ?? null,
             duplicateOfId: root,
-            createdAt: appliedAt,
+            // Строка знает свой пакет: по этой связи отмена возвращает весь состав.
+            batchId: input.batchId,
           },
         })
       }
       await tx.moderationBatch.update({
         where: { id: input.batchId },
-        data: { appliedAt, appliedByModeratorId: input.moderator.id },
+        data: { appliedAt: new Date(), appliedByModeratorId: input.moderator.id },
       })
       await this.cards.enqueueEditMany(
         tx,

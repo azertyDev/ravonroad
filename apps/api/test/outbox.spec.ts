@@ -265,6 +265,9 @@ describe('Пакетные действия (AC-10, SRS §6.14)', () => {
     })
     expect(history).toHaveLength(8)
     expect(history.every((row) => row.moderatorId !== null)).toBe(true)
+    // Каждая строка знает свой пакет: по этой связи отмена находит состав, и держится
+    // она на внешнем ключе, а не на совпадении времени.
+    expect(history.every((row) => row.batchId === batch.id)).toBe(true)
   })
 
   it('повторное нажатие отклоняется по applied_at', async () => {

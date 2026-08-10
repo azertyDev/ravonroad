@@ -269,6 +269,11 @@ model ReportStatusHistory {
   reasonText    String? @map("reason_text") @db.VarChar(500)
   duplicateOfId Int?    @map("duplicate_of_id")
 
+  /** Пакет, которым поставлен этот статус (SRS §2.15). `null` у поштучных решений;
+   *  по нему отмена пакета находит свои строки — явной связью, а не совпадением времени. */
+  batchId Int?             @map("batch_id")
+  batch   ModerationBatch? @relation(fields: [batchId], references: [id], onDelete: SetNull)
+
   undoneAt DateTime? @map("undone_at") @db.Timestamptz(3)
   /** Уникальность делает двойную отмену одного перехода невозможной на уровне БД,
    *  а не «маловероятной» из-за проверки в коде (SRS §2.7). */
@@ -405,6 +410,8 @@ model ModerationBatch {
   appliedBy            Moderator? @relation(fields: [appliedByModeratorId], references: [id], onDelete: Restrict)
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  decisions ReportStatusHistory[]
 
   @@map("moderation_batch")
 }

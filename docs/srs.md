@@ -420,6 +420,7 @@ CREATE INDEX district_geom_idx ON district USING GIST (geom);
 | `reason` | `varchar(48)` null | Код причины |
 | `reason_text` | `varchar(500)` null | Текст при `other` |
 | `duplicate_of_id` | `int` null | Оригинал при `DUPLICATE` |
+| `batch_id` | `int` null, FK → `moderation_batch(id)` | Пакет, которым поставлен статус (§2.15). `null` у поштучных решений |
 | `undone_at` | `timestamptz` null | Проставляется, когда переход отменён |
 | `undoes_history_id` | `int` null, FK → `report_status_history(id)` unique | Заполнено у записи-отмены |
 | `created_at` | `timestamptz` not null | |
@@ -428,6 +429,8 @@ CREATE INDEX district_geom_idx ON district USING GIST (geom);
 CREATE INDEX history_report_idx ON report_status_history (report_id, created_at);
 CREATE UNIQUE INDEX history_undo_once_idx
   ON report_status_history (undoes_history_id) WHERE undoes_history_id IS NOT NULL;
+CREATE INDEX history_batch_idx ON report_status_history (batch_id)
+  WHERE batch_id IS NOT NULL;
 ```
 
 Отмена (PRD 5.4) — **новая строка**, а не правка старой: инвариант 5.3.4 требует, чтобы
@@ -603,6 +606,13 @@ CREATE INDEX outbox_due_idx ON telegram_outbox (next_attempt_at)
 туда не помещается, а `1:B:417:AC` — помещается. Состав пакета фиксируется в момент
 отправки сообщения, а не пересчитывается при нажатии: иначе модератор нажимал бы «принять
 все» на один список, а применялось бы к другому, изменившемуся за минуту.
+
+**Обратная связь — колонка `report_status_history.batch_id`** (§2.7), а не совпадение
+`created_at` со временем применения. Отмена пакета возвращает опубликованные статусы
+пятнадцати заявок разом, и связь такой операции обязана быть явной: время сходится ровно
+до тех пор, пока история пишется одной транзакцией с пакетом, а первая же вставка отдельной
+транзакцией, backfill или перенос данных ломают отмену молча и задним числом. Колонка
+дешевле, чем это молчание.
 
 `report_ids` — массив, а не таблица связи: пакет живёт часы, не участвует в join-ах
 и всегда читается целиком. Таблица связи здесь дала бы вторую сущность и ни одного запроса,
