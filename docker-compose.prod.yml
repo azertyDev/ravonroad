@@ -4,6 +4,11 @@
 services:
   db:
     mem_limit: 640m
+    environment:
+      # `:?` вместо `:-` из базового файла: не заданный пароль обязан ронять запуск,
+      # а не молча подставлять значение, которое лежит в публичном репозитории.
+      # Строка подключения api собирается из этой же переменной и остаётся согласованной.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in production}
     command:
       - postgres
       - -c
