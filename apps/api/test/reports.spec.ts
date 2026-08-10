@@ -167,3 +167,52 @@ describe('POST /api/reports — отказы приёма (SRS §4.2, §5.3)', (
     expect(response.headers.get('x-request-id')).toBe(body.error.correlationId)
   })
 })
+
+describe('POST /api/reports — гонка и транзакционность (SRS §11.3, AC-10)', () => {
+  it('сто одновременных отправок дают сто разных номеров', async () => {
+    // Тест существует затем, чтобы COUNT(*) + 1 нельзя было вернуть незаметно:
+    // на первой же гонке он выдал бы два одинаковых номера (SRS §2.1).
+    // Адреса разные: сто заявок в час с одного — это жёсткий порог, а здесь
+    // проверяется последовательность номеров, а не лимиты.
+    const responses = await Promise.all(
+      Array.from({ length: 100 }, (_unused, index) =>
+        submitReport(app, {
+          photos: [jpeg],
+          headers: { 'X-Forwarded-For': `203.0.113.${index % 250}` },
+        }),
+      ),
+    )
+
+    expect(responses.every((response) => response.status === 201)).toBe(true)
+    const bodies = (await Promise.all(responses.map((response) => response.json()))) as CreateReportResponse[]
+
+    const numbers = bodies.map((body) => body.number)
+    expect(new Set(numbers).size).toBe(100)
+    expect(new Set(bodies.map((body) => body.trackingToken)).size).toBe(100)
+    expect(await prisma.report.count()).toBe(100)
+  }, 60_000)
+
+  it('сбой на шаге фотографий не оставляет ни заявки, ни истории, ни сигналов', async () => {
+    app.storage.failing = true
+    const response = await submitReport(app, {
+      photos: [jpeg],
+      fields: { website: 'http://spam.example' },
+    })
+    expect(response.status).toBe(503)
+
+    // Заявка, история и сигналы создаются одной транзакцией, а она начинается после
+    // загрузки байтов: до неё падать нечему, после — нечего откатывать наполовину.
+    expect(await prisma.report.count()).toBe(0)
+    expect(await prisma.reportStatusHistory.count()).toBe(0)
+    expect(await prisma.abuseSignal.count()).toBe(0)
+    expect(await prisma.reportPhoto.count()).toBe(0)
+  })
+
+  it('не пропускает номера мимо последовательности', async () => {
+    // Пропуски при откате транзакции — не дефект: номер обязан быть уникальным,
+    // а не плотным. Проверяется именно возрастание, а не отсутствие дыр.
+    const first = (await (await submitReport(app, { photos: [jpeg] })).json()) as CreateReportResponse
+    const second = (await (await submitReport(app, { photos: [jpeg] })).json()) as CreateReportResponse
+    expect(second.number).toBeGreaterThan(first.number)
+  })
+})
