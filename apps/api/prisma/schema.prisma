@@ -122,6 +122,9 @@ model Report {
   updatedAt DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
   doneAt    DateTime? @map("done_at") @db.Timestamptz(3)
 
+  photos       ReportPhoto[]
+  abuseSignals AbuseSignal[]
+
   @@index([createdAt(sort: Desc), id(sort: Desc)], map: "report_list_idx")
   @@index([latitude, longitude], map: "report_bbox_idx")
   @@index([status], map: "report_status_idx")
@@ -141,4 +144,101 @@ enum ReportStatus {
   OUT_OF_SCOPE
 
   @@map("report_status")
+}
+
+/** Фотография заявки — **и одновременно задача её обработки** (ADR-0007).
+ *
+ *  Отдельной таблицы задач нет: очередь это `state = 'PENDING'` под частичным индексом.
+ *  Вторая строка на то же фото означала бы два состояния, которые надо синхронизировать,
+ *  а размер индекса равен глубине очереди, а не числу фотографий (SRS §2.4). */
+model ReportPhoto {
+  id       Int    @id @default(autoincrement())
+  reportId Int    @map("report_id")
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  kind      PhotoKind
+  sortOrder Int        @map("sort_order") @db.SmallInt
+  state     PhotoState @default(PENDING)
+
+  /** Сырые байты в `incoming/`, живут минуты: воркер удаляет объект после обработки,
+   *  а забытые подчищает lifecycle-правило бакета (SRS §5.5). */
+  rawKey     String? @map("raw_key") @db.VarChar(160)
+  objectKey  String? @map("object_key") @db.VarChar(160)
+  previewKey String? @map("preview_key") @db.VarChar(160)
+
+  /** Хеш **итоговых** байт, после перекодирования. Хеш исходника бесполезен: у двух
+   *  жителей, снявших одну яму, байты разные, а у одного файла, доставленного дважды,
+   *  одинаковые именно после нормализации (SRS §5.3). */
+  sha256 String? @db.Char(64)
+
+  width  Int? @db.SmallInt
+  height Int? @db.SmallInt
+  bytes  Int?
+
+  attempts      Int      @default(0) @db.SmallInt
+  nextAttemptAt DateTime @default(now()) @map("next_attempt_at") @db.Timestamptz(3)
+  lastError     String?  @map("last_error") @db.VarChar(500)
+
+  uploadedByTelegramUserId BigInt? @map("uploaded_by_telegram_user_id")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  /** Предел «3 фото каждого вида на заявку» держит БД, а не проверка в сервисе:
+   *  приложению остаётся вернуть внятную ошибку (US-008). */
+  @@unique([reportId, kind, sortOrder], map: "photo_slot_idx")
+  /** NULL в sha256 уникальности не нарушает, поэтому необработанные строки
+   *  друг другу не мешают (SRS §2.4). */
+  @@unique([reportId, kind, sha256], map: "photo_dedup_idx")
+  @@map("report_photo")
+}
+
+enum PhotoKind {
+  BEFORE
+  AFTER
+
+  @@map("photo_kind")
+}
+
+enum PhotoState {
+  PENDING
+  READY
+  FAILED
+
+  @@map("photo_state")
+}
+
+/** Сработавшее правило антиабуза. Отдельная таблица, а не булев флаг в заявке:
+ *  карточка модератора перечисляет, **какие именно** правила сработали (US-025),
+ *  а пороги пересматриваются на 30-й день — по этой таблице видно, какое шумит. */
+model AbuseSignal {
+  id       Int    @id @default(autoincrement())
+  reportId Int    @map("report_id")
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  rule AbuseRule
+  /** `{"fillMs":1200}`, `{"perHour":14}`. Без адреса: он в `report.created_ip`. */
+  detail Json?
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([reportId], map: "abuse_signal_report_idx")
+  @@map("abuse_signal")
+}
+
+enum AbuseRule {
+  HONEYPOT
+  FAST_FILL
+  IP_RATE
+
+  @@map("abuse_rule")
+}
+
+/** Открытия формы за сутки — знаменатель метрики конверсии P-1 (SRS §2.13).
+ *  Ни cookie, ни идентификаторов, ни IP: посуточного числа для метрики достаточно,
+ *  а всё остальное было бы профилированием, запрещённым PRD §9.4. */
+model FormOpenCounter {
+  day   DateTime @id @db.Date
+  count Int
+
+  @@map("form_open_counter")
 }
