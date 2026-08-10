@@ -86,6 +86,37 @@
   --pin-stroke-sat-outer: rgba(18, 22, 28, .5);
 }
 
+/* Тёмная тема объявлена дважды: под системной настройкой и под явным переключателем.
+   Иначе она недостижима — [data-theme] никто не выставляет, и тёмные значения лежат
+   мёртвым грузом. `:not([data-theme="light"])` нужен, чтобы выбранная вручную светлая
+   тема пережила тёмную системную. Списки обязаны совпадать: за этим следит theme.test.ts. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --text-1: var(--asphalt-0);
+    --text-2: var(--asphalt-300);
+    /* На тёмной теме asphalt-400 проходит: 5.45:1 на asphalt-900, 6.19:1 на asphalt-950 */
+    --text-3: var(--asphalt-400);
+    --text-3-sunken: var(--asphalt-400);
+    --surface-page: var(--asphalt-950);
+    --surface-card: var(--asphalt-900);
+    --surface-sunken: #232833;
+    --border-1: var(--asphalt-800);
+    --border-2: var(--asphalt-700);
+    --border-strong: var(--asphalt-0);
+    --focus-ring: var(--asphalt-0);
+
+    --status-new-tint: #3A1128;      --status-new-ink: #F7A9CF;      --status-new-line: #6B2249;
+    --status-accepted-tint: #3A1D0A; --status-accepted-ink: #FFBE93; --status-accepted-line: #6E3A16;
+    --status-progress-tint: #101F42; --status-progress-ink: #A9C2F7; --status-progress-line: #24427F;
+    --status-done-tint: #06282B;     --status-done-ink: #8FDDE1;     --status-done-line: #12565B;
+    --status-rejected-tint: #341216; --status-rejected-ink: #F4A8B1; --status-rejected-line: #6B2A33;
+    --status-duplicate-tint: #23272F;--status-duplicate-ink: #C1C7D4;--status-duplicate-line: #454C5C;
+    --status-outofscope-tint: #1E1A38;--status-outofscope-ink: #C0B6F0;--status-outofscope-line: #3F3775;
+
+    --status-progress-pin: var(--status-progress-pin-dark);
+  }
+}
+
 [data-theme="dark"] {
   --text-1: var(--asphalt-0);
   --text-2: var(--asphalt-300);
