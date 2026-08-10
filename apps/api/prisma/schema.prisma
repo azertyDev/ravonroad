@@ -124,6 +124,7 @@ model Report {
 
   photos       ReportPhoto[]
   abuseSignals AbuseSignal[]
+  history      ReportStatusHistory[]
 
   @@index([createdAt(sort: Desc), id(sort: Desc)], map: "report_list_idx")
   @@index([latitude, longitude], map: "report_bbox_idx")
@@ -241,4 +242,47 @@ model FormOpenCounter {
   count Int
 
   @@map("form_open_counter")
+}
+
+/** Публичная последовательность статусов заявки (SRS §2.7, US-004).
+ *
+ *  Отмена перехода — **новая строка**, а не правка старой: история не переписывается
+ *  задним числом (PRD §5.3.4). Наружу отдаются только `toStatus`, `createdAt`
+ *  и признак отмены; `actor*` и `moderatorId` сервер не покидают (PRD §6.2). */
+model ReportStatusHistory {
+  id       Int    @id @default(autoincrement())
+  reportId Int    @map("report_id")
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  /** `null` только у первой записи — создания заявки. */
+  fromStatus ReportStatus? @map("from_status")
+  toStatus   ReportStatus  @map("to_status")
+
+  actorType           ActorType @map("actor_type")
+  actorTelegramUserId BigInt?   @map("actor_telegram_user_id")
+  moderatorId         Int?      @map("moderator_id")
+
+  reason        String? @db.VarChar(48)
+  reasonText    String? @map("reason_text") @db.VarChar(500)
+  duplicateOfId Int?    @map("duplicate_of_id")
+
+  undoneAt DateTime? @map("undone_at") @db.Timestamptz(3)
+  /** Уникальность делает двойную отмену одного перехода невозможной на уровне БД,
+   *  а не «маловероятной» из-за проверки в коде (SRS §2.7). */
+  undoesHistoryId Int?                 @unique(map: "history_undo_once_idx") @map("undoes_history_id")
+  undoes          ReportStatusHistory? @relation("HistoryUndo", fields: [undoesHistoryId], references: [id])
+  undoneBy        ReportStatusHistory? @relation("HistoryUndo")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([reportId, createdAt], map: "history_report_idx")
+  @@map("report_status_history")
+}
+
+enum ActorType {
+  SYSTEM
+  MODERATOR
+  VOLUNTEER
+
+  @@map("actor_type")
 }
