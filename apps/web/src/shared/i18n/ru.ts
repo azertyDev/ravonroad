@@ -21,4 +21,11 @@ export const ruError: Record<ErrorCode, string> = {
   VALIDATION_FAILED: 'В отправленных данных есть ошибка',
   NOT_FOUND: 'Запрошенная страница не найдена',
   INTERNAL_ERROR: 'Непредвиденная ошибка сервиса',
+  OUTSIDE_TASHKENT: 'Кампания работает только в Ташкенте',
+  PHOTOS_REQUIRED: 'Нужна хотя бы одна фотография',
+  IDEMPOTENCY_CONFLICT: 'Эта отправка уже принята с другими данными',
+  PAYLOAD_TOO_LARGE: 'Файл слишком большой',
+  UNSUPPORTED_MEDIA_TYPE: 'Этот формат файла не поддерживается',
+  RATE_LIMITED: 'Слишком много попыток, подождите немного',
+  STORAGE_UNAVAILABLE: 'Хранилище фотографий временно недоступно, повторите',
 }

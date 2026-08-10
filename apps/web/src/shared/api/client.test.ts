@@ -53,8 +53,10 @@ describe('parseApiError', () => {
   })
 
   it('не доверяет коду, которого нет в контракте', () => {
+    // Код из сервера новее собранного клиента: словаря локали для него нет, и показать
+    // жителю пустое место хуже, чем общий текст об ошибке (SRS §8.1).
     const error = parseApiError(400, {
-      error: { code: 'OUTSIDE_TASHKENT', message: 'outside', correlationId: CORRELATION },
+      error: { code: 'PHOTO_TOO_BLURRY', message: 'from a newer server', correlationId: CORRELATION },
     }, CORRELATION)
 
     expect(error.code).toBe('INTERNAL_ERROR')

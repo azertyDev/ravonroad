@@ -27,4 +27,11 @@ export const uzError: Record<ErrorCode, string> = {
   VALIDATION_FAILED: 'Yuborilgan maʼlumotlarda xato bor',
   NOT_FOUND: 'Soʻralgan sahifa topilmadi',
   INTERNAL_ERROR: 'Xizmatda kutilmagan xato',
+  OUTSIDE_TASHKENT: 'Kampaniya faqat Toshkent shahrida ishlaydi',
+  PHOTOS_REQUIRED: 'Kamida bitta surat kerak',
+  IDEMPOTENCY_CONFLICT: 'Bu yuborish allaqachon boshqa maʼlumotlar bilan qabul qilingan',
+  PAYLOAD_TOO_LARGE: 'Fayl juda katta',
+  UNSUPPORTED_MEDIA_TYPE: 'Bu fayl formati qoʻllab-quvvatlanmaydi',
+  RATE_LIMITED: 'Juda koʻp urinish, biroz kuting',
+  STORAGE_UNAVAILABLE: 'Suratlar ombori vaqtincha ishlamayapti, qayta urining',
 }
