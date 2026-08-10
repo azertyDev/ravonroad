@@ -54,6 +54,14 @@ services:
       S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
       S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
       S3_PUBLIC_BASE_URL: ${S3_PUBLIC_BASE_URL}
+      # Бот — модуль внутри api (ADR-0002), поэтому доступ к Telegram нужен именно ему,
+      # и он обязателен: без него модерация встаёт молча, а карточки копятся в очереди.
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_GROUP_CHAT_ID: ${TELEGRAM_GROUP_CHAT_ID}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET}
+      # Второй эшелон обороны webhook и первичный засев allowlist — необязательные.
+      TELEGRAM_WEBHOOK_PATH: ${TELEGRAM_WEBHOOK_PATH:-}
+      TELEGRAM_MODERATOR_IDS: ${TELEGRAM_MODERATOR_IDS:-}
       INTAKE_CONCURRENCY: ${INTAKE_CONCURRENCY:-8}
       PHOTO_WORKERS: ${PHOTO_WORKERS:-1}
       # libvips не поднимает пул потоков: обработка идёт по одной фотографии за раз,
