@@ -12,6 +12,6 @@ export class StatsController {
   @Get()
   async read(): Promise<StatsResponse> {
     const snapshot = await this.points.get()
-    return { done: snapshot.done, goal: CAMPAIGN_GOAL }
+    return { ...snapshot.summary, goal: CAMPAIGN_GOAL }
   }
 }

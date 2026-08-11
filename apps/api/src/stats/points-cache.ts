@@ -3,10 +3,21 @@ import { PUBLIC_STATUSES, type PublicStatus } from '@ravonroad/shared-types'
 import { ApiException } from '../common/api-error'
 import type { FilterableReport } from '../reports/filters'
 import { PrismaService } from '../prisma/prisma.service'
+import { summarize, type CampaignSummary } from './summary'
 
 /** Тридцать секунд — потолок задержки счётчика вдвое ниже требования PRD (≤ 60 с)
- *  и ровно столько же, сколько живёт микрокэш nginx (SRS §4.7). */
-const TTL_MS = 30_000
+ *  и ровно столько же, сколько живёт микрокэш nginx (SRS §4.7).
+ *
+ *  Значение переопределяется `POINTS_CACHE_TTL_MS` и обнуляется в тестах: снимок живёт
+ *  дольше, чем идёт тест, и проверить свежие данные через HTTP иначе нельзя вовсе —
+ *  ответ приходил бы от предыдущего сценария. Это не поблажка тестам, а недостающая
+ *  ручка: на проде ей же снижается задержка счётчика, если 30 секунд окажутся много. */
+const DEFAULT_TTL_MS = 30_000
+
+function ttlMs(): number {
+  const raw = Number(process.env['POINTS_CACHE_TTL_MS'])
+  return Number.isFinite(raw) && raw >= 0 ? raw : DEFAULT_TTL_MS
+}
 
 export interface PointRow extends FilterableReport {
   number: number
@@ -14,7 +25,8 @@ export interface PointRow extends FilterableReport {
 
 interface Snapshot {
   rows: PointRow[]
-  done: number
+  /** Числа плаката целиком, посчитанные тем же проходом, что и точки. */
+  summary: CampaignSummary
   at: number
 }
 
@@ -36,7 +48,7 @@ export class PointsCache {
 
   async get(now: number = Date.now()): Promise<Snapshot> {
     const current = this.snapshot
-    if (current !== null && now - current.at < TTL_MS) return current
+    if (current !== null && now - current.at < ttlMs()) return current
 
     // Single-flight: сотня одновременных запросов при истёкшем TTL уходит в БД одним.
     // Без этого истечение кэша под нагрузкой отправляло бы в базу столько запросов,
@@ -84,7 +96,7 @@ export class PointsCache {
       doneAt: report.doneAt,
     }))
 
-    const snapshot = { rows, done: rows.filter((row) => row.status === 'DONE').length, at: now }
+    const snapshot = { rows, summary: summarize(rows, now), at: now }
     this.snapshot = snapshot
     return snapshot
   }
