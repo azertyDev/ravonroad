@@ -1,8 +1,11 @@
 /* RavonRoad — типографика. Mobile-first, базовый кегль 16.
    14 px — нижняя граница осмысленного текста (экран читают под солнцем).
-   12 px разрешён только для mono-лейблов в верхнем регистре. */
+   12 px разрешён только для лейблов в верхнем регистре.
+
+   Гарнитура одна на всё, включая цифры: моноширинной больше нет. Ровный столбец
+   цифр даёт --numeric (tabular-nums), а не отдельная гарнитура. */
 :root {
-  --t-counter: 600 44px/1 var(--font-mono);
+  --t-counter: 600 44px/1 var(--font-sans);
   --t-counter-tracking: -.02em;
   --t-display: 800 32px/1.08 var(--font-sans);
   --t-h1: 700 24px/1.2 var(--font-sans);
@@ -11,7 +14,7 @@
   --t-body-l: 400 17px/1.5 var(--font-sans);
   --t-body: 400 16px/1.5 var(--font-sans);
   --t-caption: 400 14px/1.45 var(--font-sans);
-  --t-label: 600 12px/1.2 var(--font-mono);
+  --t-label: 600 12px/1.2 var(--font-sans);
   --t-label-tracking: .06em;
 
   --t-min-body: 14px;   /* абсолютный минимум для текста */

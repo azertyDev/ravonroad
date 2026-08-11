@@ -1,5 +1,5 @@
-/* Точка входа дизайн-токенов. Порядок важен: fonts объявляет --font-sans/--font-mono,
-   на которые опирается typography. */
+/* Точка входа дизайн-токенов. Порядок важен: fonts объявляет --font-sans,
+   на который опирается typography. */
 @import "./fonts.css";
 @import "./colors.css";
 @import "./typography.css";
