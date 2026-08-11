@@ -15,6 +15,9 @@ export const ruUi: Record<UiKey, string> = {
   'state.errorTitle': 'Что-то пошло не так',
   'state.retry': 'Повторить',
   'state.empty': 'Пока пусто',
+  'unsupported.title': 'Браузер не поддерживается',
+  'unsupported.text':
+    'Сайт работает в последних двух версиях Chrome, Safari и Firefox. Обновите браузер и откройте страницу заново.',
   'status.NEW': 'Новая',
   'status.ACCEPTED': 'Принята',
   'status.IN_PROGRESS': 'В работе',

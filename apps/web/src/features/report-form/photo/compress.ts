@@ -1,5 +1,5 @@
 import { MAX_PHOTO_BYTES } from '@ravonroad/shared-types'
-import { fitWithin, TARGET_LONG_SIDE } from './scale'
+import { fitWithin, TARGET_LONG_SIDE, type Size } from './scale'
 
 /** До сжатия принимаем до 10 МБ (PRD §7.1): столько весит кадр современного телефона.
  *  После сжатия файл обязан уложиться в серверный предел, иначе отправка вернёт 413. */
@@ -50,12 +50,8 @@ export async function compressPhoto(file: File): Promise<CompressResult> {
 
   try {
     const size = fitWithin({ width: bitmap.width, height: bitmap.height }, TARGET_LONG_SIDE)
-    const canvas = new OffscreenCanvas(size.width, size.height)
-    const context = canvas.getContext('2d')
-    if (context === null) return { ok: false, reason: 'DECODE_FAILED', bytes: file.size }
-
-    context.drawImage(bitmap, 0, 0, size.width, size.height)
-    const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: JPEG_QUALITY })
+    const blob = await encodeJpeg(bitmap, size)
+    if (blob === null) return { ok: false, reason: 'DECODE_FAILED', bytes: file.size }
 
     if (blob.size > MAX_PHOTO_BYTES) {
       return { ok: false, reason: 'STILL_TOO_LARGE', bytes: blob.size }
@@ -70,6 +66,36 @@ export async function compressPhoto(file: File): Promise<CompressResult> {
     // в памяти сразу заметны.
     bitmap.close()
   }
+}
+
+/** Уменьшенный кадр в JPEG. Два пути к одному результату, и второй — не запасной
+ *  вариант «на всякий случай»: `OffscreenCanvas` появился в Safari только в 16.4
+ *  (март 2023), а iPhone на iOS 15–16.3 обязаны работать (PRD §8.5). Без обычного
+ *  `<canvas>` каждая такая заявка обрывалась бы на выборе фотографии — той самой
+ *  ошибкой «формат не поддерживается», которая к формату отношения не имеет.
+ *
+ *  `toBlob` живёт в браузерах с 2013 года и умеет ровно то же самое; отличается
+ *  только тем, что отдаёт результат колбэком и работает в главном потоке. */
+function encodeJpeg(bitmap: ImageBitmap, size: Size): Promise<Blob | null> {
+  const draw = (context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D): void => {
+    context.drawImage(bitmap, 0, 0, size.width, size.height)
+  }
+
+  if (typeof OffscreenCanvas === 'function') {
+    const canvas = new OffscreenCanvas(size.width, size.height)
+    const context = canvas.getContext('2d')
+    if (context === null) return Promise.resolve(null)
+    draw(context)
+    return canvas.convertToBlob({ type: 'image/jpeg', quality: JPEG_QUALITY })
+  }
+
+  const canvas = document.createElement('canvas')
+  canvas.width = size.width
+  canvas.height = size.height
+  const context = canvas.getContext('2d')
+  if (context === null) return Promise.resolve(null)
+  draw(context)
+  return new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY))
 }
 
 function toJpegName(name: string): string {

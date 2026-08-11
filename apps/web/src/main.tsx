@@ -3,6 +3,7 @@ import { RouterProvider } from '@tanstack/react-router'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { router } from './router'
+import { isBrowserSupported, UnsupportedBrowser } from './shared/ui/unsupported-browser'
 import './index.css'
 
 const queryClient = new QueryClient({
@@ -19,10 +20,19 @@ const queryClient = new QueryClient({
 const container = document.getElementById('root')
 if (!container) throw new Error('#root not found in index.html')
 
-createRoot(container).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  </StrictMode>,
+const root = createRoot(container)
+
+// Проверка до монтирования приложения, а не внутри него: браузер, который не умеет
+// прочитать фотографию, сломается на форме, и увидеть это житель должен на входе,
+// а не после трёх снимков у бордюра (PRD §8.5).
+root.render(
+  isBrowserSupported() ? (
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </StrictMode>
+  ) : (
+    <UnsupportedBrowser />
+  ),
 )

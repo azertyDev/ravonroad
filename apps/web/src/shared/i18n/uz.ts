@@ -17,6 +17,9 @@ export const uzUi = {
   'state.errorTitle': 'Nimadir xato ketdi',
   'state.retry': 'Qayta urinish',
   'state.empty': 'Hozircha boʻsh',
+  'unsupported.title': 'Brauzer qoʻllab-quvvatlanmaydi',
+  'unsupported.text':
+    'Sayt Chrome, Safari va Firefox brauzerlarining soʻnggi ikki versiyasida ishlaydi. Brauzerni yangilang va sahifani qayta oching.',
   'status.NEW': 'Yangi',
   'status.ACCEPTED': 'Qabul qilingan',
   'status.IN_PROGRESS': 'Ish jarayonida',
