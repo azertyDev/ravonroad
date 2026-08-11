@@ -8,6 +8,7 @@ import { CTA, FIELD, SECONDARY } from '../../shared/ui/control/styles'
 import { Sheet } from '../../shared/ui/control/Sheet'
 import { CatalogState } from '../../shared/ui/state/CatalogState'
 import { ToggleChip } from '../../shared/ui/control/ToggleChip'
+import { useCampaignStats } from '../stats/useCampaignStats'
 import { isEmptyFilters } from './searchParams'
 
 interface ReportFiltersProps {
@@ -36,6 +37,9 @@ export function ReportFilters({ filters, onChange, onClose, count }: ReportFilte
   const { locale, t } = useI18n()
   const districts = useQuery({ queryKey: catalogKeys.districts, queryFn: fetchDistricts, staleTime: Infinity })
   const categories = useQuery({ queryKey: catalogKeys.categories, queryFn: fetchCategories, staleTime: Infinity })
+  // Тот же запрос, что у счётчика кампании, и тот же ключ: числа на плашках берутся
+  // из уже лежащего в кэше ответа, своего запроса у них нет.
+  const stats = useCampaignStats()
 
   return (
     <Sheet
@@ -65,6 +69,7 @@ export function ReportFilters({ filters, onChange, onClose, count }: ReportFilte
                 type="checkbox"
                 status={status}
                 checked={filters.status.includes(status)}
+                count={stats.data?.byStatus[status]}
                 onChange={(checked) =>
                   onChange({
                     ...filters,

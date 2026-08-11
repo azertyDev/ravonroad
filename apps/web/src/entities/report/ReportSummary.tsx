@@ -1,10 +1,11 @@
 import type { ReportDetail, ReportStatus } from '@ravonroad/shared-types'
 import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { catalogKeys, fetchCategories, fetchDistricts, localizedName } from '../catalog/api'
 import { useCampaignStats } from '../../features/stats/useCampaignStats'
 import { formatDate, formatDateTime } from '../../shared/format/date'
-import { formatNumber } from '../../shared/format/number'
+import { formatDistance, formatNumber } from '../../shared/format/number'
 import { useI18n } from '../../shared/i18n/useI18n'
 import type { UiKey } from '../../shared/i18n/messages'
 import { PhotoPending, PhotoPlate } from '../../shared/ui/media/PhotoPlate'
@@ -44,6 +45,10 @@ export function ReportSummary({ report, note }: ReportSummaryProps) {
 
   const district = districts.data?.find((item) => item.code === report.districtCode)
   const districtName = district === undefined ? null : localizedName(district, locale)
+  const nameOfDistrict = (code: string): string => {
+    const found = districts.data?.find((item) => item.code === code)
+    return found === undefined ? code : localizedName(found, locale)
+  }
   const category = categories.data?.find((item) => item.code === report.categoryCode)
   const before = report.photos.filter((photo) => photo.kind === 'BEFORE')
   const after = report.photos.filter((photo) => photo.kind === 'AFTER')
@@ -173,6 +178,42 @@ export function ReportSummary({ report, note }: ReportSummaryProps) {
           </ol>
         </section>
       </div>
+
+
+      {/* «Рядом»: соседние заявки в трёх километрах. На странице отслеживания массив
+          пуст — там показывают одну заявку по личной ссылке, а не окрестности, —
+          и блока тогда нет вовсе.
+
+          Адреса у соседа нет и не будет: геокодер запрещён лицензией (ADR-0004).
+          Вместо него — район и расстояние, а место человек узнаёт, открыв заявку. */}
+      {report.nearby.length > 0 && (
+        <section className="flex flex-col gap-[var(--s-3)] px-[var(--gutter)] pb-[var(--s-5)]">
+          <h2 className="t-section text-[var(--text-2)]">{t('report.nearby')}</h2>
+          <ul className="flex flex-col gap-[var(--s-2)]">
+            {report.nearby.map((item) => (
+              <li key={item.number}>
+                <Link
+                  to="/$locale/reports/$number"
+                  params={{ locale, number: String(item.number) }}
+                  className="flex items-center gap-[var(--s-3)] rounded-[var(--r-3)] border border-[var(--border-1)] bg-[var(--surface-card)] p-[var(--s-3)] hover:bg-[var(--surface-control-hover)]"
+                >
+                  <span style={{ color: `var(--status-${STATUS_SLUG[item.status]}-ink)` }}>
+                    <StatusMark status={item.status} size={14} />
+                  </span>
+                  <span className="t-caption min-w-0 flex-1 truncate text-[var(--text-2)]">
+                    {nameOfDistrict(item.districtCode)}
+                  </span>
+                  {/* Не t-chip: капслок превращает «410 m» в «410 M», а это единица
+                      измерения, а не подпись. */}
+                  <span className="t-caption shrink-0 font-semibold tabular-nums text-[var(--text-1)]">
+                    {formatDistance(item.distanceM, locale)}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Закрытая заявка заканчивается связью с кампанией: тем же жёлтым полем и тем же
           числом, что на главной. Пока число не приехало, полосы нет вовсе — плашка

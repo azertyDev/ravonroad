@@ -8,6 +8,8 @@ export const ruUi: Record<UiKey, string> = {
   'locale.uz': 'Oʻzbekcha',
   'locale.ru': 'Русский',
   'map.tab': 'Карта',
+  'home.statuses': 'Статусы',
+  'report.nearby': 'Рядом',
   'home.titleAction': 'Отметьте яму.',
   'home.titlePromise': 'Бригада починит.',
   'home.lead': 'Государственные органы не участвуют. Только вы и волонтёры.',

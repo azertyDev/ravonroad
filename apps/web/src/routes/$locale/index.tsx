@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { PublicMap } from '../../features/report-map/PublicMap'
 import { CampaignCounter } from '../../features/stats/CampaignCounter'
+import { StatusBreakdown } from '../../features/stats/StatusBreakdown'
 import { useI18n } from '../../shared/i18n/useI18n'
 import { ActionBar } from '../../shared/ui/control/ActionBar'
 import { CTA, GUTTER } from '../../shared/ui/control/styles'
@@ -59,6 +60,7 @@ export function HomePage() {
         </div>
 
         <CampaignCounter />
+        <StatusBreakdown />
       </div>
 
       <ActionBar caption={t('home.ctaCaption')} className="order-3 lg:col-span-2">

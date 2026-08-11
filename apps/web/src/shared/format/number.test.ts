@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatNumber, formatPercent } from './number'
+import { formatDistance, formatNumber, formatPercent } from './number'
 
 const THIN_SPACE = ' '
 const NBSP = ' '
@@ -28,6 +28,22 @@ describe('formatNumber', () => {
   it('сохраняет знак и отбрасывает дробную часть', () => {
     expect(formatNumber(-10000)).toBe(`-10${THIN_SPACE}000`)
     expect(formatNumber(10000.9)).toBe(`10${THIN_SPACE}000`)
+  })
+})
+
+describe('formatDistance', () => {
+  it('до километра считает метрами', () => {
+    expect(formatDistance(0, 'ru')).toBe('0 m')
+    expect(formatDistance(340, 'ru')).toBe('340 m')
+    expect(formatDistance(999, 'uz')).toBe('999 m')
+  })
+
+  it('дальше — километры с одной десятой и разделителем языка', () => {
+    expect(formatDistance(1000, 'ru')).toBe('1,0 km')
+    expect(formatDistance(1240, 'ru')).toBe('1,2 km')
+    expect(formatDistance(1240, 'uz')).toBe('1.2 km')
+    // Потолок соседства — три километра, но округление не должно давать «3 km» из 2951.
+    expect(formatDistance(2951, 'uz')).toBe('3.0 km')
   })
 })
 

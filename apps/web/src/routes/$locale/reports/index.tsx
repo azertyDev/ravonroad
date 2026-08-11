@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { useState } from 'react'
-import { catalogKeys, fetchDistricts } from '../../../entities/catalog/api'
+import { catalogKeys, fetchDistricts, localizedName } from '../../../entities/catalog/api'
 import { ReportCard } from '../../../entities/report/ReportCard'
 import { fetchReportList, fetchReportMap, reportKeys, type ReportFilters as Filters } from '../../../entities/report/api'
 import { FilterBar } from '../../../features/report-filters/FilterBar'
@@ -9,7 +9,9 @@ import { ReportFilters } from '../../../features/report-filters/ReportFilters'
 import { toFilters, toSearch } from '../../../features/report-filters/searchParams'
 import { CITY_BBOX } from '../../../features/report-map/bbox'
 import { PublicMap } from '../../../features/report-map/PublicMap'
+import { useCampaignStats } from '../../../features/stats/useCampaignStats'
 import { apiErrorCode } from '../../../shared/api/client'
+import { formatNumber } from '../../../shared/format/number'
 import { useI18n } from '../../../shared/i18n/useI18n'
 import { ActionBar } from '../../../shared/ui/control/ActionBar'
 import { COMPACT, CTA, GUTTER, SECONDARY } from '../../../shared/ui/control/styles'
@@ -40,6 +42,7 @@ export function ReportListPage() {
   const filters = toFilters(search)
 
   const districts = useQuery({ queryKey: catalogKeys.districts, queryFn: fetchDistricts, staleTime: Infinity })
+  const stats = useCampaignStats()
   const district = districts.data?.find((item) => item.code === filters.district)
 
   const list = useInfiniteQuery({
@@ -100,9 +103,12 @@ export function ReportListPage() {
       </div>
 
       <div className={`order-3 mt-[var(--s-5)] flex flex-col gap-[var(--s-3)] lg:order-3 lg:col-start-2 lg:mt-0 ${GUTTER} lg:px-0`}>
-        {counted.data !== undefined && (
+        {/* Число по району — из разбивки, а не из точек карты: точки ограничены видимой
+            областью и обрезаются потолком выдачи, а тут нужно «сколько всего в районе». */}
+        {district !== undefined && stats.data !== undefined && (
           <p className="t-section text-[var(--text-2)]">
-            {t('list.districtCount')} <span className="tabular-nums">{counted.data.points.length}</span>
+            {localizedName(district, locale)} ·{' '}
+            <span className="tabular-nums">{formatNumber(stats.data.byDistrict[district.code] ?? 0)}</span>
           </p>
         )}
 

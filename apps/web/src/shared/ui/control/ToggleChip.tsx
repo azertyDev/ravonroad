@@ -1,5 +1,6 @@
 import type { ReportStatus } from '@ravonroad/shared-types'
 import type { ReactNode, Ref } from 'react'
+import { formatNumber } from '../../format/number'
 import { StatusMark } from '../status/StatusMark'
 import { STATUS_SLUG } from '../status/statusShape'
 
@@ -15,6 +16,9 @@ interface ToggleChipProps {
   status?: ReportStatus
   /** Ссылка на сам `<input>`: форма переводит сюда фокус, когда группа не заполнена. */
   ref?: Ref<HTMLInputElement>
+  /** Сколько заявок под этот фильтр. Ноль рисуется числом, а не прячется: пустая
+   *  плашка неотличима от плашки, у которой счётчик ещё не приехал. */
+  count?: number
   children: ReactNode
 }
 
@@ -30,7 +34,7 @@ interface ToggleChipProps {
  *  Капслоком набраны только статусы: их имена короткие и служебные. Категории идут
  *  обычным регистром — «Piyodalar yoʻlakchasidagi chuqur» капслоком не читается,
  *  и правило системы запрещает это прямо (readme › Visual foundations). */
-export function ToggleChip({ type, name, checked, onChange, status, ref, children }: ToggleChipProps) {
+export function ToggleChip({ type, name, checked, onChange, status, ref, count, children }: ToggleChipProps) {
   const slug = status === undefined ? null : STATUS_SLUG[status]
   const typography = slug === null ? `t-body ${checked ? 'font-extrabold' : 'font-semibold'}` : 't-chip'
 
@@ -63,6 +67,7 @@ export function ToggleChip({ type, name, checked, onChange, status, ref, childre
       />
       {status !== undefined && <StatusMark status={status} size={12} />}
       {children}
+      {count !== undefined && <span className="tabular-nums opacity-70">{formatNumber(count)}</span>}
     </label>
   )
 }
