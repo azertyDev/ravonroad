@@ -34,7 +34,21 @@ export function AppFooter() {
   return (
     <footer className="mx-auto w-full max-w-[720px] shrink-0 px-[var(--gutter)] pt-[var(--s-5)] pb-[calc(var(--screen-bottom)+var(--safe-bottom))] lg:max-w-none lg:border-t lg:border-[var(--border-1)] lg:px-[var(--s-6)] lg:py-[var(--s-4)]">
       <div className="flex flex-wrap items-center justify-between gap-[var(--s-3)]">
-        <p className="t-caption text-[var(--text-2)]">{t('footer.volunteers')}</p>
+        <p className="t-caption text-[var(--text-2)]">
+          {t('footer.volunteers')}{' '}
+          {/* Атрибуция OSM переехала сюда с самой карты. Убрать её нельзя — ODbL требует
+              указания источника, — а значок «i» в углу карты закрывал собой то место,
+              ради которого карта и открыта. Строка в подвале выполняет то же требование
+              и стоит на каждом экране, включая те, где карты нет вовсе. */}
+          <a
+            href="https://www.openstreetmap.org/copyright"
+            target="_blank"
+            rel="noreferrer"
+            className="underline decoration-[var(--border-1)] underline-offset-2"
+          >
+            © OpenStreetMap
+          </a>
+        </p>
         {contact !== null && (
           <a
             href={contact}

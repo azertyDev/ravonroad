@@ -6,7 +6,7 @@ import { pluralForm } from './plural'
 
 /** Подписи, которые стоят вплотную к числу и обязаны с ним согласовываться.
  *  Каждая объявлена в словаре четырьмя формами: `<key>.one|few|many|other`. */
-type PluralKey = 'home.districts' | 'map.reports' | 'report.days' | 'list.ago'
+type PluralKey = 'home.districts' | 'map.reports' | 'report.days' | 'list.ago' | 'list.filters'
 
 interface I18n {
   locale: Locale

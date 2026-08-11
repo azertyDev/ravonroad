@@ -1,11 +1,11 @@
 import type { ReportMapPoint, ReportStatus } from '@ravonroad/shared-types'
-import { AttributionControl, GeoJSONSource, Map as MapLibreMap, Marker } from 'maplibre-gl'
+import { GeoJSONSource, Map as MapLibreMap, Marker } from 'maplibre-gl'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { formatNumber } from '../../shared/format/number'
 import { useI18n } from '../../shared/i18n/useI18n'
 import { basemapStyle, MAX_ZOOM, MIN_ZOOM } from '../../shared/map/basemap'
-import { TASHKENT_BOUNDS, type Bounds } from '../../shared/map/tashkent'
+import { coverZoom, TASHKENT_BOUNDS, type Bounds } from '../../shared/map/tashkent'
 import { LoadingState } from '../../shared/ui/state/LoadingState'
 import { StatusMark } from '../../shared/ui/status/StatusMark'
 import { isMapStatus, MARKER_LOOK, type MapStatus } from './markers'
@@ -158,14 +158,32 @@ export default function ReportMap({
       // Поворот выключен: заявкам он ничего не даёт, а вернуть карту на север
       // без компаса житель уже не сможет.
       dragRotate: false,
-      // Свой контрол вместо встроенного: встроенный жёстко живёт справа внизу. Оба
-      // нижних угла карты заняты — слева переключатель «карта / список», справа кнопка
-      // геопозиции, — и подпись OSM накрывала бы один из них (Desktop C).
+      // Подписи на карте нет вовсе: ODbL требует указать источник, но не требует делать
+      // это поверх самой карты. Строка «© OpenStreetMap» стоит в подвале страницы
+      // (`AppFooter`) — требование выполнено, а все четыре угла карты остаются рабочими:
+      // переключатель «карта / список», кнопка геопозиции и пины ничем не закрыты.
       attributionControl: false,
     })
-    instance.addControl(new AttributionControl({ compact: true }), 'top-right')
     instance.touchZoomRotate.disableRotation()
     map.current = instance
+
+    // За границей экстракта данных нет — там чёрное поле, которое читается как поломка,
+    // а не как край города. Поэтому окну не дают выйти за нарисованное: `maxBounds`
+    // держит камеру внутри экстракта, а нижний зум считается так, чтобы город закрывал
+    // окно целиком. Оба числа зависят от размера окна, поэтому пересчитываются на
+    // каждом `resize`: на телефоне поворот экрана меняет их вдвое.
+    instance.setMaxBounds([
+      [TASHKENT_BOUNDS.minLon, TASHKENT_BOUNDS.minLat],
+      [TASHKENT_BOUNDS.maxLon, TASHKENT_BOUNDS.maxLat],
+    ])
+    const fitFloor = (): void => {
+      const zoom = coverZoom(TASHKENT_BOUNDS, root.clientWidth, root.clientHeight)
+      // Нулевой размер окна даёт ноль — ставить его нижней границей нельзя: карта
+      // отъехала бы в целый мир на первый же кадр до раскладки.
+      if (zoom > 0) instance.setMinZoom(Math.min(zoom, MAX_ZOOM))
+    }
+    fitFloor()
+    instance.on('resize', fitFloor)
 
     const reportBounds = (): void => {
       const bounds = instance.getBounds()

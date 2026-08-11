@@ -44,7 +44,9 @@ export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
         // Поворот выключен: выбору точки он ничего не даёт, а вернуть карту на север
         // без компаса житель уже не сможет.
         dragRotate: false,
-        attributionControl: { compact: true },
+        // Подпись OSM стоит в подвале страницы (`AppFooter`), а не поверх карты:
+        // здесь каждый угол нужен под пин и подсказку.
+        attributionControl: false,
       })
     map.touchZoomRotate.disableRotation()
     // Первый тайл приходит через несколько секунд: PMTiles читает заголовок, каталог

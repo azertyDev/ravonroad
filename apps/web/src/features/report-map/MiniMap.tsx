@@ -35,8 +35,9 @@ export default function MiniMap({ archiveUrl, latitude, longitude }: MiniMapProp
       minZoom: MIN_ZOOM,
       maxZoom: MAX_ZOOM,
       interactive: false,
-      // Подпись OSM обязательна и здесь: лицензия не делает скидки на размер кадра.
-      attributionControl: { compact: true },
+      // Подписи на карте нет: источник указан строкой в подвале страницы (`AppFooter`),
+      // и в кадре размером с квартал значок «i» занимал бы половину дома.
+      attributionControl: false,
     })
 
     return () => map.remove()

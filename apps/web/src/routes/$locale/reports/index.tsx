@@ -5,11 +5,12 @@ import { catalogKeys, fetchDistricts, localizedName } from '../../../entities/ca
 import { ReportCard } from '../../../entities/report/ReportCard'
 import { ReportRow, ROW_COLUMNS } from '../../../entities/report/ReportRow'
 import { fetchReportList, fetchReportMap, reportKeys, type ReportFilters as Filters } from '../../../entities/report/api'
-import { FilterBar } from '../../../features/report-filters/FilterBar'
+import { MapToolbar } from '../../../features/report-filters/MapToolbar'
 import { ReportFilters } from '../../../features/report-filters/ReportFilters'
-import { toFilters, toSearch } from '../../../features/report-filters/searchParams'
+import { countFilters, toFilters, toSearch } from '../../../features/report-filters/searchParams'
 import { CITY_BBOX } from '../../../features/report-map/bbox'
 import { PublicMap } from '../../../features/report-map/PublicMap'
+import { campaignScale } from '../../../features/stats/scale'
 import { listTotal } from '../../../features/stats/listTotal'
 import { useCampaignStats } from '../../../features/stats/useCampaignStats'
 import { apiErrorCode } from '../../../shared/api/client'
@@ -68,6 +69,7 @@ export function ReportListPage() {
 
   const items = (list.data?.pages ?? []).flatMap((page) => page.items)
   const total = listTotal(filters, stats.data)
+  const active = countFilters(filters)
   const apply = (next: Filters): void => void navigate({ search: toSearch(next) })
 
   return (
@@ -75,9 +77,9 @@ export function ReportListPage() {
     // таблице целиком, и колонок больше нет — экран становится одним столбцом
     // (Desktop C › экран 1b).
     <div className="flex flex-1 flex-col">
-      <div className={`order-1 flex flex-col gap-[var(--s-4)] ${GUTTER} lg:px-[var(--s-6)]`}>
-        <h1 className="t-display uppercase lg:sr-only">{t('list.title')}</h1>
-        <FilterBar filters={filters} onChange={apply} onOpen={() => setFiltersOpen(true)} />
+      <div className={`order-1 flex flex-col gap-[var(--s-4)] ${GUTTER} lg:gap-0 lg:px-0`}>
+        <h1 className={`t-display uppercase lg:sr-only ${GUTTER} lg:px-0`}>{t('list.title')}</h1>
+        <MapToolbar filters={filters} onChange={apply} onOpen={() => setFiltersOpen(true)} />
       </div>
 
       {filtersOpen && (
@@ -118,10 +120,51 @@ export function ReportListPage() {
           всегда, а выдуманного числа на публичном сайте кампании быть не должно. */}
       {desktop && (
         <div className="order-2 flex items-center justify-between gap-[var(--s-6)] bg-[var(--accent)] px-[var(--s-6)] py-[var(--s-4)] text-[var(--text-on-accent)]">
-          <p className="t-h3 font-extrabold uppercase">
-            <span className="tabular-nums">{formatNumber(total ?? items.length)}</span>{' '}
-            {tp('map.reports', total ?? items.length)} {total === null ? t('list.shown') : t('list.inList')}
-          </p>
+          <div className="flex items-center gap-[var(--s-5)]">
+            {/* Счётчик кампании и здесь: тот же одометр, что на главной, только ниже.
+                Цвета ячеек абсолютные — поле жёлтое в обеих темах, и текст на нём
+                не вправе следовать теме страницы. */}
+            {stats.data !== undefined && (
+              <>
+                {/* Подпись в две строки, как в макете: обрезать её нельзя — «Taʼmirlangan»
+                    рвётся посреди слова. */}
+                {/* 160, а не по содержимому: «ОТРЕМОНТИРОВАНО» — одно слово, и любая
+                    ширина меньше его длины режет букву, а не переносит строку. */}
+                <span className="t-label w-[160px] shrink-0">{t('home.repairedLabel')}</span>
+                <span aria-hidden="true" className="flex gap-[var(--s-1)]">
+                  {campaignScale(stats.data.done, stats.data.goal).digits.map((digit, index, all) => (
+                    <span
+                      key={index}
+                      className={`min-w-[44px] rounded-[var(--r-2)] px-[var(--s-1)] py-[7px] text-center text-[38px] leading-[0.9] font-extrabold tracking-[-.045em] tabular-nums ${
+                        index === all.length - 1
+                          ? 'bg-[var(--asphalt-0)] text-[var(--asphalt-950)]'
+                          : 'bg-[var(--asphalt-950)] text-[var(--accent)]'
+                      }`}
+                    >
+                      {digit}
+                    </span>
+                  ))}
+                </span>
+              </>
+            )}
+            <div className="flex flex-col gap-[var(--s-1)] border-l-2 border-[rgba(18,22,28,.25)] pl-[var(--s-5)]">
+              <p className="t-h3 font-extrabold uppercase">
+                <span className="tabular-nums">{formatNumber(total ?? items.length)}</span>{' '}
+                {tp('map.reports', total ?? items.length)} {total === null ? t('list.shown') : t('list.inList')}
+              </p>
+              {/* Чем именно сужен срез: район и сколько фильтров стоит. Пусто — строки нет. */}
+              {(district !== undefined || active > 0) && (
+                <p className="t-chip opacity-70">
+                  {[
+                    district === undefined ? null : localizedName(district, locale),
+                    active === 0 ? null : `${formatNumber(active)} ${tp('list.filters', active)}`,
+                  ]
+                    .filter((part) => part !== null)
+                    .join(' · ')}
+                </p>
+              )}
+            </div>
+          </div>
           <nav className="flex shrink-0 overflow-hidden rounded-[var(--r-3)]">
             <Link
               to="/$locale"
@@ -139,15 +182,8 @@ export function ReportListPage() {
       )}
 
       <div className={`order-3 mt-[var(--s-5)] flex flex-col gap-[var(--s-3)] ${GUTTER} lg:mt-0 lg:gap-0 lg:px-0`}>
-        {/* Число по району — из разбивки, а не из точек карты: точки ограничены видимой
-            областью и обрезаются потолком выдачи, а тут нужно «сколько всего в районе». */}
-        {district !== undefined && stats.data !== undefined && (
-          <p className="t-section text-[var(--text-2)]">
-            {localizedName(district, locale)} ·{' '}
-            <span className="tabular-nums">{formatNumber(stats.data.byDistrict[district.code] ?? 0)}</span>
-          </p>
-        )}
-
+        {/* Район и его число стоят в жёлтой полосе над таблицей — второй раз строкой
+            под ней они читались бы как обрезок вёрстки. */}
         {list.isPending && <LoadingState />}
         {list.isError && <ErrorState code={apiErrorCode(list.error)} onRetry={() => void list.refetch()} />}
 
