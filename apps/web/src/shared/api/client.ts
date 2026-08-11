@@ -56,3 +56,9 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   // потребитель API ровно один и собирается из тех же типов (ADR-0006).
   return body as T
 }
+
+/** Код ошибки, если запрос упал именно ответом API. Обрыв сети, разбор и всё прочее
+ *  кода не имеют — UI покажет общий текст и кнопку «повторить» (SRS §8.2). */
+export function apiErrorCode(error: unknown): ErrorCode | undefined {
+  return error instanceof ApiRequestError ? error.code : undefined
+}

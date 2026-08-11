@@ -95,6 +95,50 @@ describe('Приватность ответов (PRD §6.2, SRS §4)', () => {
     }
   })
 
+  it('не отдаёт контакты и токен ни в одном публичном чтении', async () => {
+    const created = await submitReport(app, {
+      photos: [jpeg],
+      fields: { ...CONTACTS },
+      headers: { 'X-Forwarded-For': '198.51.100.77' },
+    })
+    const body = (await created.json()) as CreateReportResponse
+
+    // Каждый публичный маршрут чтения проверяется по тексту ответа целиком:
+    // появление любого из этих полей ломает тест, как бы оно ни было названо (SRS §11.3).
+    for (const path of [
+      '/api/reports',
+      '/api/reports/map',
+      `/api/reports/${body.number}`,
+      '/api/stats',
+      '/api/districts',
+      '/api/categories',
+    ]) {
+      const response = await fetch(`${app.baseUrl}${path}`)
+      expect(response.status, path).toBe(200)
+
+      const text = await response.text()
+      for (const field of NEVER_PUBLIC) expect(text, path).not.toContain(field)
+      expect(text, path).not.toContain(body.trackingToken)
+      expect(text, path).not.toContain('901234567')
+      expect(text, path).not.toContain('ravon_road')
+    }
+  })
+
+  it('на странице отслеживания отдаёт признак контактов, а не сами контакты', async () => {
+    const created = await submitReport(app, { photos: [jpeg], fields: { ...CONTACTS } })
+    const body = (await created.json()) as CreateReportResponse
+
+    const response = await fetch(`${app.baseUrl}/api/track/${body.trackingToken}`)
+    const text = await response.text()
+
+    // Токен — единственная capability в системе: он даёт кнопку удаления, а не значения
+    // (SRS §9.2, §4.5).
+    expect(text).toContain('"hasContacts":true')
+    expect(text).not.toContain('901234567')
+    expect(text).not.toContain('ravon_road')
+    expect(response.headers.get('cache-control')).toBe('no-store')
+  })
+
   it('не пишет токен и контакты в тело ошибки', async () => {
     const response = await submitReport(app, {
       photos: [jpeg],

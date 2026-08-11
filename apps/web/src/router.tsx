@@ -1,6 +1,10 @@
 import { createRootRoute, createRoute, createRouter, Navigate, Outlet, redirect } from '@tanstack/react-router'
 import { HomePage } from './routes/$locale/index'
 import { NewReportPage } from './routes/$locale/new'
+import { ReportDetailPage } from './routes/$locale/reports/$number'
+import { ReportListPage } from './routes/$locale/reports/index'
+import { TrackPage } from './routes/$locale/z/$token'
+import { validateReportSearch } from './features/report-filters/searchParams'
 import { LocaleLayout } from './routes/$locale/route'
 import { DEFAULT_LOCALE, detectLocale, isLocale } from './shared/i18n/locale'
 
@@ -45,9 +49,34 @@ const newReportRoute = createRoute({
   component: NewReportPage,
 })
 
+/** Карточка заявки по публичному номеру (US-004). Номер публичен по замыслу и доступа
+ *  ни к чему не даёт: заявки и так публичны, перебор даёт то же, что и карта (SRS §9.2). */
+const reportDetailRoute = createRoute({
+  getParentRoute: () => localeRoute,
+  path: 'reports/$number',
+  component: ReportDetailPage,
+})
+
+/** Список с фильтрами. Источник истины по фильтрам — адрес: ссылку на срез можно
+ *  переслать в группу, а «назад» возвращает предыдущий набор, а не сбрасывает его (SRS §7.3). */
+const reportListRoute = createRoute({
+  getParentRoute: () => localeRoute,
+  path: 'reports',
+  validateSearch: validateReportSearch,
+  component: ReportListPage,
+})
+
+/** Страница отслеживания. Токен лежит в пути, поэтому на весь сайт стоит
+ *  `Referrer-Policy: no-referrer`, а ответы `/api/track/*` идут с `no-store` (SRS §9.2). */
+const trackRoute = createRoute({
+  getParentRoute: () => localeRoute,
+  path: 'z/$token',
+  component: TrackPage,
+})
+
 const routeTree = rootRoute.addChildren([
   rootRedirectRoute,
-  localeRoute.addChildren([homeRoute, newReportRoute]),
+  localeRoute.addChildren([homeRoute, newReportRoute, reportListRoute, reportDetailRoute, trackRoute]),
 ])
 
 export const router = createRouter({
