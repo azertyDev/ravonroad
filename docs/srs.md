@@ -495,6 +495,7 @@ Allowlist — **таблица, а не переменная окружения*
 | `attempts` | `smallint` not null default 0 | |
 | `last_error` | `varchar(500)` null | |
 | `sent_at` | `timestamptz` null | |
+| `created_at` | `timestamptz` not null default `now()` | Возраст очереди для алерта §10.4: `next_attempt_at` эту роль не играет — backoff двигает её вперёд, и чем дольше сбой, тем «моложе» выглядела бы очередь |
 
 ```sql
 CREATE INDEX outbox_due_idx ON telegram_outbox (next_attempt_at)

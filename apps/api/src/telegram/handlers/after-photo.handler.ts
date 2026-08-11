@@ -9,7 +9,7 @@ import { BotApiClient } from '../bot-api.client'
 import { STATUS_LABELS, displayNumber } from '../card.renderer'
 import { CardUpdater } from '../card.updater'
 import { applyOnce, claimUpdate } from '../idempotency'
-import { logEvent } from '../log'
+import { logEvent } from '../../common/logger'
 import type { IncomingMessage, TelegramPhotoSize } from '../update'
 
 /** Приём фотографий «после» (US-028, US-030, SRS §6.8).

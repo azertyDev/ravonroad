@@ -8,6 +8,7 @@ import { CardRenderer } from './card.renderer'
 import { CardUpdater } from './card.updater'
 import { DigestService } from './digest.service'
 import { DuplicatesService } from './duplicates.service'
+import { AlertsService } from './alerts.service'
 import { AfterPhotoHandler } from './handlers/after-photo.handler'
 import { PromptHandler } from './handlers/prompt.handler'
 import { PublicationHandler } from './handlers/publication.handler'
@@ -17,6 +18,7 @@ import { UndoHandler } from './handlers/undo.handler'
 import { ModeratorGuard } from './moderator.guard'
 import { OutboxWorker } from './outbox.worker'
 import { WebhookController } from './webhook.controller'
+import { WebhookHealthService } from './webhook-health.service'
 
 /** Telegram-бот — обычный модуль Nest, а не отдельный сервис и не отдельный процесс
  *  (ADR-0002): он меняет те же агрегаты, что и API, и вынос его за границу процесса
@@ -41,7 +43,11 @@ import { WebhookController } from './webhook.controller'
     AfterPhotoHandler,
     PublicationHandler,
     OutboxWorker,
+    WebhookHealthService,
+    AlertsService,
   ],
-  exports: [CardUpdater, OutboxWorker],
+  // `/health/details` показывает состояние webhook (SRS §10.1) — те же 60 секунд кэша,
+  // что и у проверки алертов, поэтому сервис один на обоих потребителей.
+  exports: [CardUpdater, OutboxWorker, WebhookHealthService, AlertsService],
 })
 export class TelegramModule {}

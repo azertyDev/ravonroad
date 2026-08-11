@@ -6,7 +6,7 @@ import { BotApiClient } from '../bot-api.client'
 import { displayNumber } from '../card.renderer'
 import { CardUpdater } from '../card.updater'
 import { applyOnce } from '../idempotency'
-import { logEvent } from '../log'
+import { logEvent } from '../../common/logger'
 import type { IncomingMessage } from '../update'
 
 /** Текстовый ввод в двухшаговом переходе (SRS §6.5, §2.12).

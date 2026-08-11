@@ -11,7 +11,8 @@ import { PublicationHandler } from './handlers/publication.handler'
 import { ReasonHandler } from './handlers/reason.handler'
 import { StatusHandler } from './handlers/status.handler'
 import { UndoHandler } from './handlers/undo.handler'
-import { logEvent } from './log'
+import { runWithCorrelationId } from '../common/correlation'
+import { logEvent } from '../common/logger'
 import { ModeratorGuard } from './moderator.guard'
 import { PrismaService } from '../prisma/prisma.service'
 import { isValidWebhookSecret } from './secret'
@@ -71,8 +72,13 @@ export class WebhookController {
     // Не апдейт вовсе. Повторять нечего — отвечаем 200 и молчим.
     if (update === null) return { ok: true }
 
-    if (update.callback_query !== null) await this.onCallback(update.update_id, update.callback_query)
-    else if (update.message !== null) await this.onMessage(update)
+    // Для апдейтов роль correlation id играет `update_id` (SRS §8.3): у Telegram нет
+    // нашего заголовка, зато `update_id` называет ровно ту доставку, которая привела
+    // к событию, и переживает повтор апдейта.
+    await runWithCorrelationId(String(update.update_id), async () => {
+      if (update.callback_query !== null) await this.onCallback(update.update_id, update.callback_query)
+      else if (update.message !== null) await this.onMessage(update)
+    })
     return { ok: true }
   }
 

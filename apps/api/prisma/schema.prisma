@@ -340,6 +340,9 @@ model TelegramOutbox {
   attempts      Int       @default(0) @db.SmallInt
   lastError     String?   @map("last_error") @db.VarChar(500)
   sentAt        DateTime? @map("sent_at") @db.Timestamptz(3)
+  /** Возраст очереди доставки для алерта SRS §10.4. `next_attempt_at` на эту роль
+   *  не годится: backoff двигает её вперёд, и чем дольше сбой, тем «моложе» очередь. */
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
   @@map("telegram_outbox")
 }

@@ -9,7 +9,7 @@ import { CardUpdater } from './card.updater'
 import { encodeCallbackData } from './callback-data'
 import { DigestService } from './digest.service'
 import { applyOnce } from './idempotency'
-import { logEvent } from './log'
+import { logEvent } from '../common/logger'
 import type { ActiveModerator } from './moderator.guard'
 import type { CallbackAnswer, IncomingCallbackQuery } from './update'
 

@@ -35,6 +35,9 @@ export interface Env {
   /** Источник **первичного** засева таблицы `moderator` (ADR-0005). После первого
    *  развёртывания состав меняется в БД, а не здесь. */
   TELEGRAM_MODERATOR_IDS?: string
+  /** Приватный чат координатора для алертов (SRS §10.4). Необязателен намеренно: без него
+   *  система работает, просто молча, — и на локальной машине это нормальное состояние. */
+  TELEGRAM_ALERT_CHAT_ID?: string
 }
 
 const DEFAULT_API_PORT = 3000
@@ -103,6 +106,8 @@ export function validateEnv(source: Record<string, unknown>): Env {
   if (apiBaseUrl !== undefined) env.TELEGRAM_API_BASE_URL = apiBaseUrl
   const moderatorIds = optionalString(source, 'TELEGRAM_MODERATOR_IDS')
   if (moderatorIds !== undefined) env.TELEGRAM_MODERATOR_IDS = moderatorIds
+  const alertChatId = optionalString(source, 'TELEGRAM_ALERT_CHAT_ID')
+  if (alertChatId !== undefined) env.TELEGRAM_ALERT_CHAT_ID = alertChatId
 
   env.API_PORT = readInteger(source, 'API_PORT', 1, MAX_PORT, errors) ?? env.API_PORT
   env.INTAKE_CONCURRENCY =

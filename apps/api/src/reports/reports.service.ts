@@ -6,6 +6,7 @@ import {
   type ReportStatus,
 } from '@ravonroad/shared-types'
 import { ApiException } from '../common/api-error'
+import { ipPrefix, logEvent } from '../common/logger'
 import { Prisma } from '../generated/prisma/client'
 import { AbuseService, type AbuseSignalDraft } from './abuse.service'
 import { DuplicatesService } from '../geo/duplicates.service'
@@ -37,6 +38,10 @@ export interface CreateReportOutcome {
 /** Уникальное ограничение нарушено. Prisma не даёт типа для кода ошибки драйвера,
  *  а нам нужен ровно один: повтор вставки по `idempotency_key`. */
 const UNIQUE_VIOLATION = 'P2002'
+
+/** Маршрут в лог пишется константой, а не из `request.url`: в адресах системы живёт
+ *  `tracking_token`, и одна подстановка настоящего пути однажды положила бы его в лог. */
+const ROUTE = 'POST /api/reports'
 
 /** Номер показывается человеку только так: `RR-` — часть контракта, а не строка локали
  *  (SRS §4.2). Считает его сервер, иначе две локали фронта разъедутся между собой. */
@@ -97,6 +102,7 @@ export class ReportsService {
     // Тип определяется по байтам, а не по заголовку от клиента (SRS §5.3 п.2).
     const types = photos.map((photo) => sniffImageType(photo.buffer))
     if (types.some((type) => type === null)) {
+      logEvent('warn', 'photo_rejected', { route: ROUTE, status: 415, reason: 'unsupported_type' })
       throw new ApiException(
         'UNSUPPORTED_MEDIA_TYPE',
         HttpStatus.UNSUPPORTED_MEDIA_TYPE,
@@ -116,6 +122,9 @@ export class ReportsService {
     // Геозабор — до единого байта в S3 и до единой строки в БД (SRS §5.3 п.3).
     const districtCode = await this.geo.findDistrictCode(input.latitude, input.longitude)
     if (districtCode === null) {
+      // Доля этого события за период и есть метрика P-2 (SRS §10.3).
+      const prefix = ipPrefix(context.clientIp)
+      logEvent('warn', 'report_rejected_geofence', { route: ROUTE, status: 400, district: null, ipPrefix: prefix })
       throw new ApiException(
         'OUTSIDE_TASHKENT',
         HttpStatus.BAD_REQUEST,
@@ -149,6 +158,8 @@ export class ReportsService {
       if (replayed === null) throw new Error('report vanished between insert conflict and re-read')
       return { response: replayed, replayed: true }
     }
+
+    logEvent('info', 'report_created', { route: ROUTE, status: 201, reportId: report.publicNumber, district: districtCode })
 
     return {
       response: {

@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto'
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import { runWithCorrelationId } from './correlation'
 
 /** Correlation id по SRS §8.3: 26 символов, монотонный по времени.
  *  Алфавит Крокфорда — без I, L, O и U, чтобы идентификатор из тикета нельзя было
@@ -37,5 +38,7 @@ export function requestIdMiddleware(req: IncomingMessage, res: ServerResponse, n
   const requestId = normalizeRequestId(req.headers['x-request-id'])
   req.headers['x-request-id'] = requestId
   res.setHeader('X-Request-Id', requestId)
-  next()
+  // Дальше идёт вся обработка запроса, поэтому идентификатор виден любой строке лога
+  // на её пути — без лишнего аргумента у каждой функции (SRS §8.3).
+  runWithCorrelationId(requestId, next)
 }

@@ -33,6 +33,9 @@ export interface FakeTelegram {
   file: Buffer
   mode: FakeMode
   retryAfter: number
+  /** Что отвечает `getWebhookInfo` (SRS §10.4): активная проверка спрашивает именно его. */
+  webhookUrl: string
+  pendingUpdates: number
   close: () => Promise<void>
   /** Вызовы одного метода — самая частая выборка в проверках. */
   of: (method: string) => RecordedCall[]
@@ -41,7 +44,14 @@ export interface FakeTelegram {
 
 export async function startFakeTelegram(): Promise<FakeTelegram> {
   const calls: RecordedCall[] = []
-  const state = { mode: 'ok' as FakeMode, retryAfter: 30, messageId: 100, file: Buffer.from('jpeg-bytes') }
+  const state = {
+    mode: 'ok' as FakeMode,
+    retryAfter: 30,
+    messageId: 100,
+    file: Buffer.from('jpeg-bytes'),
+    webhookUrl: 'https://example.test/webhook',
+    pendingUpdates: 0,
+  }
 
   const server: Server = createServer((request, response) => {
     const chunks: Buffer[] = []
@@ -111,6 +121,18 @@ export async function startFakeTelegram(): Promise<FakeTelegram> {
     set retryAfter(value: number) {
       state.retryAfter = value
     },
+    get webhookUrl() {
+      return state.webhookUrl
+    },
+    set webhookUrl(value: string) {
+      state.webhookUrl = value
+    },
+    get pendingUpdates() {
+      return state.pendingUpdates
+    },
+    set pendingUpdates(value: number) {
+      state.pendingUpdates = value
+    },
     of: (method: string) => calls.filter((call) => call.method === method),
     reset: () => {
       calls.length = 0
@@ -120,7 +142,7 @@ export async function startFakeTelegram(): Promise<FakeTelegram> {
   }
 }
 
-function resultFor(method: string, state: { messageId: number }): unknown {
+function resultFor(method: string, state: { messageId: number; webhookUrl: string; pendingUpdates: number }): unknown {
   switch (method) {
     case 'sendMessage':
       state.messageId += 1
@@ -131,7 +153,7 @@ function resultFor(method: string, state: { messageId: number }): unknown {
     case 'getFile':
       return { file_path: 'photos/file_1.jpg' }
     case 'getWebhookInfo':
-      return { url: 'https://example.test/webhook', pending_update_count: 0 }
+      return { url: state.webhookUrl, pending_update_count: state.pendingUpdates }
     default:
       return true
   }

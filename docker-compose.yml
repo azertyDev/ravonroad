@@ -62,6 +62,9 @@ services:
       # Второй эшелон обороны webhook и первичный засев allowlist — необязательные.
       TELEGRAM_WEBHOOK_PATH: ${TELEGRAM_WEBHOOK_PATH:-}
       TELEGRAM_MODERATOR_IDS: ${TELEGRAM_MODERATOR_IDS:-}
+      # Приватный чат координатора для алертов (SRS §10.4). Пусто — алерты выключены,
+      # и api говорит об этом на старте.
+      TELEGRAM_ALERT_CHAT_ID: ${TELEGRAM_ALERT_CHAT_ID:-}
       INTAKE_CONCURRENCY: ${INTAKE_CONCURRENCY:-8}
       PHOTO_WORKERS: ${PHOTO_WORKERS:-1}
       # libvips не поднимает пул потоков: обработка идёт по одной фотографии за раз,

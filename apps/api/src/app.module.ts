@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config'
 import { CatalogModule } from './catalog/catalog.module'
 import { validateEnv } from './config/env'
 import { HealthModule } from './health/health.module'
+import { MaintenanceModule } from './maintenance/maintenance.module'
 import { MediaModule } from './media/media.module'
 import { PrismaModule } from './prisma/prisma.module'
 import { ReportsModule } from './reports/reports.module'
@@ -32,6 +33,7 @@ const ROOT_ENV_FILE = resolve(process.cwd(), '../../.env')
     PrismaModule,
     HealthModule,
     CatalogModule,
+    MaintenanceModule,
     MediaModule,
     ReportsModule,
     StatsModule,
