@@ -50,6 +50,29 @@
   --status-outofscope-solid: #4F42A0;
   --status-on-solid: #FFFFFF;
 
+  /* Статусное поле страницы заявки — плашка во всю ширину. Цвет один в обеих темах:
+     по нему заявку узнают в переписке и на скриншоте, и адаптация сломала бы узнавание
+     (Report C › «Статусное поле не адаптируется»). Поэтому объявлено только здесь,
+     без пары в тёмном блоке.
+
+     Текст выбран по контрасту каждой пары, а не назначен белым: на бирюзовом DONE
+     и оранжевом ACCEPTED белый не проходит, там стоит asphalt-950 (5.7:1 и 5.9:1),
+     на остальных — белый (6.4:1 и выше). */
+  --status-new-field: var(--status-new-solid);
+  --status-accepted-field: var(--status-accepted-pin);
+  --status-progress-field: var(--status-progress-solid);
+  --status-done-field: var(--status-done-pin);
+  --status-rejected-field: var(--status-rejected-solid);
+  --status-duplicate-field: var(--status-duplicate-solid);
+  --status-outofscope-field: var(--status-outofscope-solid);
+  --status-new-on-field: #FFFFFF;
+  --status-accepted-on-field: var(--asphalt-950);
+  --status-progress-on-field: #FFFFFF;
+  --status-done-on-field: var(--asphalt-950);
+  --status-rejected-on-field: #FFFFFF;
+  --status-duplicate-on-field: #FFFFFF;
+  --status-outofscope-on-field: #FFFFFF;
+
   /* Статусы — светлая тема: фон / текст / контур */
   --status-new-tint: #FBE9F3;      --status-new-ink: #8E1A5C;      --status-new-line: #F3C8DF;
   --status-accepted-tint: #FDEDE1; --status-accepted-ink: #8E3308; --status-accepted-line: #F6D2B4;
@@ -74,6 +97,14 @@
   --surface-page: var(--asphalt-50);
   --surface-card: #FFFFFF;
   --surface-sunken: #F8F9FB;
+  /* Служебная поверхность: иконочная кнопка, ячейка шага, вторичная заливка.
+     Отдельно от --surface-card, потому что на светлой теме карточка белая, а кнопка
+     подложена асфальтом, и на тёмной ровно наоборот. */
+  --surface-control: var(--asphalt-50);
+  --surface-control-hover: var(--asphalt-100);
+  /* Контур вторичной кнопки. На светлой это чёрный корпус знака, на тёмной —
+     asphalt-500: белый контур там спорит с жёлтой основной кнопкой рядом. */
+  --border-control: var(--asphalt-950);
   --border-1: var(--asphalt-100);
   --border-2: var(--asphalt-200);
   --border-strong: var(--asphalt-950);
@@ -104,6 +135,9 @@
     --surface-page: var(--asphalt-950);
     --surface-card: var(--asphalt-900);
     --surface-sunken: #232833;
+    --surface-control: var(--asphalt-800);
+    --surface-control-hover: var(--asphalt-700);
+    --border-control: var(--asphalt-500);
     --border-1: var(--asphalt-800);
     --border-2: var(--asphalt-700);
     --border-strong: var(--asphalt-0);
@@ -131,6 +165,9 @@
   --surface-page: var(--asphalt-950);
   --surface-card: var(--asphalt-900);
   --surface-sunken: #232833;
+  --surface-control: var(--asphalt-800);
+  --surface-control-hover: var(--asphalt-700);
+  --border-control: var(--asphalt-500);
   --border-1: var(--asphalt-800);
   --border-2: var(--asphalt-700);
   --border-strong: var(--asphalt-0);

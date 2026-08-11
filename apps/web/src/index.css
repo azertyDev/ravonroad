@@ -9,10 +9,13 @@
     -webkit-text-size-adjust: 100%;
   }
 
-  /* Фокус виден на каждом шаге обхода с клавиатуры (PRD §8.2). */
+  /* Фокус виден на каждом шаге обхода с клавиатуры (PRD §8.2). Кольцо двойное:
+     контур асфальтом плюс жёлтый ореол. Одного контура мало — на жёлтой кнопке
+     чёрная линия сливается с её же обводкой, а на асфальте теряется сама. */
   :focus-visible {
     outline: var(--focus-outline);
     outline-offset: var(--focus-outline-offset);
+    box-shadow: var(--focus-shadow);
   }
 }
 
@@ -46,6 +49,35 @@
   text-transform: uppercase;
 }
 
+/* Заголовок раздела: «Holat tarixi», «Toifa», «Holat». Капслок, но 700, а не 800 —
+   он стоит над блоком, а не внутри поля, и не должен спорить с содержимым. */
+.t-section {
+  font: var(--t-section);
+  letter-spacing: var(--t-section-tracking);
+  text-transform: uppercase;
+}
+
+/* Имя шага формы рядом с жёлтым номером. */
+.t-step {
+  font: var(--t-step);
+  letter-spacing: var(--t-step-tracking);
+  text-transform: uppercase;
+}
+
+/* Основная кнопка. */
+.t-cta {
+  font: var(--t-cta);
+  letter-spacing: var(--t-cta-tracking);
+  text-transform: uppercase;
+}
+
+/* Вторичная кнопка и имя статуса в истории заявки. */
+.t-action {
+  font: var(--t-action);
+  letter-spacing: var(--t-action-tracking);
+  text-transform: uppercase;
+}
+
 /* Плашка: капслок кеглем 13 — статусы, подписи шкалы, компактные кнопки. */
 .t-chip {
   font: var(--t-chip);
@@ -59,7 +91,13 @@
   font-variant-numeric: var(--numeric);
 }
 
-/* Анимаций пока нет, но карта из 003 приносит и движение пинов, и нижний лист.
+/* Единственная бесконечная анимация в системе (readme › Visual foundations):
+   спиннер отправки и загрузки фотографии. */
+@keyframes rr-spin {
+  to { transform: rotate(1turn); }
+}
+
+/* Карта из 003 приносит и движение пинов, и нижний лист.
    Правило стоит здесь, а не в каждом будущем компоненте: настройку системы человек
    выставил заранее и не обязан ждать, пока мы вспомним про неё в очередном срезе
    (WCAG 2.3.3). Не ноль, а 0.01 ms — иначе не сработает onTransitionEnd. */

@@ -17,6 +17,9 @@
   --pin-border-selected: 3px solid var(--pin-stroke);
   --pin-border-internal: 2px dashed var(--pin-stroke);
 
+  /* Место фотографии, которой ещё нет: полосатая заливка, а не пустой прямоугольник.
+     Ожидание не должно выглядеть как ошибка (Report C › «Пунктирная плита ждём фото»). */
+  --hatch-placeholder: repeating-linear-gradient(115deg, var(--asphalt-100) 0 8px, var(--asphalt-200) 8px 16px);
   /* Штриховка внутренних статусов: «этого нет на публичной карте» */
   --hatch-internal: repeating-linear-gradient(115deg, rgba(180,186,199,.14) 0 6px, transparent 6px 12px);
   /* Предупреждающая лента — только кромка страницы и разделитель разделов */
@@ -38,6 +41,7 @@
     --e-3: 0 -6px 28px rgba(0, 0, 0, .55);
     /* На тёмной теме глубину даёт светлая кромка, а не тень */
     --edge-highlight: 1px solid rgba(255, 255, 255, .07);
+    --hatch-placeholder: repeating-linear-gradient(115deg, var(--asphalt-800) 0 8px, var(--asphalt-900) 8px 16px);
   }
 }
 
@@ -47,4 +51,5 @@
   --e-3: 0 -6px 28px rgba(0, 0, 0, .55);
   /* На тёмной теме глубину даёт светлая кромка, а не тень */
   --edge-highlight: 1px solid rgba(255, 255, 255, .07);
+  --hatch-placeholder: repeating-linear-gradient(115deg, var(--asphalt-800) 0 8px, var(--asphalt-900) 8px 16px);
 }
