@@ -18,6 +18,20 @@ ENV VITE_CAMPAIGN_CONTACT_URL=$VITE_CAMPAIGN_CONTACT_URL
 
 RUN pnpm --filter @ravonroad/shared-types build && pnpm --filter @ravonroad/web build
 
+# Экстракт карты кладётся в образ, а не читается из чужого бакета: PMTiles ходит за первым
+# тайлом четырьмя последовательными range-запросами, и каждый круг к постороннему хосту
+# стоит 0,6–2,2 с — на стенде это 10–13 секунд до первой картинки (ADR-0008 › Дополнение).
+# С собственного origin те же четыре круга идут по TAS-IX, а `connect-src` в CSP сводится
+# к `'self'`. Слой кэшируется по адресу: пересборка образа архив заново не тянет.
+FROM alpine:3.22 AS map
+ARG MAP_ARCHIVE_URL=https://storage.googleapis.com/ravonroad-dev-photos/map/tashkent-20260810.pmtiles
+ARG MAP_ARCHIVE_NAME=tashkent-20260810.pmtiles
+RUN apk add --no-cache curl && mkdir -p /map \
+  && curl -fsS --retry 3 -o "/map/$MAP_ARCHIVE_NAME" "$MAP_ARCHIVE_URL" \
+  # Файл обязан быть архивом PMTiles v3, а не страницей ошибки бакета: без проверки
+  # пустая карта поехала бы в прод молча, ровно как это было с CSP.
+  && head -c 7 "/map/$MAP_ARCHIVE_NAME" | grep -q PMTiles
+
 FROM nginx:1.29-alpine AS runtime
 COPY docker/edge/nginx.conf /etc/nginx/nginx.conf
 # Шаблон, а не готовый конфиг: entrypoint образа прогонит его через envsubst и положит
@@ -28,9 +42,10 @@ COPY docker/edge/security-headers.conf.template /etc/nginx/templates/security-he
 # Тело сайта общее для сервера 80 и сервера 443: маршруты и кэш обязаны совпадать.
 COPY docker/edge/site.conf /etc/nginx/site.conf
 # .envsh подключается entrypoint'ом через `.`, поэтому его export доживает до envsubst.
-COPY docker/edge/10-photo-origin.envsh /docker-entrypoint.d/10-photo-origin.envsh
+COPY docker/edge/10-csp-origins.envsh /docker-entrypoint.d/10-csp-origins.envsh
 COPY docker/edge/tls.conf.template /etc/nginx/tls-available/tls.conf.template
 COPY docker/edge/20-enable-tls.sh /docker-entrypoint.d/20-enable-tls.sh
 RUN chmod +x /docker-entrypoint.d/20-enable-tls.sh
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
+COPY --from=map /map /usr/share/nginx/html/map
 EXPOSE 80 443
