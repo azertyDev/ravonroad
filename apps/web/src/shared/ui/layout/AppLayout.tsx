@@ -11,18 +11,30 @@ import { AppHeader } from './AppHeader'
  *
  *  Подвал стоит после `main`, а нижняя панель действия — внутри него: `sticky`
  *  перестаёт держать панель на дне своего контейнера, поэтому она никогда не
- *  накрывает подвал и не требует под себя постоянного отступа. */
+ *  накрывает подвал и не требует под себя постоянного отступа.
+ *
+ *  На ноутбуке экран становится карточкой с лентой по кромке, а не страницей во всю
+ *  ширину окна (Desktop C): плакат разворачивается до 1440 и дальше не тянется —
+ *  на 1920 растёт только карта внутри него. Поле вокруг карточки принадлежит окну,
+ *  поэтому оно на обёртке, а лента — на самой карточке.
+ *
+ *  Высота карточки там равна окну, и прокручивается не страница, а `main` внутри неё:
+ *  шапка с действием и подвал обязаны остаться на месте, а карта — заполнить остаток
+ *  высоты. Отсюда же `min-h-0` — без него содержимое флекс-колонки не даёт ей сжаться
+ *  до заданной высоты, и прокрутка уезжает на всю страницу вместе с шапкой. */
 export function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-dvh flex-col">
-      {/* Предупреждающая лента — кромка страницы. Одна из двух текстур системы,
-          и обе служебные: на карте не появляется ни та, ни другая. */}
-      <div aria-hidden="true" className="h-[8px] shrink-0 bg-[image:var(--hazard-tape)]" />
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-[720px] flex-1 flex-col pt-[var(--s-4)] lg:max-w-[1120px]">
-        {children}
-      </main>
-      <AppFooter />
+    <div className="lg:p-[var(--s-6)]">
+      <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col overflow-hidden lg:h-[calc(100dvh_-_2_*_var(--s-6))] lg:min-h-0 lg:rounded-[var(--r-4)] lg:border lg:border-[var(--border-1)] lg:shadow-[var(--e-2)]">
+        {/* Предупреждающая лента — кромка страницы. Одна из двух текстур системы,
+            и обе служебные: на карте не появляется ни та, ни другая. */}
+        <div aria-hidden="true" className="h-[8px] shrink-0 bg-[image:var(--hazard-tape)]" />
+        <AppHeader />
+        <main className="mx-auto flex w-full max-w-[720px] flex-1 flex-col pt-[var(--s-4)] lg:max-w-none lg:min-h-0 lg:overflow-auto lg:pt-0">
+          {children}
+        </main>
+        <AppFooter />
+      </div>
     </div>
   )
 }

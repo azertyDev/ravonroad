@@ -16,7 +16,7 @@ export function AppHeader() {
   const { locale, t } = useI18n()
 
   return (
-    <header className="mx-auto flex w-full max-w-[720px] items-center justify-between gap-[var(--s-3)] px-[var(--gutter)] pt-[var(--s-6)] pb-[var(--s-3)] lg:max-w-[1120px]">
+    <header className="mx-auto flex w-full max-w-[720px] shrink-0 items-center justify-between gap-[var(--s-3)] px-[var(--gutter)] pt-[var(--s-6)] pb-[var(--s-3)] lg:max-w-none lg:border-b lg:border-[var(--border-1)] lg:px-[var(--s-6)] lg:py-[var(--s-3)]">
       <div className="flex min-w-0 items-center gap-[var(--s-4)]">
         <Link
           to="/$locale"
@@ -34,8 +34,13 @@ export function AppHeader() {
       <div className="flex items-center gap-[var(--s-3)]">
         <LocaleSwitcher />
         {/* Действие в шапке — только на широком экране: на телефоне оно стоит внизу,
-            под большим пальцем, и второй раз наверху не нужно. */}
-        <Link to="/$locale/new" params={{ locale }} className={`${COMPACT_ACCENT} hidden lg:inline-flex`}>
+            под большим пальцем, и второй раз наверху не нужно.
+
+            Прячет `max-lg:hidden`, а не `hidden lg:inline-flex`: `inline-flex` уже стоит
+            в наборе классов кнопки, и в одном слое он перебивал `hidden` — на 390 px
+            кнопка оставалась в шапке и наезжала на марку. Правило в медиазапросе
+            выигрывает у безусловного независимо от порядка в атрибуте. */}
+        <Link to="/$locale/new" params={{ locale }} className={`${COMPACT_ACCENT} max-lg:hidden`}>
           <Glyph name="plus" size={14} />
           {t('home.cta')}
         </Link>
