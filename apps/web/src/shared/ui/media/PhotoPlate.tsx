@@ -34,7 +34,10 @@ export function PhotoPlate({ src, alt, caption, tone = 'neutral', href }: PhotoP
   )
 
   return (
-    <div className="relative aspect-[3/4] overflow-hidden bg-[image:var(--hatch-placeholder)]">
+    // Портрет на телефоне и альбом на ноутбуке: снимают яму стоя, а на широком экране
+    // пара занимает всю ширину карточки, и портрет уводил бы историю за нижний край
+    // (Report C — 3/4, Desktop C — 4/3).
+    <div className="relative aspect-[3/4] overflow-hidden bg-[image:var(--hatch-placeholder)] lg:aspect-[4/3]">
       {href === undefined ? (
         image
       ) : (
@@ -52,7 +55,7 @@ export function PhotoPlate({ src, alt, caption, tone = 'neutral', href }: PhotoP
  *  плита серая с пунктиром, а не красная (Report C). */
 export function PhotoPending({ caption }: { caption: string }) {
   return (
-    <p className="t-chip grid aspect-[3/4] place-items-center border-2 border-dashed border-[var(--border-2)] bg-[var(--surface-sunken)] p-[var(--s-4)] text-center text-[var(--text-3-sunken)]">
+    <p className="t-chip grid aspect-[3/4] place-items-center border-2 border-dashed border-[var(--border-2)] bg-[var(--surface-sunken)] p-[var(--s-4)] text-center text-[var(--text-3-sunken)] lg:aspect-[4/3]">
       {caption}
     </p>
   )
