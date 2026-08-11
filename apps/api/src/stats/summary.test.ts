@@ -67,6 +67,25 @@ describe('summarize', () => {
   })
 
   it('на пустом наборе отдаёт нули, а не пустоту', () => {
-    expect(summarize([], NOW)).toEqual({ done: 0, doneLastWeek: 0, queued: 0, districts: 0 })
+    const summary = summarize([], NOW)
+    expect(summary).toMatchObject({ done: 0, doneLastWeek: 0, queued: 0, districts: 0 })
+    // Публичные статусы объявлены нулями даже на пустой базе: отсутствующий ключ клиент
+    // не отличит от «сервер старше клиента», и чип фильтра остался бы без числа.
+    expect(summary.byStatus).toEqual({ NEW: 0, ACCEPTED: 0, IN_PROGRESS: 0, DONE: 0, OUT_OF_SCOPE: 0 })
+    // Районы — наоборот: пусто значит пусто, перечислять двенадцать нулей незачем.
+    expect(summary.byDistrict).toEqual({})
+  })
+
+  it('раскладывает заявки по статусам и районам', () => {
+    const summary = summarize(
+      [
+        report({ status: 'NEW', districtCode: 'chilonzor' }),
+        report({ status: 'NEW', districtCode: 'yunusobod' }),
+        report({ status: 'DONE', doneAt: new Date(NOW), districtCode: 'chilonzor' }),
+      ],
+      NOW,
+    )
+    expect(summary.byStatus).toMatchObject({ NEW: 2, DONE: 1, ACCEPTED: 0 })
+    expect(summary.byDistrict).toEqual({ chilonzor: 2, yunusobod: 1 })
   })
 })

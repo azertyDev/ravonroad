@@ -13,10 +13,15 @@ import { decodeCursor, encodeCursor } from './cursor'
 import { DETAIL_SELECT, mapDetail } from './detail.mapper'
 import { displayNumber } from './reports.service'
 import type { ReportFilters } from './filters'
+import { nearest } from './nearby'
+import { PointsCache } from '../stats/points-cache'
 
 /** Потолок страницы (SRS §4.3). */
 export const MAX_PAGE_SIZE = 50
 const DEFAULT_PAGE_SIZE = 20
+
+/** Три соседа — столько влезает в колонку карточки, не отодвигая саму заявку вниз. */
+const NEARBY_LIMIT = 3
 
 /** Чтение отделено от приёма заявок намеренно: писать в `reports.service.ts` будет
  *  смена статусов из Telegram, и два потока в одном файле разъехались бы на первом же
@@ -26,6 +31,7 @@ export class PublicReportsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly s3: S3Service,
+    private readonly points: PointsCache,
   ) {}
 
   async list(filters: ReportFilters, rawCursor: string | null, rawLimit: number | null): Promise<ReportListResponse> {
@@ -129,6 +135,15 @@ export class PublicReportsService {
     if (report === null) {
       throw new ApiException('NOT_FOUND', HttpStatus.NOT_FOUND, 'report is not published')
     }
-    return mapDetail(report, (key) => this.s3.publicUrl(key))
+    // Соседи берутся из того же снимка, что и точки карты: обращения в БД у этого
+    // списка нет вовсе, а промах кэша здесь дешевле, чем запрос к PostGIS на каждую
+    // открытую карточку.
+    const snapshot = await this.points.get()
+    const nearby = nearest(
+      snapshot.rows,
+      { number: report.publicNumber, latitude: report.latitude.toNumber(), longitude: report.longitude.toNumber() },
+      NEARBY_LIMIT,
+    )
+    return mapDetail(report, (key) => this.s3.publicUrl(key), nearby)
   }
 }
