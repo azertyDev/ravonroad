@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { formatNumber, formatPercent } from '../../shared/format/number'
 import { useI18n } from '../../shared/i18n/useI18n'
+import { campaignScale } from './scale'
 import { CAMPAIGN_GOAL, useCampaignStats } from './useCampaignStats'
 
 /** Ячейка одометра. Разряд единиц выделен светлым: это цифра, которая меняется,
@@ -51,8 +52,9 @@ export function CampaignCounter() {
 
   const goal = stats.data?.goal ?? CAMPAIGN_GOAL
   const done = stats.data?.done
-  const share = done === undefined || goal <= 0 ? 0 : Math.min(done / goal, 1)
-  const digits = done === undefined ? null : formatNumber(done).replace(/\D/g, '').split('')
+  // Доля и заливка шкалы считаются вместе и проверяются вместе (scale.test.ts):
+  // разъехавшись, шкала не падает, а молча врёт.
+  const { share, right, digits } = campaignScale(done ?? 0, goal)
 
   return (
     <section className="bg-[var(--accent)] px-[var(--gutter)] py-[var(--s-5)] text-[var(--text-on-accent)]">
@@ -64,7 +66,7 @@ export function CampaignCounter() {
         <dd className="mt-[var(--s-3)]" aria-live="polite">
           <span className="sr-only">{done === undefined ? t('state.loading') : formatNumber(done)}</span>
           <span aria-hidden="true" className="flex flex-wrap items-end gap-[var(--s-1)]">
-            {digits === null ? (
+            {done === undefined ? (
               <Digit value="—" live={false} />
             ) : (
               // Ключ позиционный: разряд определяется местом в числе, а не значением.
@@ -82,7 +84,7 @@ export function CampaignCounter() {
       <div className="relative mt-[var(--s-3)] h-[14px] overflow-hidden rounded-[var(--r-1)] bg-[var(--asphalt-950)]">
         <div
           className="absolute inset-y-0 left-0 bg-[var(--asphalt-0)]"
-          style={{ right: `${100 - share * 100}%` }}
+          style={{ right }}
         />
         <div
           className="absolute inset-x-0 top-[6px] h-[2px]"
