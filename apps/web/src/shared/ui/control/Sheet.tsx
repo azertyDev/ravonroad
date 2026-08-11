@@ -11,6 +11,10 @@ interface SheetProps {
   children: ReactNode
   /** Строка действий на дне листа — она не прокручивается вместе с содержимым. */
   footer?: ReactNode
+  /** Во весь экран на телефоне вместо листа на 92%. Форма заявки — не выбор из
+   *  короткого набора, а работа на пять шагов: полоска карты над ней ничего не даёт,
+   *  а высоту отнимает (Form C — это экран целиком, а не лист). */
+  fill?: boolean
 }
 
 /** Нижний лист на телефоне, модальное окно на ноутбуке.
@@ -31,7 +35,7 @@ interface SheetProps {
  *
  *  Высота 92%, без промежуточной. Половинчатый лист на 390 px заставляет тянуться
  *  к верху экрана, а карта под ним всё равно не читается (Mobile States C). */
-export function Sheet({ title, subtitle, onClose, children, footer }: SheetProps) {
+export function Sheet({ title, subtitle, onClose, children, footer, fill = false }: SheetProps) {
   const { t } = useI18n()
   const dialog = useRef<HTMLDialogElement>(null)
   // Обработчик читается из ref: слушатель вешается один раз на открытие, а замкнутый
@@ -67,15 +71,19 @@ export function Sheet({ title, subtitle, onClose, children, footer }: SheetProps
       onClick={(event) => {
         if (event.target === dialog.current) onClose()
       }}
-      className="fixed inset-x-0 bottom-0 top-auto m-0 grid h-[var(--sheet-full)] max-h-none w-full max-w-none grid-rows-[auto_1fr_auto] overflow-hidden rounded-t-[16px] border-t border-[var(--border-1)] bg-[var(--surface-page)] p-0 text-[var(--text-1)] backdrop:bg-[rgba(18,22,28,.6)] md:inset-0 md:m-auto md:h-auto md:max-h-[85dvh] md:w-[min(900px,92vw)] md:rounded-[var(--r-4)] md:border"
+      className={`fixed inset-x-0 bottom-0 top-auto m-0 grid max-h-none w-full max-w-none grid-rows-[auto_1fr_auto] overflow-hidden border-t border-[var(--border-1)] bg-[var(--surface-page)] p-0 text-[var(--text-1)] backdrop:bg-[rgba(18,22,28,.72)] md:inset-0 md:m-auto md:h-auto md:max-h-[85dvh] md:w-[min(900px,92vw)] md:rounded-[var(--r-4)] md:border ${
+        fill ? 'inset-0 h-full' : 'h-[var(--sheet-full)] rounded-t-[16px]'
+      }`}
     >
       <div className="flex flex-col gap-[var(--s-3)] px-[var(--gutter)] pt-[var(--s-4)] pb-[var(--s-4)]">
         {/* Хват листа. Декоративный: тянуть его мы не умеем, но без него край листа
             читается как обрезанная страница, а не как поднятая панель. */}
-        <span
-          aria-hidden="true"
-          className="mx-auto h-[4px] w-[40px] rounded-[var(--r-1)] bg-[var(--asphalt-500)] md:hidden"
-        />
+        {!fill && (
+          <span
+            aria-hidden="true"
+            className="mx-auto h-[4px] w-[40px] rounded-[var(--r-1)] bg-[var(--asphalt-500)] md:hidden"
+          />
+        )}
         <div className="flex items-start justify-between gap-[var(--s-3)]">
           <div className="flex min-w-0 flex-col gap-[var(--s-1)]">
             <h2 className="t-h2 uppercase">{title}</h2>
@@ -87,7 +95,12 @@ export function Sheet({ title, subtitle, onClose, children, footer }: SheetProps
         </div>
       </div>
 
-      <div className="min-h-0 overflow-auto px-[var(--gutter)] pb-[var(--s-4)]">{children}</div>
+      {/* Отступа снизу нет, когда окно занимает экран: содержимое там несёт собственную
+          панель действия, и она обязана прилипнуть к самому дну — иначе под ней остаётся
+          щель, в которой видно проезжающий текст. */}
+      <div className={`min-h-0 overflow-auto px-[var(--gutter)] ${fill ? '' : 'pb-[var(--s-4)]'}`}>
+        {children}
+      </div>
 
       {footer !== undefined && (
         <div className="flex flex-col gap-[var(--s-2)] border-t border-[var(--border-1)] px-[var(--gutter)] pt-[var(--s-4)] pb-[calc(var(--screen-bottom)+var(--safe-bottom))]">

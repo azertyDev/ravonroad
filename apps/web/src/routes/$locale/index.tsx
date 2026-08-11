@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link, useNavigate, useSearch } from '@tanstack/react-router'
+import { Link, Outlet, useNavigate, useSearch } from '@tanstack/react-router'
 import { useState } from 'react'
 import { catalogKeys, fetchDistricts } from '../../entities/catalog/api'
 import type { ReportFilters as Filters } from '../../entities/report/api'
 import { MapToolbar } from '../../features/report-filters/MapToolbar'
 import { ReportFilters } from '../../features/report-filters/ReportFilters'
-import { toFilters, toSearch } from '../../features/report-filters/searchParams'
+import { toFilters, toSearch, validateReportSearch } from '../../features/report-filters/searchParams'
 import { PublicMap } from '../../features/report-map/PublicMap'
 import { CampaignCounter } from '../../features/stats/CampaignCounter'
 import { LatestRepaired } from '../../features/stats/LatestRepaired'
@@ -25,13 +25,19 @@ import { CTA, GUTTER } from '../../shared/ui/control/styles'
  *  между ними обязан его сохранять (SRS §7.3). */
 export function HomePage() {
   const { locale, t } = useI18n()
-  const search = useSearch({ from: '/$locale/' })
-  const navigate = useNavigate({ from: '/$locale/' })
+  // `strict: false`: экран рисуется и под главной, и под формой, поэтому привязать
+  // чтение к одному из двух маршрутов нельзя. Разбор всё равно свой — тот же, что
+  // у маршрута, и мусор из адреса он уже отбросил.
+  const search = validateReportSearch(useSearch({ strict: false }))
+  const navigate = useNavigate()
   const [filtersOpen, setFiltersOpen] = useState(false)
   const filters = toFilters(search)
   const districts = useQuery({ queryKey: catalogKeys.districts, queryFn: fetchDistricts, staleTime: Infinity })
   const district = districts.data?.find((item) => item.code === filters.district)
-  const apply = (next: Filters): void => void navigate({ search: toSearch(next) })
+  // Цель указана явно, а не «сюда же»: фильтры меняют и с главной, и из-под формы,
+  // а адрес среза всегда один — карта.
+  const apply = (next: Filters): void =>
+    void navigate({ to: '/$locale', params: { locale }, search: toSearch(next) })
 
   return (
     <div className="flex flex-1 flex-col lg:grid lg:grid-cols-[1fr_420px]">
@@ -70,6 +76,10 @@ export function HomePage() {
       </div>
 
       {filtersOpen && <ReportFilters filters={filters} onChange={apply} onClose={() => setFiltersOpen(false)} />}
+
+      {/* Форма заявки. Модальное окно поверх этого же экрана, поэтому она — вложенный
+          маршрут, а не соседний: карта под ней остаётся той же самой (Desktop C). */}
+      <Outlet />
 
       {/* Прокручивается правая колонка, а не страница: карта слева при этом остаётся
           на месте целиком (Desktop C). */}

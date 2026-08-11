@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { catalogKeys, fetchDistricts, localizedName } from '../../entities/catalog/api'
 import { useI18n } from '../../shared/i18n/useI18n'
 import { ActionBar } from '../../shared/ui/control/ActionBar'
-import { CTA, GUTTER, SECONDARY } from '../../shared/ui/control/styles'
+import { CTA, SECONDARY } from '../../shared/ui/control/styles'
 import { Glyph } from '../../shared/ui/icon/Glyph'
 import { StatusChip } from '../../shared/ui/status/StatusChip'
 
@@ -50,7 +50,7 @@ export function Confirmation({ report }: { report: CreateReportResponse }) {
 
   return (
     <section className="flex flex-1 flex-col">
-      <div className={`flex flex-col gap-[var(--s-4)] ${GUTTER}`}>
+      <div className="flex flex-col gap-[var(--s-4)]">
         {/* Знак приёма набран цветом статуса DONE, а не зелёным: чистого зелёного
             в системе нет вовсе — при дейтеранопии он сливается с оранжевым. */}
         <span
@@ -59,11 +59,11 @@ export function Confirmation({ report }: { report: CreateReportResponse }) {
         >
           <Glyph name="check" size={26} />
         </span>
-        <h1 className="t-display uppercase">{t('form.done.title')}</h1>
-        <p className="t-body text-[var(--text-2)]">{t('form.done.lead')}</p>
       </div>
 
-      <div className="mt-[var(--block-gap)] flex flex-wrap items-center justify-between gap-[var(--s-3)] bg-[var(--accent)] px-[var(--gutter)] py-[var(--s-5)] text-[var(--text-on-accent)]">
+      {/* Поле номера идёт в край окна: та же плашка, что счётчик кампании на главной,
+          и та же подача — поле, а не карточка. Поле окна гасится отрицательным полем. */}
+      <div className="mt-[var(--block-gap)] mx-[calc(var(--gutter)*-1)] flex flex-wrap items-center justify-between gap-[var(--s-3)] bg-[var(--accent)] px-[var(--gutter)] py-[var(--s-5)] text-[var(--text-on-accent)]">
         <span className="flex flex-col gap-[var(--s-1)]">
           <span className="t-label">{t('form.done.numberLabel')}</span>
           {/* Номер публичен и доступа не даёт ни к чему: им ссылаются в группе
@@ -73,7 +73,7 @@ export function Confirmation({ report }: { report: CreateReportResponse }) {
         <StatusChip status={report.status} />
       </div>
 
-      <div className={`mt-[var(--block-gap)] flex flex-col gap-[var(--s-3)] ${GUTTER}`}>
+      <div className="mt-[var(--block-gap)] flex flex-col gap-[var(--s-3)]">
         {district !== undefined && (
           <p className="t-caption text-[var(--text-2)]">{localizedName(district, locale)}</p>
         )}
@@ -99,14 +99,16 @@ export function Confirmation({ report }: { report: CreateReportResponse }) {
         )}
       </div>
 
-      <ActionBar caption={t('report.trackHint')}>
-        <button type="button" onClick={copy} className={CTA}>
-          <Glyph name="copy" size={18} />
-          {copied ? t('report.copied') : t('report.copyLink')}
-        </button>
-        <Link to="/$locale" params={{ locale }} className={SECONDARY}>
-          {t('form.done.backToMap')}
-        </Link>
+      <ActionBar caption={t('report.trackHint')} className="mx-[calc(var(--gutter)*-1)] lg:flex-row-reverse lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-[var(--s-2)] lg:flex-row lg:gap-[var(--s-3)]">
+          <Link to="/$locale" params={{ locale }} className={`${SECONDARY} lg:w-auto`}>
+            {t('form.done.backToMap')}
+          </Link>
+          <button type="button" onClick={copy} className={`${CTA} lg:w-auto`}>
+            <Glyph name="copy" size={18} />
+            {copied ? t('report.copied') : t('report.copyLink')}
+          </button>
+        </div>
       </ActionBar>
     </section>
   )

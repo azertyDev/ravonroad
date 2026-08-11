@@ -10,7 +10,7 @@ import { randomUuid } from '../../shared/lib/uuid'
 import { ActionBar } from '../../shared/ui/control/ActionBar'
 import { CatalogState } from '../../shared/ui/state/CatalogState'
 import { StepHeader } from '../../shared/ui/control/StepHeader'
-import { COMPACT, CTA, CTA_MUTED, FIELD, GUTTER } from '../../shared/ui/control/styles'
+import { COMPACT, CTA, CTA_MUTED, FIELD, SECONDARY } from '../../shared/ui/control/styles'
 import { ToggleChip } from '../../shared/ui/control/ToggleChip'
 import { clearDraft, loadDraft, saveDraft } from './draft'
 import { PointPicker } from './map-pin/PointPicker'
@@ -35,7 +35,14 @@ const SAVE_DEBOUNCE_MS = 500
  *
  *  Обязательные шаги помечены жёлтым номером, необязательный — серым: жёлтый здесь
  *  обещает, что без этого шага заявку не отправить. */
-export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResponse) => void }) {
+interface ReportFormProps {
+  onCreated: (report: CreateReportResponse) => void
+  /** «Отмена»: форма живёт модальным окном поверх карты, и уйти из неё надо не только
+   *  крестиком в углу, но и кнопкой рядом с отправкой (Desktop C › подвал модала). */
+  onCancel: () => void
+}
+
+export function ReportForm({ onCreated, onCancel }: ReportFormProps) {
   const { locale, t, errorText } = useI18n()
 
   const [photos, setPhotos] = useState<SelectedPhoto[]>([])
@@ -168,14 +175,15 @@ export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResp
 
   return (
     <form onSubmit={submit} noValidate className="flex flex-1 flex-col">
-      <h1 className={`t-h2 uppercase ${GUTTER}`}>{t('form.title')}</h1>
+      {/* Заголовок формы даёт окно, в котором она открыта: второй такой же строкой
+          ниже он читался бы как сбой вёрстки (routes/$locale/new.tsx).
 
-      {/* Ноутбук делит форму на две колонки, как в макете: слева то, что человек уже
+          Ноутбук делит форму на две колонки, как в макете: слева то, что человек уже
           держит в руке (снимок и точка), справа то, что дописывает словами. Группы
           заданы двумя обёртками, а не автопотоком сетки: автопоток разложил бы шаги
           через один — 01 слева, 02 справа. На телефоне обёртки просто складываются
           в одну колонку, и порядок шагов остаётся 01…05. */}
-      <div className={`mt-[var(--s-5)] flex flex-col gap-[var(--field-gap)] lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-[var(--s-8)] ${GUTTER}`}>
+      <div className="flex flex-col gap-[var(--field-gap)] lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-[var(--s-8)]">
         {restored && (
           <div className="flex flex-wrap items-center gap-[var(--s-3)] rounded-[var(--r-4)] bg-[var(--surface-sunken)] p-[var(--s-4)] lg:col-span-2">
             <p className="t-caption flex-1 text-[var(--text-2)]">{t('form.draft.restored')}</p>
@@ -324,16 +332,33 @@ export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResp
         )}
       </div>
 
-      <ActionBar caption={caption}>
-        <button type="submit" disabled={submission.isPending} className={ready ? CTA : CTA_MUTED}>
-          {submission.isPending && (
-            <span
-              aria-hidden="true"
-              className="h-[18px] w-[18px] animate-[rr-spin_.8s_linear_infinite] rounded-[var(--r-pill)] border-[2.5px] border-[rgba(18,22,28,.25)] border-t-[var(--asphalt-950)]"
-            />
-          )}
-          {submission.isPending ? t('form.submitting') : submission.isError ? t('form.retry') : t('form.submit')}
-        </button>
+      {/* Подвал модала: слева подсказка, справа отмена и отправка (Desktop C).
+          `flex-row-reverse` — потому что подсказка в разметке стоит после кнопок:
+          она объясняет их, а не предваряет, и скринридер читает её в этом порядке. */}
+      <ActionBar
+        caption={caption}
+        // Отрицательное поле гасит поле окна: разделитель подвала обязан пройти
+        // во всю ширину модала, а не оборваться на его отступах.
+        className="mx-[calc(var(--gutter)*-1)] lg:flex-row-reverse lg:items-center lg:justify-between lg:gap-[var(--s-5)]"
+      >
+        <div className="flex flex-col gap-[var(--s-2)] lg:flex-row lg:gap-[var(--s-3)]">
+          <button type="button" onClick={onCancel} className={`${SECONDARY} lg:w-auto`}>
+            {t('form.cancel')}
+          </button>
+          <button
+            type="submit"
+            disabled={submission.isPending}
+            className={`${ready ? CTA : CTA_MUTED} lg:w-auto`}
+          >
+            {submission.isPending && (
+              <span
+                aria-hidden="true"
+                className="h-[18px] w-[18px] animate-[rr-spin_.8s_linear_infinite] rounded-[var(--r-pill)] border-[2.5px] border-[rgba(18,22,28,.25)] border-t-[var(--asphalt-950)]"
+              />
+            )}
+            {submission.isPending ? t('form.submitting') : submission.isError ? t('form.retry') : t('form.submit')}
+          </button>
+        </div>
       </ActionBar>
     </form>
   )
