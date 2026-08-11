@@ -47,7 +47,7 @@ function Stat({ value, label, tone }: { value: ReactNode; label: string; tone?: 
  *  Отдельный троттлинг aria-live не нужен: дизайн просит объявлять не чаще раза в 10 с,
  *  а данные обновляются раз в 30. */
 export function CampaignCounter() {
-  const { t, locale } = useI18n()
+  const { t, tp, locale } = useI18n()
   const stats = useCampaignStats()
 
   const goal = stats.data?.goal ?? CAMPAIGN_GOAL
@@ -117,7 +117,7 @@ export function CampaignCounter() {
             <Stat value={`+${formatNumber(stats.data.doneLastWeek)}`} label={t('home.lastWeek')} tone="var(--status-done-solid)" />
           )}
           <Stat value={formatNumber(stats.data.queued)} label={t('home.queued')} />
-          <Stat value={formatNumber(stats.data.districts)} label={t('home.districts')} />
+          <Stat value={formatNumber(stats.data.districts)} label={tp('home.districts', stats.data.districts)} />
         </dl>
       )}
     </section>

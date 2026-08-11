@@ -60,8 +60,11 @@ export function ReportListPage() {
   const apply = (next: Filters): void => void navigate({ search: toSearch(next) })
 
   return (
-    <div className="flex flex-1 flex-col">
-      <div className={`flex flex-col gap-[var(--s-4)] ${GUTTER}`}>
+    // Ноутбук: карта слева во всю высоту, срез справа — та же раскладка, что у главной,
+    // и тот же порядок блоков на телефоне. Второго дерева разметки нет, порядок задан
+    // `order` (Desktop C › «Bosh sahifa»).
+    <div className="flex flex-1 flex-col lg:grid lg:grid-cols-[1fr_420px] lg:items-start lg:gap-[var(--s-8)]">
+      <div className={`order-1 flex flex-col gap-[var(--s-4)] lg:order-2 ${GUTTER} lg:px-0`}>
         <h1 className="t-display uppercase">{t('list.title')}</h1>
         <FilterBar filters={filters} onChange={apply} onOpen={() => setFiltersOpen(true)} />
       </div>
@@ -77,11 +80,11 @@ export function ReportListPage() {
 
       {/* Выбор района подгоняет границы карты. Пусто по фильтрам — сообщение ложится
           поверх карты, а не вместо неё: человек должен видеть, куда сдвинуться. */}
-      <div className="relative mt-[var(--s-5)]">
+      <div className="relative order-2 mt-[var(--s-5)] lg:order-1 lg:sticky lg:top-[var(--s-4)] lg:mt-0">
         <PublicMap
           filters={filters}
           focus={district?.bbox ?? null}
-          className="h-[46vh] min-h-[280px] lg:h-[56vh] lg:rounded-[var(--r-4)] lg:border lg:border-[var(--border-1)]"
+          className="h-[46vh] min-h-[280px] lg:h-[calc(100dvh-160px)] lg:min-h-[420px] lg:rounded-[var(--r-4)] lg:border lg:border-[var(--border-1)]"
         />
         {list.isSuccess && items.length === 0 && (
           <div className={`pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 ${GUTTER}`}>
@@ -96,7 +99,7 @@ export function ReportListPage() {
         )}
       </div>
 
-      <div className={`mt-[var(--s-5)] flex flex-col gap-[var(--s-3)] ${GUTTER}`}>
+      <div className={`order-3 mt-[var(--s-5)] flex flex-col gap-[var(--s-3)] lg:order-3 lg:col-start-2 lg:mt-0 ${GUTTER} lg:px-0`}>
         {counted.data !== undefined && (
           <p className="t-section text-[var(--text-2)]">
             {t('list.districtCount')} <span className="tabular-nums">{counted.data.points.length}</span>
@@ -126,7 +129,7 @@ export function ReportListPage() {
         )}
       </div>
 
-      <ActionBar caption={t('home.ctaCaption')}>
+      <ActionBar caption={t('home.ctaCaption')} className="order-4 lg:col-span-2">
         <Link to="/$locale/new" params={{ locale }} className={CTA}>
           {t('home.cta')}
         </Link>

@@ -14,10 +14,14 @@ export const ruUi: Record<UiKey, string> = {
   'home.repairedLabel': 'Отремонтировано ям',
   'home.goalLabel': 'Цель кампании',
   'home.goalShort': 'Цель',
-  // Существительное без числительного: «районов» вранёт на «1», «района» на «11».
-  'home.lastWeek': 'За неделю',
-  'home.queued': 'В очереди',
-  'home.districts': 'Районы',
+  // Нижний регистр, как в узбекской полосе: подписи стоят под числами, а не
+  // начинают строку.
+  'home.lastWeek': 'за неделю',
+  'home.queued': 'в очереди',
+  'home.districts.one': 'район',
+  'home.districts.few': 'района',
+  'home.districts.many': 'районов',
+  'home.districts.other': 'района',
   'footer.contact': 'Связаться с кампанией',
   'footer.volunteers': 'Проект ведут волонтёры.',
   'home.cta': 'Сообщить о яме',

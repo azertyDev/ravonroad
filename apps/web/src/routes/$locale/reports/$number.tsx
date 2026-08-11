@@ -82,7 +82,10 @@ export function ReportDetailPage() {
   const report = detail.data
 
   return (
-    <article className="flex flex-1 flex-col">
+    // Ноутбук: карточку держит колонка 820 px по центру, а не вся ширина main.
+    // Правой колонки из макета здесь нет — она уносит историю и полосу кампании,
+    // а ради этого пришлось бы разрезать ReportSummary, общий с /z/<token>.
+    <article className="flex flex-1 flex-col lg:mx-auto lg:w-full lg:max-w-[820px]">
       <PageHead title={report.displayNumber} action={<ShareButton title={report.displayNumber} />} />
 
       {/* Связи нет, а страница уже приехала: показанное — сохранённая версия, а не

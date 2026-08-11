@@ -22,7 +22,12 @@ export const uzUi = {
   'home.goalShort': 'Maqsad',
   'home.lastWeek': 'shu hafta',
   'home.queued': 'navbatda',
-  'home.districts': 'tuman',
+  // Узбекский не склоняет существительное после числительного, но формы объявлены
+  // все четыре: множества ключей у локалей обязаны совпадать.
+  'home.districts.one': 'tuman',
+  'home.districts.few': 'tuman',
+  'home.districts.many': 'tuman',
+  'home.districts.other': 'tuman',
   'footer.contact': 'Kampaniya bilan bogʻlanish',
   'footer.volunteers': 'Loyihani volontyorlar yuritadi.',
   'home.cta': 'Chuqur haqida xabar berish',

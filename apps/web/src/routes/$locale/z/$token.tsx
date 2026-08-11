@@ -104,7 +104,7 @@ export function TrackPage() {
   const report = view.data
 
   return (
-    <article className="flex flex-1 flex-col">
+    <article className="flex flex-1 flex-col lg:mx-auto lg:w-full lg:max-w-[820px]">
       <PageHead title={report.displayNumber} />
       {!online && <OfflineBar onRetry={() => void view.refetch()} />}
 

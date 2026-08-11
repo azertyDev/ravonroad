@@ -170,9 +170,14 @@ export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResp
     <form onSubmit={submit} noValidate className="flex flex-1 flex-col">
       <h1 className={`t-h2 uppercase ${GUTTER}`}>{t('form.title')}</h1>
 
-      <div className={`mt-[var(--s-5)] flex flex-col gap-[var(--field-gap)] ${GUTTER}`}>
+      {/* Ноутбук делит форму на две колонки, как в макете: слева то, что человек уже
+          держит в руке (снимок и точка), справа то, что дописывает словами. Группы
+          заданы двумя обёртками, а не автопотоком сетки: автопоток разложил бы шаги
+          через один — 01 слева, 02 справа. На телефоне обёртки просто складываются
+          в одну колонку, и порядок шагов остаётся 01…05. */}
+      <div className={`mt-[var(--s-5)] flex flex-col gap-[var(--field-gap)] lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-[var(--s-8)] ${GUTTER}`}>
         {restored && (
-          <div className="flex flex-wrap items-center gap-[var(--s-3)] rounded-[var(--r-4)] bg-[var(--surface-sunken)] p-[var(--s-4)]">
+          <div className="flex flex-wrap items-center gap-[var(--s-3)] rounded-[var(--r-4)] bg-[var(--surface-sunken)] p-[var(--s-4)] lg:col-span-2">
             <p className="t-caption flex-1 text-[var(--text-2)]">{t('form.draft.restored')}</p>
             <button
               type="button"
@@ -195,14 +200,17 @@ export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResp
           </div>
         )}
 
-        <div ref={(element) => void (anchors.current.photos = element)} tabIndex={-1}>
-          <PhotoPicker photos={photos} onChange={setPhotos} error={errorFor('photos')} />
+        <div className="flex flex-col gap-[var(--field-gap)]">
+          <div ref={(element) => void (anchors.current.photos = element)} tabIndex={-1}>
+            <PhotoPicker photos={photos} onChange={setPhotos} error={errorFor('photos')} />
+          </div>
+
+          <div ref={(element) => void (anchors.current.point = element)} tabIndex={-1}>
+            <PointPicker value={point} onChange={setPoint} error={errorFor('point')} />
+          </div>
         </div>
 
-        <div ref={(element) => void (anchors.current.point = element)} tabIndex={-1}>
-          <PointPicker value={point} onChange={setPoint} error={errorFor('point')} />
-        </div>
-
+        <div className="flex flex-col gap-[var(--field-gap)]">
         <div className="flex flex-col gap-[var(--s-3)]">
           <label htmlFor="landmark">
             <StepHeader step="03" label={t('form.step.landmark')} />
@@ -291,6 +299,7 @@ export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResp
             onChange={(event) => setContactTelegram(event.target.value)}
           />
         </fieldset>
+        </div>
 
         {/* Honeypot: не виден человеку и не объявлен скринридеру (PRD §10.2). Заполнен —
             заявка всё равно создаётся, но получает флаг: автозаполнение браузера даёт
@@ -308,7 +317,7 @@ export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResp
         {failureText !== null && (
           <p
             role="alert"
-            className="t-body rounded-[var(--r-4)] border border-[var(--status-rejected-line)] bg-[var(--status-rejected-tint)] p-[var(--s-4)] text-[var(--status-rejected-ink)]"
+            className="t-body rounded-[var(--r-4)] border border-[var(--status-rejected-line)] bg-[var(--status-rejected-tint)] p-[var(--s-4)] text-[var(--status-rejected-ink)] lg:col-span-2"
           >
             {failureText}
           </p>
