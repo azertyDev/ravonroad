@@ -1,6 +1,7 @@
 import { Injectable, type OnModuleDestroy, type OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { logEvent } from '../common/logger'
+import { logQueueDepths, queueDepths } from '../common/queue-depths'
 import { PrismaService } from '../prisma/prisma.service'
 import { ProcessService } from './process.service'
 import { S3Service } from './s3.service'
@@ -22,6 +23,11 @@ const LEASE_MS = 5 * 60 * 1000
  *  видимой с меньшим числом фотографий. Потерять заявку из-за неудачного ресайза нельзя. */
 const BACKOFF_MS = [5_000, 30_000, 5 * 60_000, 30 * 60_000]
 const MAX_ATTEMPTS = 5
+/** Глубины очередей пишутся не чаще раза в минуту. Проход идёт раз в секунду, и строка
+ *  на каждый дала бы 86 400 записей в сутки при потолке 30 МБ на контейнер логов
+ *  (SRS §12.2 п.5) — числа при этом не устареют: очередь меняется медленнее, чем раз
+ *  в минуту её читают. */
+const DEPTH_LOG_INTERVAL_MS = 60_000
 
 interface ClaimedPhoto {
   id: number
@@ -34,6 +40,7 @@ interface ClaimedPhoto {
 export class PhotoWorker implements OnModuleInit, OnModuleDestroy {
   private readonly timers: ReturnType<typeof setInterval>[] = []
   private readonly running = new Set<number>()
+  private depthLoggedAt = 0
 
   constructor(
     private readonly prisma: PrismaService,
@@ -74,6 +81,10 @@ export class PhotoWorker implements OnModuleInit, OnModuleDestroy {
     if (this.running.has(slot)) return false
     this.running.add(slot)
     try {
+      if (Date.now() - this.depthLoggedAt >= DEPTH_LOG_INTERVAL_MS) {
+        this.depthLoggedAt = Date.now()
+        logQueueDepths(await queueDepths(this.prisma))
+      }
       const photo = await this.claim()
       if (photo === null) return false
       await this.handle(photo)

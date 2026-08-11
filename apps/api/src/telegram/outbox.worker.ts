@@ -11,6 +11,7 @@ import { CardRenderer } from './card.renderer'
 import { DIGEST_SIZE, DIGEST_THRESHOLD, DigestService } from './digest.service'
 import { DuplicatesService } from './duplicates.service'
 import { logEvent } from '../common/logger'
+import { logQueueDepths, queueDepths } from '../common/queue-depths'
 import { pendingCardCount, pendingCardsByPriority } from './queue-order'
 
 /** Доставка в Telegram (SRS §6.7).
@@ -51,6 +52,9 @@ const LEASE_MS = 60_000
 const BACKOFF_MS = [10_000, 30_000, 120_000, 600_000, 1_800_000]
 const HOURLY_MS = 3_600_000
 
+/** Глубины очередей пишутся не чаще раза в минуту: проход идёт каждые 10 секунд,
+ *  и строка на каждый съедала бы потолок 30 МБ на контейнер логов (SRS §12.2 п.5). */
+const DEPTH_LOG_INTERVAL_MS = 60_000
 
 interface OutboxRow {
   id: bigint
@@ -64,6 +68,7 @@ interface OutboxRow {
 export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
   private timer: ReturnType<typeof setInterval> | null = null
   private running = false
+  private depthLoggedAt = 0
   /** Скользящее окно отправок. Живёт в памяти процесса — как и буфер альбомов,
    *  и лимиты приёма: второй экземпляр api молча сломает и то, и другое (SRS §12.3). */
   private readonly sends: number[] = []
@@ -97,8 +102,13 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
     if (this.running) return 0
     this.running = true
     try {
+      // Четыре числа SRS §10.3: без них перегрузка обнаруживается по сообщению
+      // в группе «а где мои фотки», то есть после того, как её заметил житель.
+      if (Date.now() - this.depthLoggedAt >= DEPTH_LOG_INTERVAL_MS) {
+        this.depthLoggedAt = Date.now()
+        logQueueDepths(await queueDepths(this.prisma))
+      }
       const depth = await pendingCardCount(this.prisma)
-      if (depth > 0) logEvent('info', 'queue_depth', { count: depth })
       if (depth > DIGEST_THRESHOLD) return await this.sendDigest()
       return await this.sendDue()
     } finally {
