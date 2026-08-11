@@ -62,6 +62,23 @@ pull_images() {
   done
 }
 
+# Образы тегируются sha коммита, поэтому каждая выкатка приносит три новых и ни одного
+# не убирает. За день это десятки гигабайт: диск стенда кончился на 65 образах, Postgres
+# упал с `No space left on device` и ушёл в цикл восстановления — то есть сайт лёг
+# не от нагрузки и не от кода, а от выкаток.
+#
+# `until=72h` оставляет свежие образы нетронутыми: цель отката переживает несколько
+# выкаток подряд. Даже если её всё-таки уберут, откат сначала делает `pull_images` —
+# он вернёт её из GHCR, просто медленнее.
+#
+# Чистка идёт ДО pull: место нужно как раз для новых слоёв. Ошибка чистки не роняет
+# выкатку — свободного места могло хватить и так.
+prune_images() {
+  echo "==> чищу образы старше 72 часов"
+  docker image prune -af --filter 'until=72h' 2>&1 | tail -1 || true
+  df -h / | tail -1
+}
+
 health_ok() {
   echo "==> health-check $HEALTH_URL ($HEALTH_TRIES попыток по ${HEALTH_DELAY}с)"
   for i in $(seq 1 "$HEALTH_TRIES"); do
@@ -89,6 +106,7 @@ git fetch --depth 1 origin "$TAG"
 git checkout FETCH_HEAD -- docker-compose.yml docker-compose.dev.yml
 
 use_tag "$TAG"
+prune_images
 pull_images
 
 # Сначала миграции, потом код: новый код рассчитывает на новую схему, обратный порядок
