@@ -78,6 +78,14 @@
   text-transform: uppercase;
 }
 
+/* Плашка-переключатель прячет свой input под sr-only, поэтому кольцо фокуса рисует
+   она сама: иначе обход с клавиатуры проходит по группе вслепую. */
+.chip-focus:has(:focus-visible) {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+  box-shadow: var(--focus-shadow);
+}
+
 /* Плашка: капслок кеглем 13 — статусы, подписи шкалы, компактные кнопки. */
 .t-chip {
   font: var(--t-chip);

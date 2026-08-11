@@ -58,6 +58,7 @@ export const ruUi: Record<UiKey, string> = {
   'report.photosBefore': 'До ремонта',
   'report.photosAfter': 'После ремонта',
   'report.photoAlt': 'Фотография ямы',
+  'report.photoCount': 'фото',
   'report.photoAfterAlt': 'Фотография отремонтированного участка',
   'report.photosPending': 'Фото готовится',
   'report.publication': 'Открыть публикацию',

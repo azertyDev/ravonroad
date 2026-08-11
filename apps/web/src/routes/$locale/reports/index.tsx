@@ -1,18 +1,21 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
-import { catalogKeys, fetchDistricts, localizedName } from '../../../entities/catalog/api'
+import { useState } from 'react'
+import { catalogKeys, fetchDistricts } from '../../../entities/catalog/api'
+import { ReportCard } from '../../../entities/report/ReportCard'
 import { fetchReportList, fetchReportMap, reportKeys, type ReportFilters as Filters } from '../../../entities/report/api'
+import { FilterBar } from '../../../features/report-filters/FilterBar'
 import { ReportFilters } from '../../../features/report-filters/ReportFilters'
 import { toFilters, toSearch } from '../../../features/report-filters/searchParams'
 import { CITY_BBOX } from '../../../features/report-map/bbox'
 import { PublicMap } from '../../../features/report-map/PublicMap'
 import { apiErrorCode } from '../../../shared/api/client'
-import { formatDate } from '../../../shared/format/date'
-import { formatNumber } from '../../../shared/format/number'
 import { useI18n } from '../../../shared/i18n/useI18n'
+import { ActionBar } from '../../../shared/ui/control/ActionBar'
+import { COMPACT, CTA, GUTTER, SECONDARY } from '../../../shared/ui/control/styles'
+import { EmptyState } from '../../../shared/ui/state/EmptyState'
 import { ErrorState } from '../../../shared/ui/state/ErrorState'
 import { LoadingState } from '../../../shared/ui/state/LoadingState'
-import { StatusMark } from '../../../shared/ui/status/StatusMark'
 
 const LIST_STALE_TIME = 30_000
 
@@ -21,13 +24,19 @@ const LIST_STALE_TIME = 30_000
  *  Не запасной вариант карты, а равноправный вход: карта не должна быть единственным
  *  способом увидеть заявки (PRD §8.2). Фильтр один на оба — и набор поэтому один и тот же.
  *
- *  Счётчик по району берётся из ответа карты с тем же фильтром: тот запрос всё равно
+ *  Список идёт под картой, а не в листе поверх неё, как в макете: лист над картой
+ *  нужен там, где карта и есть страница, а здесь страница и есть список — накрывать
+ *  им собственное содержимое незачем. В лист вынесены фильтры: их форма длинная,
+ *  и на телефоне она отжимала бы и карту, и список за нижний край.
+ *
+ *  Счётчик по срезу берётся из ответа карты с тем же фильтром: тот запрос всё равно
  *  сделан, лежит в кэше и обслуживается микрокэшем nginx, поэтому отдельного
  *  «сколько всего» не требуется (SRS §4.3 — `total` в списке всегда `null`). */
 export function ReportListPage() {
   const { locale, t } = useI18n()
   const search = useSearch({ from: '/$locale/reports' })
   const navigate = useNavigate({ from: '/$locale/reports' })
+  const [filtersOpen, setFiltersOpen] = useState(false)
   const filters = toFilters(search)
 
   const districts = useQuery({ queryKey: catalogKeys.districts, queryFn: fetchDistricts, staleTime: Infinity })
@@ -48,91 +57,80 @@ export function ReportListPage() {
   })
 
   const items = (list.data?.pages ?? []).flatMap((page) => page.items)
-  const applied = [
-    ...filters.status.map((status) => t(`status.${status}`)),
-    district === undefined ? null : localizedName(district, locale),
-    filters.from,
-    filters.to,
-  ].filter((value): value is string => value !== null && value !== undefined)
+  const apply = (next: Filters): void => void navigate({ search: toSearch(next) })
 
   return (
-    <div className="flex flex-col gap-[var(--block-gap)] px-[var(--gutter)]">
-      <h1 className="t-display">{t('list.title')}</h1>
+    <div className="flex flex-1 flex-col">
+      <div className={`flex flex-col gap-[var(--s-4)] ${GUTTER}`}>
+        <h1 className="t-display uppercase">{t('list.title')}</h1>
+        <FilterBar filters={filters} onChange={apply} onOpen={() => setFiltersOpen(true)} />
+      </div>
 
-      <ReportFilters
-        filters={filters}
-        onChange={(next: Filters) => void navigate({ search: toSearch(next) })}
-      />
-
-      {/* Выбор района подгоняет границы карты, а рядом видно, сколько в нём заявок. */}
-      {district !== undefined && counted.data !== undefined && (
-        <p className="t-label">
-          {t('list.districtCount')}: <span className="tabular-nums">{formatNumber(counted.data.points.length)}</span>
-        </p>
+      {filtersOpen && (
+        <ReportFilters
+          filters={filters}
+          onChange={apply}
+          onClose={() => setFiltersOpen(false)}
+          count={counted.data?.points.length}
+        />
       )}
 
-      <PublicMap filters={filters} focus={district?.bbox ?? null} />
+      {/* Выбор района подгоняет границы карты. Пусто по фильтрам — сообщение ложится
+          поверх карты, а не вместо неё: человек должен видеть, куда сдвинуться. */}
+      <div className="relative mt-[var(--s-5)]">
+        <PublicMap
+          filters={filters}
+          focus={district?.bbox ?? null}
+          className="h-[46vh] min-h-[280px] lg:h-[56vh] lg:rounded-[var(--r-4)] lg:border lg:border-[var(--border-1)]"
+        />
+        {list.isSuccess && items.length === 0 && (
+          <div className={`pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 ${GUTTER}`}>
+            <div className="pointer-events-auto">
+              <EmptyState title={t('map.empty.title')} hint={t('map.empty.hint')}>
+                <button type="button" onClick={() => void navigate({ search: {} })} className={`${SECONDARY} mt-[var(--s-2)]`}>
+                  {t('filters.reset')}
+                </button>
+              </EmptyState>
+            </div>
+          </div>
+        )}
+      </div>
 
-      {list.isPending && <LoadingState />}
-      {list.isError && <ErrorState code={apiErrorCode(list.error)} onRetry={() => void list.refetch()} />}
+      <div className={`mt-[var(--s-5)] flex flex-col gap-[var(--s-3)] ${GUTTER}`}>
+        {counted.data !== undefined && (
+          <p className="t-section text-[var(--text-2)]">
+            {t('list.districtCount')} <span className="tabular-nums">{counted.data.points.length}</span>
+          </p>
+        )}
 
-      {list.isSuccess && items.length === 0 && (
-        <div className="flex flex-col items-start gap-[var(--s-3)]">
-          <p className="t-body-l">{t('list.empty')}</p>
-          {applied.length > 0 && <p className="t-caption text-[var(--text-2)]">{applied.join(' · ')}</p>}
+        {list.isPending && <LoadingState />}
+        {list.isError && <ErrorState code={apiErrorCode(list.error)} onRetry={() => void list.refetch()} />}
+
+        <ul className="flex flex-col gap-[var(--s-3)] empty:hidden">
+          {items.map((item) => (
+            <li key={item.number}>
+              <ReportCard item={item} locale={locale} />
+            </li>
+          ))}
+        </ul>
+
+        {list.hasNextPage && (
           <button
             type="button"
-            onClick={() => void navigate({ search: {} })}
-            className="t-label inline-flex min-h-[var(--touch-base)] items-center rounded-[var(--r-2)] border border-[var(--border-2)] px-[var(--s-4)]"
+            onClick={() => void list.fetchNextPage()}
+            disabled={list.isFetchingNextPage}
+            className={`${COMPACT} self-start`}
           >
-            {t('filters.reset')}
+            {list.isFetchingNextPage ? t('state.loading') : t('list.more')}
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
-      <ul className="flex flex-col gap-[var(--s-3)]">
-        {items.map((item) => (
-          <li key={item.number}>
-            <Link
-              to="/$locale/reports/$number"
-              params={{ locale, number: String(item.number) }}
-              className="flex gap-[var(--s-3)] rounded-[var(--r-3)] border border-[var(--border-1)] bg-[var(--surface-card)] p-[var(--s-3)]"
-            >
-              {item.previewUrl === null ? (
-                <span className="grid h-[72px] w-[72px] shrink-0 place-items-center overflow-hidden rounded-[var(--r-2)] bg-[var(--surface-sunken)] px-[var(--s-1)] text-center text-[length:10px] leading-tight text-[var(--text-2)]">
-                  {t('report.photosPending')}
-                </span>
-              ) : (
-                <img
-                  src={item.previewUrl}
-                  alt={t('report.photoAlt')}
-                  className="h-[72px] w-[72px] shrink-0 rounded-[var(--r-2)] object-cover"
-                />
-              )}
-              <span className="flex min-w-0 flex-col gap-[var(--s-1)]">
-                <span className="t-label inline-flex items-center gap-[var(--s-2)]">
-                  <StatusMark status={item.status} />
-                  {t(`status.${item.status}`)}
-                </span>
-                <span className="t-caption text-[var(--text-2)]">{item.displayNumber}</span>
-                {item.landmark !== null && <span className="t-caption">{item.landmark}</span>}
-                <span className="t-caption tabular-nums text-[var(--text-2)]">{formatDate(item.createdAt)}</span>
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-
-      {list.hasNextPage && (
-        <button
-          type="button"
-          onClick={() => void list.fetchNextPage()}
-          disabled={list.isFetchingNextPage}
-          className="t-label inline-flex min-h-[var(--touch-base)] items-center self-start rounded-[var(--r-2)] border border-[var(--border-2)] px-[var(--s-4)]"
-        >
-          {list.isFetchingNextPage ? t('state.loading') : t('list.more')}
-        </button>
-      )}
+      <ActionBar caption={t('home.ctaCaption')}>
+        <Link to="/$locale/new" params={{ locale }} className={CTA}>
+          {t('home.cta')}
+        </Link>
+      </ActionBar>
     </div>
   )
 }

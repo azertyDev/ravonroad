@@ -31,7 +31,7 @@ export function ToggleChip({ type, name, checked, onChange, status, ref, childre
 
   return (
     <label
-      className={`t-chip inline-flex min-h-[var(--touch-min)] cursor-pointer items-center gap-[var(--s-2)] rounded-[var(--r-3)] px-[var(--s-4)] py-[var(--s-3)] has-[:focus-visible]:outline-[var(--focus-outline)] has-[:focus-visible]:outline-offset-[var(--focus-outline-offset)] ${
+      className={`chip-focus t-chip inline-flex min-h-[var(--touch-min)] cursor-pointer items-center gap-[var(--s-2)] rounded-[var(--r-3)] px-[var(--s-4)] py-[var(--s-3)] ${
         checked
           ? slug === null
             ? 'border-2 border-[var(--accent)] bg-[var(--accent)] font-extrabold text-[var(--text-on-accent)]'

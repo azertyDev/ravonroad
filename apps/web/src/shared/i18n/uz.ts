@@ -66,6 +66,7 @@ export const uzUi = {
   'report.photosBefore': 'Taʼmirdan oldin',
   'report.photosAfter': 'Taʼmirdan keyin',
   'report.photoAlt': 'Chuqur surati',
+  'report.photoCount': 'surat',
   'report.photoAfterAlt': 'Taʼmirlangan joy surati',
   'report.photosPending': 'Suratlar tayyorlanmoqda',
   'report.publication': 'Nashrni ochish',

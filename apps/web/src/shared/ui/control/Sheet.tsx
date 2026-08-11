@@ -38,6 +38,9 @@ export function Sheet({ title, subtitle, onClose, children, footer }: SheetProps
   }, [])
 
   return (
+    // Клавиатурной пары у клика по подложке нет и не нужно: с клавиатуры лист
+    // закрывает Escape, и его обрабатывает сам `<dialog>`, поднимая то же `close`.
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
     <dialog
       ref={dialog}
       onClose={onClose}
