@@ -229,6 +229,31 @@ describe('GET /api/stats — счётчик (SRS §4.6, PRD 5.3.2)', () => {
     expect(body.goal).toBe(10000)
     expect(body.done).toBeGreaterThanOrEqual(0)
   })
+
+  it('отдаёт числа плаката: очередь, недельную прибавку и районы', async () => {
+    // Снимок живёт 30 секунд и переживает соседний сценарий, поэтому здесь TTL
+    // обнуляется точечно: проверяются числа, а не кэш — его проверяет тест выше,
+    // и ему TTL как раз нужен.
+    const ttl = process.env['POINTS_CACHE_TTL_MS']
+    process.env['POINTS_CACHE_TTL_MS'] = '0'
+
+    await truncateData(prisma)
+    await seed({ status: 'NEW' })
+    await seed({ status: 'NEW' })
+    await seed({ status: 'ACCEPTED' })
+    await seed({ status: 'DONE' })
+
+    const body = (await (await fetch(`${app.baseUrl}/api/stats`)).json()) as StatsResponse
+    if (ttl === undefined) delete process.env['POINTS_CACHE_TTL_MS']
+    else process.env['POINTS_CACHE_TTL_MS'] = ttl
+
+    // В очереди стоят только те, кого модератор ещё не касался: ACCEPTED уже разобрана.
+    expect(body.queued).toBe(2)
+    // Недельная прибавка — подмножество выполненных, и разойтись они не могут.
+    expect(body.doneLastWeek).toBeLessThanOrEqual(body.done)
+    // Район хотя бы один: seed ставит точку внутри города, иначе заявка не создалась бы.
+    expect(body.districts).toBeGreaterThanOrEqual(1)
+  })
 })
 
 describe('/api/track/:token — страница отслеживания (SRS §4.5, §9.2)', () => {
