@@ -43,6 +43,7 @@ export function ReportSummary({ report, note }: ReportSummaryProps) {
   const stats = useCampaignStats()
 
   const district = districts.data?.find((item) => item.code === report.districtCode)
+  const districtName = district === undefined ? null : localizedName(district, locale)
   const category = categories.data?.find((item) => item.code === report.categoryCode)
   const before = report.photos.filter((photo) => photo.kind === 'BEFORE')
   const after = report.photos.filter((photo) => photo.kind === 'AFTER')
@@ -55,16 +56,26 @@ export function ReportSummary({ report, note }: ReportSummaryProps) {
       <div className="flex flex-col gap-[var(--s-3)] px-[var(--gutter)] py-[var(--s-5)]">
         {/* Ориентир — заголовок страницы: это единственное, чем яма отличается от
             соседней в глазах человека. Обычным регистром: капслок на длинной
-            узбекской строке не читается. */}
-        <h1 className="t-h1">{report.landmark ?? district?.nameUz ?? report.displayNumber}</h1>
-        {district !== undefined && <p className="t-body text-[var(--text-2)]">{localizedName(district, locale)}</p>}
-        <div className="flex flex-wrap gap-[var(--s-2)]">
+            узбекской строке не читается.
+
+            Ориентир необязателен, и без него заголовком становится район. Тогда
+            он и остаётся единственным: строка с названием района под заголовком
+            «Юнусабадский район» повторяла бы его слово в слово. */}
+        <h1 className="t-h1">{report.landmark ?? districtName ?? report.displayNumber}</h1>
+        {report.landmark !== null && districtName !== null && (
+          <p className="t-body text-[var(--text-2)]">{districtName}</p>
+        )}
+        <div className="flex flex-wrap gap-[var(--s-2)] empty:hidden">
           {category !== undefined && <Tag>{localizedName(category, locale)}</Tag>}
-          <Tag>
-            <span className="tabular-nums">{formatNumber(report.photos.length)}</span>
-            &nbsp;
-            {t('report.photoCount')}
-          </Tag>
+          {/* «0 surat» не пишется: отсутствие снимков видно по самим плитам ниже,
+              а плашка с нулём читается как поле, которое забыли заполнить. */}
+          {report.photos.length > 0 && (
+            <Tag>
+              <span className="tabular-nums">{formatNumber(report.photos.length)}</span>
+              &nbsp;
+              {t('report.photoCount')}
+            </Tag>
+          )}
         </div>
       </div>
 
