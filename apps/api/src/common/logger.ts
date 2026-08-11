@@ -47,6 +47,13 @@ export interface LogFields {
   deliveryQueue?: number
   moderationQueue?: number
   photoFailed?: number
+  /** Настройки, меняющие поведение под нагрузкой (SRS §12). Пишутся на старте: через
+   *  месяц, разбирая сбой, никто не пойдёт в контейнер за `printenv` — контейнера уже
+   *  не будет, а лог останется. */
+  dbPool?: number
+  intakeConcurrency?: number
+  photoWorkers?: number
+  pointsCacheTtlMs?: number
   /** Условие алерта (SRS §10.4) и его состояние. */
   condition?: string
   deduped?: boolean
