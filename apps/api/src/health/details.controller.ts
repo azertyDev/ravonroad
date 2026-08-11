@@ -17,11 +17,14 @@ import { HealthService } from './health.service'
  *  работающий сервис. Их состояние видно **здесь** — и только здесь. */
 const PROBE_CACHE_MS = 60_000
 
+/** `null` означает «прочитать не удалось», а не ноль: БД лежит — числа взять неоткуда,
+ *  и подставлять вместо них цифру нельзя. Числовая заглушка вроде `-1` однажды попадёт
+ *  на график как настоящее значение. */
 interface QueueSummary {
-  photo: number
-  delivery: number
-  moderation: number
-  photoFailed: number
+  photo: number | null
+  delivery: number | null
+  moderation: number | null
+  photoFailed: number | null
   oldestPhotoS: number | null
   oldestDeliveryS: number | null
 }
@@ -76,10 +79,10 @@ export class HealthDetailsController {
       s3: s3Up ? 'up' : 'down',
       telegram,
       queues: {
-        photo: queues?.photoQueue ?? -1,
-        delivery: queues?.deliveryQueue ?? -1,
-        moderation: queues?.moderationQueue ?? -1,
-        photoFailed: queues?.photoFailed ?? -1,
+        photo: queues?.photoQueue ?? null,
+        delivery: queues?.deliveryQueue ?? null,
+        moderation: queues?.moderationQueue ?? null,
+        photoFailed: queues?.photoFailed ?? null,
         oldestPhotoS: queues?.oldestPhotoS ?? null,
         oldestDeliveryS: queues?.oldestDeliveryS ?? null,
       },

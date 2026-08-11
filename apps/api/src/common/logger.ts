@@ -1,3 +1,4 @@
+import type { LoggerService } from '@nestjs/common'
 import { currentCorrelationId } from './correlation'
 
 /** Структурный лог (SRS §8.4): JSON в stdout, один объект на строку, `msg` — событие
@@ -49,6 +50,10 @@ export interface LogFields {
   /** Условие алерта (SRS §10.4) и его состояние. */
   condition?: string
   deduped?: boolean
+  /** Свободный текст фреймворка: наши события пишут `msg` в snake_case, а Nest
+   *  сообщает предложениями, и переписывать их нечем. Проходит через `redact`, как
+   *  и всё остальное строковое. */
+  text?: string
 }
 
 /** Полный адрес в логах запрещён, а сеть /24 остаётся полезной: по ней видно, что
@@ -61,12 +66,44 @@ export function ipPrefix(ip: string | null): string | undefined {
 }
 
 /** Адрес IPv4 целиком — до /24; телефон в международной форме — до заглушки.
- *  Обе замены работают по свободному тексту от внешних систем, а не по нашим полям. */
-const FULL_IPV4 = /\b(\d{1,3}\.\d{1,3}\.\d{1,3})\.\d{1,3}\b/g
+ *  Обе замены работают по свободному тексту от внешних систем, а не по нашим полям.
+ *
+ *  Отрицательный просмотр вперёд обязателен: без него уже замаскированный `84.54.66.0/24`
+ *  попадает под то же правило второй раз и превращается в `84.54.66.0/24/24`. Проверено
+ *  на живом стенде — ровно так и выглядело поле `ipPrefix`. */
+const FULL_IPV4 = /\b(\d{1,3}\.\d{1,3}\.\d{1,3})\.\d{1,3}\b(?!\/)/g
 const PHONE = /\+\d{9,15}\b/g
 
 function redact(value: string): string {
   return value.replace(FULL_IPV4, '$1.0/24').replace(PHONE, '+***')
+}
+
+/** Nest пишет свой старт, маршруты и предупреждения человеку и в цвете. В логе,
+ *  который читают `docker logs` и `grep`, это две проблемы сразу: строка не JSON,
+ *  и в ней ANSI-escape. Здесь его вывод сводится к тому же формату, что и наш, —
+ *  иначе поток api не разобрать одним `jq`, ради которого он и в JSON.
+ *
+ *  `debug` и `verbose` не реализованы за ненадобностью: интерфейс Nest объявляет их
+ *  необязательными, а вне прода отладку удобнее читать глазами. */
+export class JsonLogger implements LoggerService {
+  log(message: unknown, context?: unknown): void {
+    write('info', message, context)
+  }
+
+  warn(message: unknown, context?: unknown): void {
+    write('warn', message, context)
+  }
+
+  error(message: unknown, stack?: unknown, context?: unknown): void {
+    write('error', message, context ?? stack)
+  }
+}
+
+function write(level: LogLevel, message: unknown, context: unknown): void {
+  logEvent(level, 'nest', {
+    text: typeof message === 'string' ? message : JSON.stringify(message),
+    ...(typeof context === 'string' ? { reason: context } : {}),
+  })
 }
 
 export function logEvent(level: LogLevel, msg: string, fields: LogFields = {}): void {

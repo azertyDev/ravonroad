@@ -2,6 +2,7 @@ import { Catch, HttpException, HttpStatus, type ArgumentsHost, type ExceptionFil
 import type { ApiErrorBody, ErrorCode } from '@ravonroad/shared-types'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { ApiException } from './api-error'
+import { logEvent } from './logger'
 
 /** Единый формат ответа об ошибке для всего API (SRS §8.1).
  *
@@ -34,6 +35,22 @@ export class ApiExceptionFilter implements ExceptionFilter {
     }
     if (exception instanceof ApiException) {
       for (const [name, value] of Object.entries(exception.headers)) response.setHeader(name, value)
+    }
+
+    // Уровни по SRS §8.4: `error` — сломалось и нужен человек, `warn` — ожидаемый отказ.
+    // Неожиданное исключение своего события не имеет, а житель приходит в поддержку
+    // именно с ним — и с correlationId, который его найдёт.
+    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      if (!(exception instanceof HttpException)) {
+        logEvent('error', 'request_failed', { status, error: messageOf(exception) })
+      } else if (exception instanceof ApiException) {
+        // Наш осознанный отказ: недоступное хранилище, например. Код, а не текст —
+        // текст предназначен разработчику и в счётчик не годится.
+        logEvent('warn', 'request_failed', { status, error: exception.code })
+      }
+      // Прочие HttpException от самого Nest не логируются здесь: у 503 от `/ready`
+      // уже есть своё событие `db_unavailable`, и вторая строка на ту же проверку —
+      // это шум каждые несколько секунд, а не сигнал.
     }
 
     response.statusCode = status

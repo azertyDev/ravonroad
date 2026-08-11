@@ -60,6 +60,13 @@ describe('запретный список (SRS §8.4)', () => {
     expect(line?.['error']).toBe('contact +*** failed')
   })
 
+  it('не маскирует уже замаскированное', () => {
+    // Без этого `84.54.66.0/24` проходит через redact второй раз и становится
+    // `84.54.66.0/24/24` — поймано на живом стенде, а не придумано.
+    const [line] = capture(() => logEvent('warn', 'report_rate_flagged', { ipPrefix: '84.54.66.0/24' }))
+    expect(line?.['ipPrefix']).toBe('84.54.66.0/24')
+  })
+
   it('ipPrefix отдаёт только сеть /24', () => {
     expect(ipPrefix('84.54.66.129')).toBe('84.54.66.0/24')
     expect(ipPrefix(null)).toBeUndefined()
