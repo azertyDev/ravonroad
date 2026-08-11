@@ -42,7 +42,7 @@ export const uzUi = {
   'report.days.other': 'kunda',
   'footer.contact': 'Kampaniya bilan bogʻlanish',
   'footer.volunteers': 'Loyihani volontyorlar yuritadi.',
-  'home.cta': 'Chuqur haqida xabar berish',
+  'home.cta': 'Xabar berish',
   'home.ctaCaption': 'Roʻyxatdan oʻtish shart emas · 30 soniya',
   'state.loading': 'Yuklanmoqda…',
   'state.errorTitle': 'Nimadir xato ketdi',
