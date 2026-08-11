@@ -93,13 +93,9 @@ export function PhotoPicker({ photos, onChange, error }: PhotoPickerProps) {
         </ul>
       )}
 
-      <label
-        className="t-label inline-flex min-h-[var(--touch-base)] w-fit cursor-pointer items-center rounded-[var(--r-2)] border border-[var(--border-2)] px-[var(--s-4)] aria-disabled:opacity-50"
-        aria-disabled={full}
-        htmlFor={`${fieldId}-input`}
-      >
-        {busy ? t('form.photos.working') : t('form.photos.add')}
-      </label>
+      {/* Поле идёт до подписи, а не после: само оно 1×1 px и невидимо, поэтому кольцо
+          фокуса рисуется на подписи соседним селектором (index.css), а соседний
+          селектор в CSS смотрит только вперёд. */}
       <input
         id={`${fieldId}-input`}
         type="file"
@@ -109,6 +105,7 @@ export function PhotoPicker({ photos, onChange, error }: PhotoPickerProps) {
         multiple
         disabled={full || busy}
         className="sr-only absolute h-px w-px overflow-hidden opacity-0"
+        aria-invalid={error !== undefined || undefined}
         aria-describedby={error === undefined ? undefined : errorId}
         onChange={(event) => {
           void accept(event.target.files)
@@ -117,6 +114,13 @@ export function PhotoPicker({ photos, onChange, error }: PhotoPickerProps) {
           event.target.value = ''
         }}
       />
+      <label
+        className="t-label inline-flex min-h-[var(--touch-base)] w-fit cursor-pointer items-center rounded-[var(--r-2)] border border-[var(--border-2)] px-[var(--s-4)] aria-disabled:opacity-50"
+        aria-disabled={full}
+        htmlFor={`${fieldId}-input`}
+      >
+        {busy ? t('form.photos.working') : t('form.photos.add')}
+      </label>
 
       {/* Отказы объявляются вслух: без live-региона житель узнал бы о них, только
           заметив, что фотографий стало меньше, чем он выбрал. */}

@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { LANDMARK_MAX_LENGTH, type CreateReportResponse } from '@ravonroad/shared-types'
 import { useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { catalogKeys, fetchCategories } from '../../entities/catalog/api'
 import { createReport, recordFormOpen } from '../../entities/report/api'
 import { ApiRequestError } from '../../shared/api/client'
@@ -132,16 +133,27 @@ export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResp
   const submit = (event: React.FormEvent): void => {
     event.preventDefault()
     const problem = firstInvalid()
-    setInvalid(problem)
+    // flushSync, а не обычный setState: фокус переносится строкой ниже, а текст ошибки
+    // и aria-describedby появляются только следующим рендером. Без принудительной
+    // отрисовки скринридер получил бы поле, у которого описания ещё нет, и промолчал
+    // бы о причине (PRD §8.2).
+    flushSync(() => setInvalid(problem))
     if (problem !== null) {
-      anchors.current[problem]?.focus()
+      const anchor = anchors.current[problem]
+      // Фокус — на само поле, а не на обёртку: у обёртки нет ни имени, ни описания,
+      // и попавший на неё пользователь скринридера слышит тишину.
+      const field = anchor?.querySelector<HTMLElement>('input, select, textarea')
+      ;(field ?? anchor)?.focus()
       return
     }
     submission.mutate()
   }
 
+  /** Ошибка держится ровно до тех пор, пока поле пустое. Без второй проверки она
+   *  оставалась бы на экране вместе с уже выбранной фотографией — и вместе
+   *  с `aria-invalid`, то есть скринридер сообщал бы об ошибке, которой больше нет. */
   const errorFor = (field: FieldName): string | undefined =>
-    invalid === field ? t(FIELD_ERROR[field]) : undefined
+    invalid === field && firstInvalid() === field ? t(FIELD_ERROR[field]) : undefined
 
   const failure = submission.error
   const failureText =
@@ -195,6 +207,7 @@ export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResp
           className={FIELD_CLASS}
           ref={(element) => void (anchors.current.category = element)}
           value={categoryCode}
+          aria-invalid={invalid === 'category' || undefined}
           aria-describedby={invalid === 'category' ? 'category-error' : undefined}
           onChange={(event) => setCategoryCode(event.target.value)}
         >

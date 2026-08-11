@@ -1,4 +1,5 @@
-import { detectLocale } from '../i18n/locale'
+import { useEffect } from 'react'
+import { detectLocale, HTML_LANG } from '../i18n/locale'
 import { MESSAGES } from '../i18n/messages'
 
 /** Браузер определяется по возможностям, а не по строке user-agent (PRD §8.5):
@@ -23,6 +24,13 @@ export function isBrowserSupported(): boolean {
 export function UnsupportedBrowser() {
   const locale = detectLocale(navigator.languages)
   const { ui } = MESSAGES[locale]
+
+  // Язык страницы объявляется и здесь: маршрут с локалью до этого экрана не доходит,
+  // а без атрибута скринридер прочитал бы русский текст узбекскими правилами —
+  // на единственной странице, которую этот браузер вообще покажет (PRD §8.2).
+  useEffect(() => {
+    document.documentElement.lang = HTML_LANG[locale]
+  }, [locale])
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-[720px] flex-col justify-center gap-[var(--s-4)] px-[var(--gutter)]">

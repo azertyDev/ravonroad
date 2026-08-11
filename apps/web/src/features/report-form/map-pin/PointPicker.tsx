@@ -114,6 +114,10 @@ export function PointPicker({ value, onChange, error }: PointPickerProps) {
             // с точкой, а стрелки и колесо type="number" на координатах только мешают.
             inputMode="decimal"
             autoComplete="off"
+            // Ошибка связана и с полями, а не только с fieldset: скринридер зачитывает
+            // описание того элемента, на котором стоит фокус (PRD §8.2).
+            aria-invalid={error !== undefined || undefined}
+            aria-describedby={error === undefined ? undefined : errorId}
             value={latitudeText}
             onChange={(event) => {
               setLatitudeText(event.target.value)
@@ -131,6 +135,8 @@ export function PointPicker({ value, onChange, error }: PointPickerProps) {
             className={FIELD_CLASS}
             inputMode="decimal"
             autoComplete="off"
+            aria-invalid={error !== undefined || undefined}
+            aria-describedby={error === undefined ? undefined : errorId}
             value={longitudeText}
             onChange={(event) => {
               setLongitudeText(event.target.value)
