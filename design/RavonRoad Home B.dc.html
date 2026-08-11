@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #E9EAEF; color: #1D222A; font-family: 'Onest', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  p { text-wrap: pretty; }
+  a { color: #1D222A; text-decoration-color: #FFDD00; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  a:hover { color: #2B313C; text-decoration-color: #B89C00; }
+  ::selection { background: #FFDD00; color: #12161C; }
+</style>
+</helmet>
+
+<div style="padding:32px 24px 56px;display:grid;gap:20px;justify-items:center">
+  <div style="width:100%;max-width:640px;display:grid;gap:10px">
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+      <span style="font:700 11px/1.2 'Onest',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#545C6E">Вариант B</span>
+      <span style="font:600 11px/1 'Onest',sans-serif;padding:6px 8px;border-radius:6px;background:#12161C;color:#FFDD00">Onest, один шрифт</span>
+      <span style="font:600 11px/1 'Onest',sans-serif;padding:6px 8px;border-radius:6px;background:#FFFFFF;border:1px solid #D2D6DF;color:#3E4553">{{ fontProof }}</span>
+    </div>
+    <h1 style="margin:0;font:800 26px/1.15 'Onest',sans-serif;letter-spacing:-.02em;color:#12161C">Карта, но не пульт управления</h1>
+    <p style="margin:0;font:400 15px/1.55 'Onest',sans-serif;color:#545C6E">Структура прежняя — карта во весь экран, — но сухость убрана: моно-подписи заменены на человеческие фразы, счётчик стал предложением, радиусы 20, тени мягче. Внизу вместо счёта заявок — что бригада починила вчера, с фотографией.</p>
+  </div>
+
+  <div style="width:390px;height:844px;border-radius:28px;overflow:hidden;background:#EDEEF1;position:relative;box-shadow:0 8px 40px rgba(18,22,28,.18);border:1px solid #D2D6DF">
+
+    <div style="position:absolute;inset:0;background:#EDEEF1;background-image:linear-gradient(#FFFFFF,#FFFFFF),linear-gradient(#FFFFFF,#FFFFFF),linear-gradient(#FFFFFF,#FFFFFF),linear-gradient(#DFE2E8,#DFE2E8),linear-gradient(#DDE9DC,#DDE9DC),linear-gradient(#D6E3EC,#D6E3EC);background-size:100% 15px,12px 100%,100% 10px,100% 2px,160px 130px,100% 36px;background-position:0 44%,28% 0,0 76%,0 24%,12% 58%,0 14%;background-repeat:no-repeat"></div>
+    <div style="position:absolute;inset:0;background:repeating-linear-gradient(28deg,rgba(18,22,28,.03) 0 2px,transparent 2px 28px)"></div>
+
+    <div style="position:absolute;left:104px;top:300px;width:30px;height:30px;background:#D8368F;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><span style="width:11px;height:11px;border:2.5px solid #FFFFFF;border-radius:50%"></span></div>
+    <div style="position:absolute;left:246px;top:252px;width:30px;height:30px;background:#EE6A21;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><span style="width:10px;height:10px;background:#FFFFFF"></span></div>
+    <div style="position:absolute;left:178px;top:404px;width:44px;height:44px;background:#2F5FD0;border:3px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 0 4px rgba(47,95,208,.22),0 6px 14px rgba(18,22,28,.3);display:grid;place-items:center"><span style="display:flex;gap:4px"><span style="width:3px;height:17px;background:#FFFFFF"></span><span style="width:3px;height:17px;background:#FFFFFF"></span></span></div>
+    <div style="position:absolute;left:66px;top:452px;width:30px;height:30px;background:#0F9FA6;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><span style="width:12px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;margin-bottom:2px"></span></div>
+    <div style="position:absolute;left:288px;top:374px;width:30px;height:30px;background:#0F9FA6;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><span style="width:12px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;margin-bottom:2px"></span></div>
+    <div style="position:absolute;left:40px;top:340px;width:36px;height:36px;border-radius:50%;background:#12161C;border:2px solid #FFFFFF;box-shadow:0 2px 6px rgba(18,22,28,.3);display:grid;place-items:center;font:700 14px/1 'Onest',sans-serif;color:#FFFFFF">14</div>
+    <div style="position:absolute;left:252px;top:492px;width:44px;height:44px;border-radius:50%;background:#12161C;border:2px solid #FFFFFF;box-shadow:0 2px 6px rgba(18,22,28,.3);display:grid;place-items:center;font:700 15px/1 'Onest',sans-serif;color:#FFFFFF">128</div>
+    <div style="position:absolute;left:146px;top:530px;width:18px;height:18px;border-radius:50%;background:#2F5FD0;border:3px solid #FFFFFF;box-shadow:0 0 0 9px rgba(47,95,208,.15),0 2px 6px rgba(18,22,28,.3)"></div>
+
+    <div style="position:absolute;top:44px;left:16px;right:16px;display:grid;gap:10px">
+      <div style="background:#FBFBFD;border-radius:20px;padding:16px;box-shadow:0 6px 22px rgba(18,22,28,.14)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div style="font:800 18px/1 'Onest',sans-serif;letter-spacing:-.02em;color:#12161C">RavonRoad</div>
+          <button type="button" lang="uz" title="Oʻzbekcha" aria-label="Til · Oʻzbekcha" style="min-height:44px;min-width:44px;padding:11px 12px;border:none;border-radius:14px;background:#F2F3F7;display:inline-flex;align-items:center;gap:8px;cursor:pointer"><span aria-hidden="true" style="width:24px;height:17px;border-radius:3px;overflow:hidden;position:relative;flex:none;background:linear-gradient(#0099B5 0 32%,#CE1126 32% 34.5%,#FFFFFF 34.5% 65.5%,#CE1126 65.5% 68%,#1EB53A 68% 100%);box-shadow:inset 0 0 0 1px rgba(18,22,28,.2)"><span style="position:absolute;left:3px;top:2px;width:6px;height:6px;border-radius:50%;background:#FFFFFF"></span><span style="position:absolute;left:4.8px;top:2px;width:6px;height:6px;border-radius:50%;background:#0099B5"></span></span><span aria-hidden="true" style="width:7px;height:7px;border-right:2px solid #545C6E;border-bottom:2px solid #545C6E;transform:rotate(45deg);flex:none;margin-top:-4px"></span></button>
+        </div>
+        <div style="margin-top:14px;display:flex;align-items:flex-end;gap:5px">
+          <span style="min-width:38px;padding:8px 4px;background:#F2F3F7;border-radius:10px;font:800 28px/1 'Onest',sans-serif;font-variant-numeric:tabular-nums;color:#12161C;text-align:center">3</span>
+          <span style="min-width:38px;padding:8px 4px;background:#F2F3F7;border-radius:10px;font:800 28px/1 'Onest',sans-serif;font-variant-numeric:tabular-nums;color:#12161C;text-align:center">4</span>
+          <span style="min-width:38px;padding:8px 4px;background:#F2F3F7;border-radius:10px;font:800 28px/1 'Onest',sans-serif;font-variant-numeric:tabular-nums;color:#12161C;text-align:center">7</span>
+          <span style="min-width:38px;padding:8px 4px;background:#FFDD00;border-radius:10px;font:800 28px/1 'Onest',sans-serif;font-variant-numeric:tabular-nums;color:#12161C;text-align:center">1</span>
+          <span style="padding-bottom:9px;font:500 15px/1.2 'Onest',sans-serif;color:#3E4553">chuqur taʼmirlandi</span>
+        </div>
+        <div style="margin-top:12px;height:8px;border-radius:4px;background:#E6E8EE;position:relative;overflow:hidden"><span style="position:absolute;inset:0 65.3% 0 0;background:#12161C;border-radius:4px"></span></div>
+        <div style="margin-top:8px;font:500 14px/1.3 'Onest',sans-serif;color:#545C6E">10 000 gacha yoʻl bor</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button type="button" style="min-height:44px;padding:12px 16px;border:none;border-radius:999px;background:#12161C;font:600 15px/1.2 'Onest',sans-serif;color:#FBFBFD;display:inline-flex;align-items:center;gap:9px;box-shadow:0 4px 14px rgba(18,22,28,.2);cursor:pointer"><span style="display:grid;gap:2.5px;flex:none"><span style="width:14px;height:2px;background:#FBFBFD"></span><span style="width:10px;height:2px;background:#FBFBFD"></span><span style="width:6px;height:2px;background:#FBFBFD"></span></span>Filtrlar<span style="min-width:20px;height:20px;border-radius:999px;background:#FFDD00;color:#12161C;font:700 12px/20px 'Onest',sans-serif;text-align:center;padding:0 5px">2</span></button>
+        <span style="min-height:44px;display:inline-flex;align-items:center;padding:12px 16px;border-radius:999px;background:rgba(251,251,253,.95);font:500 14px/1.2 'Onest',sans-serif;color:#3E4553;box-shadow:0 4px 14px rgba(18,22,28,.12)">shu yerda 412 ta</span>
+      </div>
+    </div>
+
+    <button type="button" aria-label="Mening joylashuvim" title="Mening joylashuvim" style="position:absolute;right:16px;top:296px;width:52px;height:52px;border:none;border-radius:18px;background:#FBFBFD;box-shadow:0 6px 22px rgba(18,22,28,.16);display:grid;place-items:center;cursor:pointer"><span style="width:17px;height:17px;border:2.5px solid #2F5FD0;border-radius:50%;position:relative"><span style="position:absolute;left:3.5px;top:3.5px;width:5px;height:5px;border-radius:50%;background:#2F5FD0"></span></span></button>
+
+    <div style="position:absolute;left:0;right:0;bottom:0;padding:20px 16px 26px;display:grid;gap:10px;background:linear-gradient(rgba(237,238,241,0),rgba(237,238,241,.75) 35%,rgba(237,238,241,.97))">
+      <div style="background:#FBFBFD;border-radius:20px;padding:12px;box-shadow:0 6px 22px rgba(18,22,28,.16);display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:center">
+        <div style="height:64px;border-radius:14px;background:repeating-linear-gradient(115deg,#DCEFF0 0 7px,#CDE7E9 7px 14px);display:grid;place-items:center;font:500 9px/1.2 'Onest',sans-serif;color:#0A5D62">keyin</div>
+        <div style="min-width:0;display:grid;gap:4px">
+          <div style="font:600 15px/1.3 'Onest',sans-serif;color:#12161C">Kecha Amir Temur 88 tuzatildi</div>
+          <div style="font:400 13px/1.35 'Onest',sans-serif;color:#545C6E">brigada 4 · 4 kunda · suratlarni koʻrish</div>
+        </div>
+      </div>
+      <button type="button" style="min-height:58px;width:100%;border:none;border-radius:20px;background:#FFDD00;font:800 17px/1.2 'Onest',sans-serif;color:#12161C;display:inline-flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;box-shadow:0 6px 20px rgba(18,22,28,.22)" style-active="background:#E6C400;transform:translateY(1px)"><span style="position:relative;width:20px;height:20px;flex:none"><span style="position:absolute;top:9px;left:0;width:20px;height:2.5px;background:#12161C"></span><span style="position:absolute;left:9px;top:0;width:2.5px;height:20px;background:#12161C"></span></span>Chuqur haqida xabar berish</button>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { fontProof: 'проверка глифов…' };
+  componentDidMount() {
+    const run = () => {
+      let ok = null;
+      try { ok = document.fonts.check('16px "Onest"', 'Ulugʻbek Чиланзар'); } catch (e) { ok = null; }
+      this.setState({ fontProof: ok === null ? '? глифы ʻ ʼ' : ok ? '✓ ʻ ʼ + кириллица' : '✕ нет ʻ ʼ' });
+    };
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(run); else run();
+  }
+  renderVals() { return { fontProof: this.state.fontProof }; }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400;75..100,500;75..100,600;75..100,700;75..100,800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #F2F3F7; color: #1D222A; font-family: 'Archivo', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  p { text-wrap: pretty; }
+  a { color: #1D222A; text-decoration-color: #FFDD00; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  a:hover { color: #2B313C; text-decoration-color: #B89C00; }
+  ::selection { background: #FFDD00; color: #12161C; }
+</style>
+</helmet>
+
+<div style="width:0;height:0;overflow:hidden;position:absolute" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg"><filter id="cvd-deuter" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.367 0.861 -0.228 0 0  0.280 0.673 0.047 0 0  -0.012 0.043 0.969 0 0  0 0 0 1 0"></feColorMatrix></filter><filter id="cvd-protan" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.152 1.053 -0.205 0 0  0.115 0.786 0.099 0 0  -0.004 -0.048 1.052 0 0  0 0 0 1 0"></feColorMatrix></filter><filter id="cvd-tritan" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="1.256 -0.077 -0.179 0 0  -0.078 0.931 0.148 0 0  0.005 0.691 0.304 0 0  0 0 0 1 0"></feColorMatrix></filter></svg></div>
+
+<header style="background:#12161C;color:#FBFBFD;padding:0 0 40px">
+  <div style="height:14px;background:repeating-linear-gradient(115deg,#FFDD00 0 22px,#12161C 22px 44px)"></div>
+  <div style="max-width:1160px;margin:0 auto;padding:40px 24px 0">
+    <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#FFDD00">Design system · v1.0 · Tashkent</div>
+    <h1 style="margin:14px 0 0;font:800 52px/1.02 'Archivo',sans-serif;letter-spacing:-.03em">RavonRoad</h1>
+    <p style="margin:14px 0 0;max-width:60ch;font:400 17px/1.55 'Archivo',sans-serif;color:#B4BAC7">Жители сообщают о ямах, бригада волонтёров ремонтирует их сама. Система рассчитана на один сценарий: человек стоит на обочине, солнце в экран, мобильный интернет, одна рука.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:24px">
+      <span style="font:500 12px/1 'Archivo',sans-serif;color:#12161C;background:#FFDD00;border-radius:999px;padding:8px 12px">Mobile-first</span>
+      <span style="font:500 12px/1 'Archivo',sans-serif;color:#FBFBFD;background:#2B313C;border:1px solid #3E4553;border-radius:999px;padding:8px 12px">WCAG 2.2 AA</span>
+      <span style="font:500 12px/1 'Archivo',sans-serif;color:#FBFBFD;background:#2B313C;border:1px solid #3E4553;border-radius:999px;padding:8px 12px">uz-Latn · ru</span>
+      <span style="font:500 12px/1 'Archivo',sans-serif;color:#FBFBFD;background:#2B313C;border:1px solid #3E4553;border-radius:999px;padding:8px 12px">Без авторизации</span>
+    </div>
+  </div>
+</header>
+
+<nav style="position:sticky;top:0;z-index:20;background:rgba(242,243,247,.92);backdrop-filter:blur(10px);border-bottom:1px solid #D2D6DF">
+  <div style="max-width:1160px;margin:0 auto;padding:0 24px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;height:52px;font:600 13px/1 'Archivo',sans-serif">
+    <a href="#brand" style="text-decoration:none;color:#3E4553">Brand</a>
+    <a href="#colors" style="text-decoration:none;color:#3E4553">Colors</a>
+    <a href="#type" style="text-decoration:none;color:#3E4553">Type</a>
+    <a href="#spacing" style="text-decoration:none;color:#3E4553">Spacing</a>
+    <a href="RavonRoad%20Components.dc.html" style="margin-left:auto;text-decoration:none;color:#12161C;background:#FFDD00;border-radius:8px;padding:9px 14px">Components →</a>
+  </div>
+</nav>
+
+<main style="max-width:1160px;margin:0 auto;padding:48px 24px 96px;display:grid;gap:56px">
+
+  <section id="brand" style="display:grid;gap:20px">
+    <div style="display:grid;gap:6px">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#545C6E">01 — Brand</div>
+      <h2 style="margin:0;font:700 28px/1.15 'Archivo',sans-serif;letter-spacing:-.02em">Материал и позиция</h2>
+      <p style="margin:0;max-width:70ch;font:400 16px/1.55 'Archivo',sans-serif;color:#545C6E">Предметная область — асфальт и дорожная разметка. Нейтралы уведены в холодный сдвиг мокрого асфальта, акцент взят с сигнального жилета бригады. Интерфейс выглядит как рабочий инструмент, а не как городской портал.</p>
+    </div>
+
+    <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06)">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Wordmark</div>
+        <div style="margin-top:16px;display:inline-block">
+          <div style="font:800 34px/1 'Archivo',sans-serif;letter-spacing:-.03em;color:#12161C">RavonRoad</div>
+          <div style="height:6px;background:#FFDD00;margin-top:6px"></div>
+        </div>
+        <p style="margin:16px 0 0;font:400 14px/1.5 'Archivo',sans-serif;color:#545C6E">Логотипа в исходных материалах нет — знак не выдумывался. Марка набирается типографикой: Archivo 800, трекинг −3%, подчёркивание сигнальным жёлтым 6 px. Единственная допустимая альтернатива — та же надпись без плашки.</p>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06)">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Мотив — предупреждающая лента</div>
+        <div style="margin-top:16px;height:56px;border-radius:8px;background:repeating-linear-gradient(115deg,#FFDD00 0 18px,#12161C 18px 36px)"></div>
+        <div style="margin-top:10px;height:28px;border-radius:8px;background:repeating-linear-gradient(115deg,#2B313C 0 14px,#1D222A 14px 28px)"></div>
+        <p style="margin:16px 0 0;font:400 14px/1.5 'Archivo',sans-serif;color:#545C6E">Полоса 115°, шаг 18 px. Используется только как разделитель разделов и верхняя кромка страницы. Никогда — под текстом и никогда на карте: на карте жёлтый занят действиями.</p>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06)">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Тон копирайта</div>
+        <div style="margin-top:14px;display:grid;gap:10px">
+          <div style="display:grid;grid-template-columns:18px 1fr;gap:8px;align-items:start"><span style="font:700 13px/1.5 'Archivo',sans-serif;color:#0A5D62">да</span><span style="font:400 14px/1.5 'Archivo',sans-serif;color:#2B313C">«Chuqurni belgilang» · «Отметьте яму на карте»</span></div>
+          <div style="display:grid;grid-template-columns:18px 1fr;gap:8px;align-items:start"><span style="font:700 13px/1.5 'Archivo',sans-serif;color:#B33344">нет</span><span style="font:400 14px/1.5 'Archivo',sans-serif;color:#6E768A;text-decoration:line-through">«Пожалуйста, воспользуйтесь картой для указания локации»</span></div>
+        </div>
+        <p style="margin:14px 0 0;font:400 14px/1.5 'Archivo',sans-serif;color:#545C6E">Глагол в начале, «вы» без «пожалуйста», без канцелярита и без восклицаний. Мы говорим «бригада», не «служба». Эмодзи не используются. Числа — цифрами, разряды тонким пробелом: 3 471.</p>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+      <div style="background:#12161C;color:#FBFBFD;border-radius:14px;padding:20px">
+        <div style="font:600 40px/1 'Archivo',sans-serif;color:#FFDD00">01</div>
+        <div style="margin-top:12px;font:700 16px/1.3 'Archivo',sans-serif">Одна рука, одно движение</div>
+        <p style="margin:8px 0 0;font:400 14px/1.5 'Archivo',sans-serif;color:#B4BAC7">Главное действие — в нижней трети экрана. Ничего важного выше 120 px от верха.</p>
+      </div>
+      <div style="background:#12161C;color:#FBFBFD;border-radius:14px;padding:20px">
+        <div style="font:600 40px/1 'Archivo',sans-serif;color:#FFDD00">02</div>
+        <div style="margin-top:12px;font:700 16px/1.3 'Archivo',sans-serif">Статус — несущая конструкция</div>
+        <p style="margin:8px 0 0;font:400 14px/1.5 'Archivo',sans-serif;color:#B4BAC7">Цвет статуса не декор. У каждого статуса своя форма, поэтому карта читается и без цвета.</p>
+      </div>
+      <div style="background:#12161C;color:#FBFBFD;border-radius:14px;padding:20px">
+        <div style="font:600 40px/1 'Archivo',sans-serif;color:#FFDD00">03</div>
+        <div style="margin-top:12px;font:700 16px/1.3 'Archivo',sans-serif">Жёлтый — только действие</div>
+        <p style="margin:8px 0 0;font:400 14px/1.5 'Archivo',sans-serif;color:#B4BAC7">Акцент не совпадает ни с одним статусом. Кнопка никогда не читается как состояние ямы.</p>
+      </div>
+      <div style="background:#12161C;color:#FBFBFD;border-radius:14px;padding:20px">
+        <div style="font:600 40px/1 'Archivo',sans-serif;color:#FFDD00">04</div>
+        <div style="margin-top:12px;font:700 16px/1.3 'Archivo',sans-serif">Узбекский первый</div>
+        <p style="margin:8px 0 0;font:400 14px/1.5 'Archivo',sans-serif;color:#B4BAC7">Компоненты проектируются по длинной подписи, а не по короткой. Ничего не обрезаем в один экран.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="colors" style="display:grid;gap:20px">
+    <div style="display:grid;gap:6px">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#545C6E">02 — Colors</div>
+      <h2 style="margin:0;font:700 28px/1.15 'Archivo',sans-serif;letter-spacing:-.02em">Мокрый асфальт и сигнальный жёлтый</h2>
+      <p style="margin:0;max-width:70ch;font:400 16px/1.55 'Archivo',sans-serif;color:#545C6E">Нейтральная шкала построена на едином холодном тоне (hue ≈ 258, chroma 0.006–0.018): это не серый, а асфальт после дождя. Он не конкурирует со статусами и не желтеет на солнце.</p>
+    </div>
+
+    <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06)">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Asphalt · нейтральная шкала</div>
+      <div style="margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:2px">
+        <div><div style="height:64px;background:#FBFBFD;border:1px solid #E6E8EE;border-right:none"></div><div style="padding:8px 4px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">0<br>#FBFBFD</div></div>
+        <div><div style="height:64px;background:#F2F3F7"></div><div style="padding:8px 4px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">50<br>#F2F3F7</div></div>
+        <div><div style="height:64px;background:#E6E8EE"></div><div style="padding:8px 4px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">100<br>#E6E8EE</div></div>
+        <div><div style="height:64px;background:#D2D6DF"></div><div style="padding:8px 4px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">200<br>#D2D6DF</div></div>
+        <div><div style="height:64px;background:#B4BAC7"></div><div style="padding:8px 4px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">300<br>#B4BAC7</div></div>
+        <div><div style="height:64px;background:#8F97A8"></div><div style="padding:8px 4px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">400<br>#8F97A8</div></div>
+        <div><div style="height:64px;background:#6E768A"></div><div style="padding:8px 4px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">500<br>#6E768A</div></div>
+        <div><div style="height:64px;background:#545C6E"></div><div style="padding:8px 4px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">600<br>#545C6E</div></div>
+        <div><div style="height:64px;background:#3E4553"></div><div style="padding:8px 4px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">700<br>#3E4553</div></div>
+        <div><div style="height:64px;background:#2B313C"></div><div style="padding:8px 4px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">800<br>#2B313C</div></div>
+        <div><div style="height:64px;background:#1D222A"></div><div style="padding:8px 4px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">900<br>#1D222A</div></div>
+        <div><div style="height:64px;background:#12161C"></div><div style="padding:8px 4px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">950<br>#12161C</div></div>
+      </div>
+      <div style="margin-top:14px;display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E">
+        <div><code style="font:500 12px 'Archivo',sans-serif;color:#3E4553">--text-1</code> 950 на светлой / 0 на тёмной · <code style="font:500 12px 'Archivo',sans-serif;color:#3E4553">--text-2</code> 600 / 300</div>
+        <div><code style="font:500 12px 'Archivo',sans-serif;color:#3E4553">--surface</code> 0 / 900 · <code style="font:500 12px 'Archivo',sans-serif;color:#3E4553">--border</code> 100 / 800</div>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06)">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Signal · акцент действия</div>
+        <div style="margin-top:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:2px">
+          <div><div style="height:72px;background:#FFF08A;display:grid;place-items:end center;padding-bottom:6px;font:500 11px 'Archivo',sans-serif;color:#12161C">400</div></div>
+          <div><div style="height:72px;background:#FFDD00;display:grid;place-items:end center;padding-bottom:6px;font:600 11px 'Archivo',sans-serif;color:#12161C">500</div></div>
+          <div><div style="height:72px;background:#E6C400;display:grid;place-items:end center;padding-bottom:6px;font:500 11px 'Archivo',sans-serif;color:#12161C">600</div></div>
+          <div><div style="height:72px;background:#8A7400;display:grid;place-items:end center;padding-bottom:6px;font:500 11px 'Archivo',sans-serif;color:#FFFFFF">700</div></div>
+        </div>
+        <p style="margin:14px 0 0;font:400 14px/1.5 'Archivo',sans-serif;color:#545C6E">500 <code style="font:500 12px 'Archivo',sans-serif">#FFDD00</code> — основная кнопка и активный фильтр. 600 — нажатие. 700 — жёлтый как текст/иконка на светлом фоне (4.6:1); сам 500 текстом на белом использовать нельзя.</p>
+        <div style="margin-top:14px;padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553"><strong style="font-weight:700">Правило разделения:</strong> hue жёлтого (≈ 100 oklch) не используется ни одним статусом. Ближайший статус — ACCEPTED (hue ≈ 47), разница по светлоте 0.22.</div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06)">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Текст на цветной плашке — по контрасту</div>
+        <div style="margin-top:16px;display:grid;gap:8px">
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;background:#FFDD00;border-radius:8px;padding:12px 14px"><span style="font:700 15px/1.2 'Archivo',sans-serif;color:#12161C">Yuborish · Отправить</span><span style="font:500 11px 'Archivo',sans-serif;color:#12161C">13.5:1 ✓ ink</span></div>
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;background:#0A6E73;border-radius:8px;padding:12px 14px"><span style="font:700 15px/1.2 'Archivo',sans-serif;color:#FFFFFF">Taʼmirlandi · Отремонтирована</span><span style="font:500 11px 'Archivo',sans-serif;color:#FFFFFF">6.0:1 ✓ white</span></div>
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;background:#EE6A21;border-radius:8px;padding:12px 14px;opacity:.6"><span style="font:700 15px/1.2 'Archivo',sans-serif;color:#FFFFFF">Qabul qilindi</span><span style="font:500 11px 'Archivo',sans-serif;color:#FFFFFF">3.1:1 ✕</span></div>
+        </div>
+        <p style="margin:14px 0 0;font:400 14px/1.5 'Archivo',sans-serif;color:#545C6E">Белый текст назначается только после проверки. Для светлых плашек (жёлтый, оранжевый, бирюзовый) берётся <code style="font:500 12px 'Archivo',sans-serif">asphalt-950</code>, а сама плашка затемняется до solid-варианта статуса.</p>
+      </div>
+    </div>
+
+    <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06);overflow-x:auto">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Статусная палитра · 4 публичных + 3 внутренних</div>
+      <div style="margin-top:16px;min-width:760px;display:grid;gap:0">
+        <div style="display:grid;grid-template-columns:40px 1.1fr 1fr 108px 1fr 1fr;gap:12px;padding:0 0 10px;border-bottom:1px solid #E6E8EE;font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#6E768A"><span>Pin</span><span>Код / смысл</span><span>Uzbek · Русский</span><span>Pin fill</span><span>Плашка · светлая</span><span>Плашка · тёмная</span></div>
+
+        <div style="display:grid;grid-template-columns:40px 1.1fr 1fr 108px 1fr 1fr;gap:12px;padding:14px 0;border-bottom:1px solid #F2F3F7;align-items:center">
+          <div style="width:30px;height:30px;background:#D8368F;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><div style="width:11px;height:11px;border:2.5px solid #FFFFFF;border-radius:50%"></div></div>
+          <div><div style="font:600 13px/1.3 'Archivo',sans-serif;color:#12161C">NEW</div><div style="font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A">пришла с сайта, не проверена</div></div>
+          <div style="font:400 14px/1.4 'Archivo',sans-serif;color:#2B313C">Yangi<br><span style="color:#6E768A">Новая</span></div>
+          <div style="font:500 11px/1.5 'Archivo',sans-serif;color:#545C6E">#D8368F<br>ring ○</div>
+          <div><span style="display:inline-flex;align-items:center;gap:6px;background:#FBE9F3;border:1px solid #F3C8DF;border-radius:999px;padding:5px 10px;font:600 12px/1.2 'Archivo',sans-serif;color:#8E1A5C"><span style="width:9px;height:9px;border:2px solid #8E1A5C;border-radius:50%"></span>Yangi</span></div>
+          <div style="background:#12161C;padding:8px;border-radius:8px"><span style="display:inline-flex;align-items:center;gap:6px;background:#3A1128;border:1px solid #6B2249;border-radius:999px;padding:5px 10px;font:600 12px/1.2 'Archivo',sans-serif;color:#F7A9CF"><span style="width:9px;height:9px;border:2px solid #F7A9CF;border-radius:50%"></span>Yangi</span></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:40px 1.1fr 1fr 108px 1fr 1fr;gap:12px;padding:14px 0;border-bottom:1px solid #F2F3F7;align-items:center">
+          <div style="width:30px;height:30px;background:#EE6A21;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><div style="width:10px;height:10px;background:#FFFFFF"></div></div>
+          <div><div style="font:600 13px/1.3 'Archivo',sans-serif;color:#12161C">ACCEPTED</div><div style="font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A">проверена, ждёт выезда бригады</div></div>
+          <div style="font:400 14px/1.4 'Archivo',sans-serif;color:#2B313C">Qabul qilindi<br><span style="color:#6E768A">Принята</span></div>
+          <div style="font:500 11px/1.5 'Archivo',sans-serif;color:#545C6E">#EE6A21<br>diamond ◆</div>
+          <div><span style="display:inline-flex;align-items:center;gap:6px;background:#FDEDE1;border:1px solid #F6D2B4;border-radius:999px;padding:5px 10px;font:600 12px/1.2 'Archivo',sans-serif;color:#8E3308"><span style="width:9px;height:9px;background:#8E3308;transform:rotate(45deg)"></span>Qabul qilindi</span></div>
+          <div style="background:#12161C;padding:8px;border-radius:8px"><span style="display:inline-flex;align-items:center;gap:6px;background:#3A1D0A;border:1px solid #6E3A16;border-radius:999px;padding:5px 10px;font:600 12px/1.2 'Archivo',sans-serif;color:#FFBE93"><span style="width:9px;height:9px;background:#FFBE93;transform:rotate(45deg)"></span>Qabul qilindi</span></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:40px 1.1fr 1fr 108px 1fr 1fr;gap:12px;padding:14px 0;border-bottom:1px solid #F2F3F7;align-items:center">
+          <div style="width:30px;height:30px;background:#2F5FD0;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><div style="display:flex;gap:3px"><span style="width:2.5px;height:12px;background:#FFFFFF"></span><span style="width:2.5px;height:12px;background:#FFFFFF"></span></div></div>
+          <div><div style="font:600 13px/1.3 'Archivo',sans-serif;color:#12161C">IN_PROGRESS</div><div style="font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A">бригада взяла в работу</div></div>
+          <div style="font:400 14px/1.4 'Archivo',sans-serif;color:#2B313C">Ish jarayonida<br><span style="color:#6E768A">В работе</span></div>
+          <div style="font:500 11px/1.5 'Archivo',sans-serif;color:#545C6E">#2F5FD0<br>hatch ⫽</div>
+          <div><span style="display:inline-flex;align-items:center;gap:6px;background:#E9EFFC;border:1px solid #C3D3F6;border-radius:999px;padding:5px 10px;font:600 12px/1.2 'Archivo',sans-serif;color:#1B4093"><span style="display:flex;gap:2px;transform:rotate(-45deg)"><span style="width:2px;height:9px;background:#1B4093"></span><span style="width:2px;height:9px;background:#1B4093"></span></span>Ish jarayonida</span></div>
+          <div style="background:#12161C;padding:8px;border-radius:8px"><span style="display:inline-flex;align-items:center;gap:6px;background:#101F42;border:1px solid #24427F;border-radius:999px;padding:5px 10px;font:600 12px/1.2 'Archivo',sans-serif;color:#A9C2F7"><span style="display:flex;gap:2px;transform:rotate(-45deg)"><span style="width:2px;height:9px;background:#A9C2F7"></span><span style="width:2px;height:9px;background:#A9C2F7"></span></span>Ish jarayonida</span></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:40px 1.1fr 1fr 108px 1fr 1fr;gap:12px;padding:14px 0;border-bottom:1px solid #F2F3F7;align-items:center">
+          <div style="width:30px;height:30px;background:#0F9FA6;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><div style="width:12px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;margin-bottom:2px"></div></div>
+          <div><div style="font:600 13px/1.3 'Archivo',sans-serif;color:#12161C">DONE</div><div style="font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A">закрыта, есть фото «после»</div></div>
+          <div style="font:400 14px/1.4 'Archivo',sans-serif;color:#2B313C">Taʼmirlandi<br><span style="color:#6E768A">Отремонтирована</span></div>
+          <div style="font:500 11px/1.5 'Archivo',sans-serif;color:#545C6E">#0F9FA6<br>check ✓</div>
+          <div><span style="display:inline-flex;align-items:center;gap:6px;background:#E2F5F6;border:1px solid #B7E1E3;border-radius:999px;padding:5px 10px;font:600 12px/1.2 'Archivo',sans-serif;color:#0A5D62"><span style="width:10px;height:6px;border-left:2px solid #0A5D62;border-bottom:2px solid #0A5D62;transform:rotate(-45deg);margin-bottom:2px"></span>Taʼmirlandi</span></div>
+          <div style="background:#12161C;padding:8px;border-radius:8px"><span style="display:inline-flex;align-items:center;gap:6px;background:#06282B;border:1px solid #12565B;border-radius:999px;padding:5px 10px;font:600 12px/1.2 'Archivo',sans-serif;color:#8FDDE1"><span style="width:10px;height:6px;border-left:2px solid #8FDDE1;border-bottom:2px solid #8FDDE1;transform:rotate(-45deg);margin-bottom:2px"></span>Taʼmirlandi</span></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:40px 1.1fr 1fr 108px 1fr 1fr;gap:12px;padding:14px 0;border-bottom:1px solid #F2F3F7;align-items:center;background:repeating-linear-gradient(115deg,rgba(180,186,199,.14) 0 6px,transparent 6px 12px)">
+          <div style="width:30px;height:30px;background:#B33344;border:2px dashed #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center;opacity:.85"><div style="position:relative;width:12px;height:12px"><span style="position:absolute;top:5px;left:0;width:12px;height:2.5px;background:#FFFFFF"></span><span style="position:absolute;left:5px;top:0;width:2.5px;height:12px;background:#FFFFFF"></span></div></div>
+          <div><div style="font:600 13px/1.3 'Archivo',sans-serif;color:#12161C">REJECTED</div><div style="font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A">внутренний · на карте не показывается</div></div>
+          <div style="font:400 14px/1.4 'Archivo',sans-serif;color:#2B313C">Rad etildi<br><span style="color:#6E768A">Отклонена</span></div>
+          <div style="font:500 11px/1.5 'Archivo',sans-serif;color:#545C6E">#B33344<br>cross ✕</div>
+          <div><span style="display:inline-flex;align-items:center;gap:6px;background:#FBEAEC;border:1px dashed #E0A5AD;border-radius:999px;padding:5px 10px;font:600 12px/1.2 'Archivo',sans-serif;color:#8A1F2D"><span style="position:relative;width:9px;height:9px"><span style="position:absolute;top:3.5px;left:0;width:9px;height:2px;background:#8A1F2D;transform:rotate(45deg)"></span><span style="position:absolute;top:3.5px;left:0;width:9px;height:2px;background:#8A1F2D;transform:rotate(-45deg)"></span></span>Rad etildi</span></div>
+          <div style="background:#12161C;padding:8px;border-radius:8px"><span style="display:inline-flex;align-items:center;gap:6px;background:#341216;border:1px dashed #6B2A33;border-radius:999px;padding:5px 10px;font:600 12px/1.2 'Archivo',sans-serif;color:#F4A8B1"><span style="position:relative;width:9px;height:9px"><span style="position:absolute;top:3.5px;left:0;width:9px;height:2px;background:#F4A8B1;transform:rotate(45deg)"></span><span style="position:absolute;top:3.5px;left:0;width:9px;height:2px;background:#F4A8B1;transform:rotate(-45deg)"></span></span>Rad etildi</span></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:40px 1.1fr 1fr 108px 1fr 1fr;gap:12px;padding:14px 0;border-bottom:1px solid #F2F3F7;align-items:center;background:repeating-linear-gradient(115deg,rgba(180,186,199,.14) 0 6px,transparent 6px 12px)">
+          <div style="width:30px;height:30px;background:#6E768A;border:2px dashed #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center;opacity:.85"><div style="position:relative;width:13px;height:13px"><span style="position:absolute;top:0;left:0;width:8px;height:8px;border:2px solid #FFFFFF"></span><span style="position:absolute;bottom:0;right:0;width:8px;height:8px;border:2px solid rgba(255,255,255,.55)"></span></div></div>
+          <div><div style="font:600 13px/1.3 'Archivo',sans-serif;color:#12161C">DUPLICATE</div><div style="font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A">внутренний · ведёт на исходную заявку</div></div>
+          <div style="font:400 14px/1.4 'Archivo',sans-serif;color:#2B313C">Takroriy<br><span style="color:#6E768A">Дубликат</span></div>
+          <div style="font:500 11px/1.5 'Archivo',sans-serif;color:#545C6E">#6E768A<br>stacked ⧉</div>
+          <div><span style="display:inline-flex;align-items:center;gap:6px;background:#EFF0F4;border:1px dashed #C0C5D1;border-radius:999px;padding:5px 10px;font:600 12px/1.2 'Archivo',sans-serif;color:#454C5C"><span style="position:relative;width:10px;height:10px"><span style="position:absolute;top:0;left:0;width:7px;height:7px;border:1.5px solid #454C5C"></span><span style="position:absolute;bottom:0;right:0;width:7px;height:7px;border:1.5px solid #8F97A8"></span></span>Takroriy</span></div>
+          <div style="background:#12161C;padding:8px;border-radius:8px"><span style="display:inline-flex;align-items:center;gap:6px;background:#23272F;border:1px dashed #454C5C;border-radius:999px;padding:5px 10px;font:600 12px/1.2 'Archivo',sans-serif;color:#C1C7D4"><span style="position:relative;width:10px;height:10px"><span style="position:absolute;top:0;left:0;width:7px;height:7px;border:1.5px solid #C1C7D4"></span><span style="position:absolute;bottom:0;right:0;width:7px;height:7px;border:1.5px solid #6E768A"></span></span>Takroriy</span></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:40px 1.1fr 1fr 108px 1fr 1fr;gap:12px;padding:14px 0;align-items:center;background:repeating-linear-gradient(115deg,rgba(180,186,199,.14) 0 6px,transparent 6px 12px)">
+          <div style="width:30px;height:30px;background:#6C5CBF;border:2px dashed #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center;opacity:.85"><div style="width:14px;height:2.5px;background:#FFFFFF"></div></div>
+          <div><div style="font:600 13px/1.3 'Archivo',sans-serif;color:#12161C">OUT_OF_SCOPE</div><div style="font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A">внутренний · не по силам бригаде</div></div>
+          <div style="font:400 14px/1.4 'Archivo',sans-serif;color:#2B313C">Imkoniyatdan tashqari<br><span style="color:#6E768A">Не по силам бригаде</span></div>
+          <div style="font:500 11px/1.5 'Archivo',sans-serif;color:#545C6E">#6C5CBF<br>slash ╱</div>
+          <div><span style="display:inline-flex;align-items:center;gap:6px;background:#EEEBFA;border:1px dashed #C6BDEC;border-radius:999px;padding:5px 10px;font:600 12px/1.2 'Archivo',sans-serif;color:#3F3487"><span style="width:10px;height:2px;background:#3F3487;transform:rotate(-45deg)"></span>Imkoniyatdan tashqari</span></div>
+          <div style="background:#12161C;padding:8px;border-radius:8px"><span style="display:inline-flex;align-items:center;gap:6px;background:#1E1A38;border:1px dashed #3F3775;border-radius:999px;padding:5px 10px;font:600 12px/1.2 'Archivo',sans-serif;color:#C0B6F0"><span style="width:10px;height:2px;background:#C0B6F0;transform:rotate(-45deg)"></span>Imkoniyatdan tashqari</span></div>
+        </div>
+      </div>
+      <div style="margin-top:16px;display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+        <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553"><strong style="font-weight:700">Публичные</strong> — сплошная плашка, сплошная обводка пина. Светлота растёт от IN_PROGRESS (0.46) к DONE (0.67): порядок читается даже в ч/б.</div>
+        <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553"><strong style="font-weight:700">Внутренние</strong> — штриховка 115° + пунктирная обводка. Один взгляд отличает «этого нет на публичной карте».</div>
+        <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553"><strong style="font-weight:700">DONE не чистый зелёный</strong> — hue уведён в 195 (сине-зелёный), чтобы при дейтеранопии не сливаться с ACCEPTED.</div>
+      </div>
+    </div>
+
+    <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06)">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Симуляция дальтонизма · публичный ряд</div>
+      <div style="margin-top:16px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+
+        <div style="border:1px solid #E6E8EE;border-radius:10px;overflow:hidden">
+          <div style="padding:8px 12px;background:#F2F3F7;font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#3E4553">Нормальное зрение</div>
+          <div style="display:flex;justify-content:space-around;align-items:center;padding:20px 8px;background:#FFFFFF">
+            <div style="width:30px;height:30px;background:#D8368F;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.3);display:grid;place-items:center"><div style="width:11px;height:11px;border:2.5px solid #FFFFFF;border-radius:50%"></div></div>
+            <div style="width:30px;height:30px;background:#EE6A21;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.3);display:grid;place-items:center"><div style="width:10px;height:10px;background:#FFFFFF"></div></div>
+            <div style="width:30px;height:30px;background:#2F5FD0;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.3);display:grid;place-items:center"><div style="display:flex;gap:3px"><span style="width:2.5px;height:12px;background:#FFFFFF"></span><span style="width:2.5px;height:12px;background:#FFFFFF"></span></div></div>
+            <div style="width:30px;height:30px;background:#0F9FA6;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.3);display:grid;place-items:center"><div style="width:12px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;margin-bottom:2px"></div></div>
+          </div>
+        </div>
+
+        <div style="border:1px solid #E6E8EE;border-radius:10px;overflow:hidden">
+          <div style="padding:8px 12px;background:#F2F3F7;font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#3E4553">Дейтеранопия</div>
+          <div style="display:flex;justify-content:space-around;align-items:center;padding:20px 8px;background:#FFFFFF;filter:url(#cvd-deuter)">
+            <div style="width:30px;height:30px;background:#D8368F;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center"><div style="width:11px;height:11px;border:2.5px solid #FFFFFF;border-radius:50%"></div></div>
+            <div style="width:30px;height:30px;background:#EE6A21;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center"><div style="width:10px;height:10px;background:#FFFFFF"></div></div>
+            <div style="width:30px;height:30px;background:#2F5FD0;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center"><div style="display:flex;gap:3px"><span style="width:2.5px;height:12px;background:#FFFFFF"></span><span style="width:2.5px;height:12px;background:#FFFFFF"></span></div></div>
+            <div style="width:30px;height:30px;background:#0F9FA6;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center"><div style="width:12px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;margin-bottom:2px"></div></div>
+          </div>
+        </div>
+
+        <div style="border:1px solid #E6E8EE;border-radius:10px;overflow:hidden">
+          <div style="padding:8px 12px;background:#F2F3F7;font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#3E4553">Протанопия</div>
+          <div style="display:flex;justify-content:space-around;align-items:center;padding:20px 8px;background:#FFFFFF;filter:url(#cvd-protan)">
+            <div style="width:30px;height:30px;background:#D8368F;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center"><div style="width:11px;height:11px;border:2.5px solid #FFFFFF;border-radius:50%"></div></div>
+            <div style="width:30px;height:30px;background:#EE6A21;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center"><div style="width:10px;height:10px;background:#FFFFFF"></div></div>
+            <div style="width:30px;height:30px;background:#2F5FD0;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center"><div style="display:flex;gap:3px"><span style="width:2.5px;height:12px;background:#FFFFFF"></span><span style="width:2.5px;height:12px;background:#FFFFFF"></span></div></div>
+            <div style="width:30px;height:30px;background:#0F9FA6;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center"><div style="width:12px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;margin-bottom:2px"></div></div>
+          </div>
+        </div>
+
+        <div style="border:1px solid #E6E8EE;border-radius:10px;overflow:hidden">
+          <div style="padding:8px 12px;background:#F2F3F7;font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#3E4553">Тританопия</div>
+          <div style="display:flex;justify-content:space-around;align-items:center;padding:20px 8px;background:#FFFFFF;filter:url(#cvd-tritan)">
+            <div style="width:30px;height:30px;background:#D8368F;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center"><div style="width:11px;height:11px;border:2.5px solid #FFFFFF;border-radius:50%"></div></div>
+            <div style="width:30px;height:30px;background:#EE6A21;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center"><div style="width:10px;height:10px;background:#FFFFFF"></div></div>
+            <div style="width:30px;height:30px;background:#2F5FD0;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center"><div style="display:flex;gap:3px"><span style="width:2.5px;height:12px;background:#FFFFFF"></span><span style="width:2.5px;height:12px;background:#FFFFFF"></span></div></div>
+            <div style="width:30px;height:30px;background:#0F9FA6;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center"><div style="width:12px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;margin-bottom:2px"></div></div>
+          </div>
+        </div>
+      </div>
+      <p style="margin:16px 0 0;max-width:80ch;font:400 14px/1.55 'Archivo',sans-serif;color:#545C6E">Порядок в ряду: NEW · ACCEPTED · IN_PROGRESS · DONE. Матрицы Machado (2009), severity 1.0. Худший случай — тританопия, где NEW и ACCEPTED сближаются по тону: их разводит форма (кольцо против ромба) и светлота. Ни один статус нельзя определять по цвету в одиночку — форма обязательна.</p>
+    </div>
+
+    <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06)">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Три подложки · пин 30 px</div>
+      <div style="margin-top:16px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+        <div style="border-radius:10px;overflow:hidden;border:1px solid #E6E8EE">
+          <div style="display:flex;justify-content:space-around;align-items:center;padding:24px 8px;background:#EDEEF1;background-image:linear-gradient(#FFFFFF,#FFFFFF),linear-gradient(#FFFFFF,#FFFFFF),linear-gradient(#DFE2E8,#DFE2E8);background-size:100% 9px,7px 100%,100% 1px;background-position:0 62%,28% 0,0 30%;background-repeat:no-repeat">
+            <div style="width:30px;height:30px;background:#D8368F;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(18,22,28,.4);display:grid;place-items:center"><div style="width:11px;height:11px;border:2.5px solid #FFFFFF;border-radius:50%"></div></div>
+            <div style="width:30px;height:30px;background:#EE6A21;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(18,22,28,.4);display:grid;place-items:center"><div style="width:10px;height:10px;background:#FFFFFF"></div></div>
+            <div style="width:30px;height:30px;background:#2F5FD0;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(18,22,28,.4);display:grid;place-items:center"><div style="display:flex;gap:3px"><span style="width:2.5px;height:12px;background:#FFFFFF"></span><span style="width:2.5px;height:12px;background:#FFFFFF"></span></div></div>
+            <div style="width:30px;height:30px;background:#0F9FA6;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(18,22,28,.4);display:grid;place-items:center"><div style="width:12px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;margin-bottom:2px"></div></div>
+            <div style="width:34px;height:34px;border-radius:50%;background:#12161C;border:2px solid #FFFFFF;box-shadow:0 2px 5px rgba(18,22,28,.4);display:grid;place-items:center;font:600 13px/1 'Archivo',sans-serif;color:#FFFFFF">14</div>
+          </div>
+          <div style="padding:8px 12px;background:#F2F3F7;font:500 11px/1.3 'Archivo',sans-serif;color:#3E4553">Светлая карта</div>
+        </div>
+        <div style="border-radius:10px;overflow:hidden;border:1px solid #E6E8EE">
+          <div style="display:flex;justify-content:space-around;align-items:center;padding:24px 8px;background:#171B22;background-image:linear-gradient(#2A303A,#2A303A),linear-gradient(#2A303A,#2A303A),linear-gradient(#333A46,#333A46);background-size:100% 9px,7px 100%,100% 1px;background-position:0 62%,28% 0,0 30%;background-repeat:no-repeat">
+            <div style="width:30px;height:30px;background:#D8368F;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(0,0,0,.6);display:grid;place-items:center"><div style="width:11px;height:11px;border:2.5px solid #FFFFFF;border-radius:50%"></div></div>
+            <div style="width:30px;height:30px;background:#EE6A21;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(0,0,0,.6);display:grid;place-items:center"><div style="width:10px;height:10px;background:#FFFFFF"></div></div>
+            <div style="width:30px;height:30px;background:#4E7BE8;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(0,0,0,.6);display:grid;place-items:center"><div style="display:flex;gap:3px"><span style="width:2.5px;height:12px;background:#FFFFFF"></span><span style="width:2.5px;height:12px;background:#FFFFFF"></span></div></div>
+            <div style="width:30px;height:30px;background:#0F9FA6;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(0,0,0,.6);display:grid;place-items:center"><div style="width:12px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;margin-bottom:2px"></div></div>
+            <div style="width:34px;height:34px;border-radius:50%;background:#FBFBFD;border:2px solid #12161C;box-shadow:0 2px 5px rgba(0,0,0,.6);display:grid;place-items:center;font:600 13px/1 'Archivo',sans-serif;color:#12161C">14</div>
+          </div>
+          <div style="padding:8px 12px;background:#F2F3F7;font:500 11px/1.3 'Archivo',sans-serif;color:#3E4553">Тёмная карта · IN_PROGRESS светлеет до #4E7BE8</div>
+        </div>
+        <div style="border-radius:10px;overflow:hidden;border:1px solid #E6E8EE">
+          <div style="display:flex;justify-content:space-around;align-items:center;padding:24px 8px;background:#4A4536;background-image:repeating-linear-gradient(62deg,rgba(255,255,255,.07) 0 3px,transparent 3px 9px),repeating-linear-gradient(151deg,rgba(0,0,0,.22) 0 5px,transparent 5px 14px),linear-gradient(140deg,#5A5340,#39402F 55%,#4E4A3C)">
+            <div style="width:30px;height:30px;background:#D8368F;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 0 1px rgba(18,22,28,.5),0 2px 6px rgba(0,0,0,.55);display:grid;place-items:center"><div style="width:11px;height:11px;border:2.5px solid #FFFFFF;border-radius:50%"></div></div>
+            <div style="width:30px;height:30px;background:#EE6A21;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 0 1px rgba(18,22,28,.5),0 2px 6px rgba(0,0,0,.55);display:grid;place-items:center"><div style="width:10px;height:10px;background:#FFFFFF"></div></div>
+            <div style="width:30px;height:30px;background:#3D6EDE;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 0 1px rgba(18,22,28,.5),0 2px 6px rgba(0,0,0,.55);display:grid;place-items:center"><div style="display:flex;gap:3px"><span style="width:2.5px;height:12px;background:#FFFFFF"></span><span style="width:2.5px;height:12px;background:#FFFFFF"></span></div></div>
+            <div style="width:30px;height:30px;background:#0FB3BA;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 0 1px rgba(18,22,28,.5),0 2px 6px rgba(0,0,0,.55);display:grid;place-items:center"><div style="width:12px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;margin-bottom:2px"></div></div>
+            <div style="width:34px;height:34px;border-radius:50%;background:#12161C;border:2px solid #FFFFFF;box-shadow:0 2px 6px rgba(0,0,0,.55);display:grid;place-items:center;font:600 13px/1 'Archivo',sans-serif;color:#FFFFFF">14</div>
+          </div>
+          <div style="padding:8px 12px;background:#F2F3F7;font:500 11px/1.3 'Archivo',sans-serif;color:#3E4553">Спутник · +1 px тёмная внешняя обводка</div>
+        </div>
+      </div>
+      <p style="margin:16px 0 0;max-width:80ch;font:400 14px/1.55 'Archivo',sans-serif;color:#545C6E">Белая обводка 2 px обязательна на всех подложках — она же и есть то, что удерживает пин на спутнике. На спутнике добавляется внешняя тёмная линия 1 px, потому что светлые участки снимка съедают белое. На тёмной карте синий и бирюзовый поднимаются на одну ступень светлоты; остальные не меняются. Кластер никогда не окрашивается статусом: он считает, а не сообщает состояние.</p>
+    </div>
+  </section>
+
+  <section id="type" style="display:grid;gap:20px">
+    <div style="display:grid;gap:6px">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#545C6E">03 — Type</div>
+      <h2 style="margin:0;font:800 28px/1.1 'Archivo',sans-serif;letter-spacing:-.03em">Archivo, одна гарнитура</h2>
+      <p style="margin:0;max-width:70ch;font:400 16px/1.55 'Archivo',sans-serif;color:#545C6E">Второй шрифт убран сознательно: моно-подписи и делали интерфейс сухим. Archivo закрывает всё — от капслок-лейблов до счётчика — и держит оба обязательных диапазона: кириллицу и модификаторные буквы U+02BB (ʻ) и U+02BC (ʼ), поэтому подстановки чужого глифа в «Ulugʻbek» не происходит. Цифры набираются тем же Archivo с <code style="font:500 15px 'Archivo',sans-serif">tabular-nums</code>.</p>
+    </div>
+
+    <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06)">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:baseline;justify-content:space-between">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Проверка покрытия · контрольная строка</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <sc-for list="{{ glyphChecks }}" as="g" hint-placeholder-count="4"><span style="font:500 11px/1 'Archivo',sans-serif;padding:6px 8px;border-radius:6px;background:#F2F3F7;color:#3E4553">{{ g.label }}</span></sc-for>
+        </div>
+      </div>
+      <div style="margin-top:18px;display:grid;gap:14px">
+        <div style="font:700 34px/1.2 'Archivo',sans-serif;letter-spacing:-.02em;color:#12161C">Mirzo Ulugʻbek tumani · Чиланзарский район</div>
+        <div style="font:400 20px/1.4 'Archivo',sans-serif;color:#2B313C">Mirzo Ulugʻbek tumani · Чиланзарский район</div>
+        <div style="font:400 14px/1.4 'Archivo',sans-serif;color:#545C6E">Mirzo Ulugʻbek tumani · Чиланзарский район</div>
+        <div style="font:500 14px/1.4 'Archivo',sans-serif;color:#545C6E">Taʼmirlandi · Oʻzbekiston · ʻ U+02BB · ʼ U+02BC · Ққ Ўў Ғғ Ҳҳ</div>
+      </div>
+      <div style="margin-top:18px;display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+        <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553"><strong style="font-weight:700">Никогда не апостроф.</strong> В uz-Latn пишется ʻ (U+02BB) в Oʻ/Gʻ и ʼ (U+02BC) как tutuq belgisi. ' (U+0027) и ’ (U+2019) в интерфейсных строках запрещены.</div>
+        <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553"><strong style="font-weight:700">Стек:</strong> <code style="font:500 12px 'Archivo',sans-serif">'Archivo', system-ui, sans-serif</code> — он же <code style="font:500 12px 'Archivo',sans-serif">--font-sans</code> в tokens/fonts.css. Fallback на system-ui допустим только для латиницы; при замене гарнитуры контрольная строка проверяется заново.</div>
+      </div>
+    </div>
+
+    <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06);overflow-x:auto">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Шкала · mobile-first, базовый кегль 16</div>
+      <div style="margin-top:16px;min-width:640px;display:grid;gap:0">
+        <div style="display:grid;grid-template-columns:150px 190px 1fr;gap:16px;padding-bottom:10px;border-bottom:1px solid #E6E8EE;font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#6E768A"><span>Токен</span><span>Значение</span><span>Образец</span></div>
+        <div style="display:grid;grid-template-columns:150px 190px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid #F2F3F7;align-items:baseline"><code style="font:500 12px 'Archivo',sans-serif;color:#3E4553">--t-counter</code><span style="font:500 12px/1.4 'Archivo',sans-serif;color:#6E768A">800 · 54/0.9 · −4% · tabular</span><span style="font:800 54px/0.9 'Archivo',sans-serif;letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:#12161C">3 471</span></div>
+        <div style="display:grid;grid-template-columns:150px 190px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid #F2F3F7;align-items:baseline"><code style="font:500 12px 'Archivo',sans-serif;color:#3E4553">--t-display</code><span style="font:500 12px/1.4 'Archivo',sans-serif;color:#6E768A">800 · 34/0.98 · −3.5%</span><span style="font:800 34px/0.98 'Archivo',sans-serif;letter-spacing:-.035em;color:#12161C">10 000 chuqurga qadar</span></div>
+        <div style="display:grid;grid-template-columns:150px 190px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid #F2F3F7;align-items:baseline"><code style="font:500 12px 'Archivo',sans-serif;color:#3E4553">--t-h1</code><span style="font:500 12px/1.4 'Archivo',sans-serif;color:#6E768A">800 · 27/1.08 · −3%</span><span style="font:800 27px/1.08 'Archivo',sans-serif;letter-spacing:-.03em;color:#12161C">Chuqurni belgilang</span></div>
+        <div style="display:grid;grid-template-columns:150px 190px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid #F2F3F7;align-items:baseline"><code style="font:500 12px 'Archivo',sans-serif;color:#3E4553">--t-h2</code><span style="font:500 12px/1.4 'Archivo',sans-serif;color:#6E768A">800 · 20/1.1 · −2%</span><span style="font:800 20px/1.1 'Archivo',sans-serif;letter-spacing:-.02em;color:#12161C">Holat tarixi · История статуса</span></div>
+        <div style="display:grid;grid-template-columns:150px 190px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid #F2F3F7;align-items:baseline"><code style="font:500 12px 'Archivo',sans-serif;color:#3E4553">--t-body-l</code><span style="font:500 12px/1.4 'Archivo',sans-serif;color:#6E768A">400 · 17/1.5</span><span style="font:400 17px/1.5 'Archivo',sans-serif;color:#2B313C">Бригада приедет в течение недели</span></div>
+        <div style="display:grid;grid-template-columns:150px 190px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid #F2F3F7;align-items:baseline"><code style="font:500 12px 'Archivo',sans-serif;color:#3E4553">--t-body</code><span style="font:500 12px/1.4 'Archivo',sans-serif;color:#6E768A">400 · 16/1.5 · минимум</span><span style="font:400 16px/1.5 'Archivo',sans-serif;color:#2B313C">Ориентир: напротив дома 12А</span></div>
+        <div style="display:grid;grid-template-columns:150px 190px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid #F2F3F7;align-items:baseline"><code style="font:500 12px 'Archivo',sans-serif;color:#3E4553">--t-caption</code><span style="font:500 12px/1.4 'Archivo',sans-serif;color:#6E768A">400 · 14/1.45</span><span style="font:400 14px/1.45 'Archivo',sans-serif;color:#545C6E">Отправлено 12 августа, 09:41</span></div>
+        <div style="display:grid;grid-template-columns:150px 190px 1fr;gap:16px;padding:14px 0;align-items:baseline"><code style="font:500 12px 'Archivo',sans-serif;color:#3E4553">--t-label</code><span style="font:500 12px/1.4 'Archivo',sans-serif;color:#6E768A">800 · 12/1.2 · +16% · UC</span><span style="font:800 12px/1.2 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#545C6E">Toifa / Категория</span></div>
+      </div>
+      <p style="margin:16px 0 0;max-width:80ch;font:400 14px/1.55 'Archivo',sans-serif;color:#545C6E">14 px — нижняя граница для любого осмысленного текста: экран читается под солнцем. 12 px разрешён только для капслок-лейблов. Ниже 12 px в системе нет вообще.</p>
+    </div>
+
+    <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06)">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Длина подписи · uz длиннее ru на 15–20%</div>
+        <div style="margin-top:16px;display:grid;gap:10px">
+          <div style="display:grid;grid-template-columns:52px 1fr;gap:10px;align-items:center"><span style="font:600 11px 'Archivo',sans-serif;color:#6E768A">uz</span><div style="display:flex;align-items:center;gap:8px"><div style="height:22px;background:#FFDD00;border-radius:4px;width:100%"></div><span style="font:500 11px 'Archivo',sans-serif;color:#545C6E">21</span></div></div>
+          <div style="display:grid;grid-template-columns:52px 1fr;gap:10px;align-items:center"><span style="font:600 11px 'Archivo',sans-serif;color:#6E768A">ru</span><div style="display:flex;align-items:center;gap:8px"><div style="height:22px;background:#D2D6DF;border-radius:4px;width:81%"></div><span style="font:500 11px 'Archivo',sans-serif;color:#545C6E">17</span></div></div>
+        </div>
+        <div style="margin-top:14px;font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E"><code style="font:500 12px 'Archivo',sans-serif">Imkoniyatdan tashqari</code> против <code style="font:500 12px 'Archivo',sans-serif">Не по силам</code>. Правила: ширина по контенту, перенос в две строки разрешён везде, кроме пина; <code style="font:500 12px 'Archivo',sans-serif">min-height</code> вместо <code style="font:500 12px 'Archivo',sans-serif">height</code>; никаких многоточий в подписях кнопок и фильтров.</div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06)">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Цифры · tabular всегда</div>
+        <div style="margin-top:16px;display:grid;gap:8px">
+          <div style="font:600 30px/1.1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#12161C">0123456789</div>
+          <div style="font:500 15px/1.4 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#2B313C">RR-2026-08-3471 · 41.3111, 69.2797</div>
+          <div style="font:400 15px/1.4 'Archivo',sans-serif;color:#2B313C">3 471 из 10 000 · 34,7%</div>
+        </div>
+        <div style="margin-top:14px;font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E">Счётчик, номер заявки, координаты и даты — только mono с <code style="font:500 12px 'Archivo',sans-serif">tabular-nums</code>: цифры не дёргаются при инкременте. Разряды — тонкий пробел U+2009, десятичная запятая в ru, точка в uz.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="spacing" style="display:grid;gap:20px">
+    <div style="display:grid;gap:6px">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#545C6E">04 — Spacing · Radius · Elevation · Touch</div>
+      <h2 style="margin:0;font:700 28px/1.15 'Archivo',sans-serif;letter-spacing:-.02em">Метрика большого пальца</h2>
+    </div>
+    <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06)">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Отступы · шаг 4</div>
+        <div style="margin-top:16px;display:grid;gap:6px">
+          <div style="display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center"><code style="font:500 11px 'Archivo',sans-serif;color:#545C6E">s-1 · 4</code><div style="height:14px;width:4px;background:#FFDD00"></div></div>
+          <div style="display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center"><code style="font:500 11px 'Archivo',sans-serif;color:#545C6E">s-2 · 8</code><div style="height:14px;width:8px;background:#FFDD00"></div></div>
+          <div style="display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center"><code style="font:500 11px 'Archivo',sans-serif;color:#545C6E">s-3 · 12</code><div style="height:14px;width:12px;background:#FFDD00"></div></div>
+          <div style="display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center"><code style="font:500 11px 'Archivo',sans-serif;color:#545C6E">s-4 · 16</code><div style="height:14px;width:16px;background:#FFDD00"></div></div>
+          <div style="display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center"><code style="font:500 11px 'Archivo',sans-serif;color:#545C6E">s-5 · 20</code><div style="height:14px;width:20px;background:#FFDD00"></div></div>
+          <div style="display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center"><code style="font:500 11px 'Archivo',sans-serif;color:#545C6E">s-6 · 24</code><div style="height:14px;width:24px;background:#FFDD00"></div></div>
+          <div style="display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center"><code style="font:500 11px 'Archivo',sans-serif;color:#545C6E">s-8 · 32</code><div style="height:14px;width:32px;background:#FFDD00"></div></div>
+          <div style="display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center"><code style="font:500 11px 'Archivo',sans-serif;color:#545C6E">s-10 · 40</code><div style="height:14px;width:40px;background:#FFDD00"></div></div>
+          <div style="display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center"><code style="font:500 11px 'Archivo',sans-serif;color:#545C6E">s-12 · 48</code><div style="height:14px;width:48px;background:#FFDD00"></div></div>
+          <div style="display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center"><code style="font:500 11px 'Archivo',sans-serif;color:#545C6E">s-16 · 64</code><div style="height:14px;width:64px;background:#FFDD00"></div></div>
+        </div>
+        <div style="margin-top:14px;font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E">Экранное поле — 16. Между полями формы — 20. Между блоками — 32. Дно экрана — 24 + safe-area.</div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06)">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Радиусы и тени</div>
+        <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:10px">
+          <div style="width:64px"><div style="height:44px;background:#E6E8EE;border-radius:4px"></div><div style="margin-top:6px;font:500 11px 'Archivo',sans-serif;color:#545C6E">r-1 4</div></div>
+          <div style="width:64px"><div style="height:44px;background:#E6E8EE;border-radius:8px"></div><div style="margin-top:6px;font:500 11px 'Archivo',sans-serif;color:#545C6E">r-2 8</div></div>
+          <div style="width:64px"><div style="height:44px;background:#E6E8EE;border-radius:12px"></div><div style="margin-top:6px;font:500 11px 'Archivo',sans-serif;color:#545C6E">r-3 12</div></div>
+          <div style="width:64px"><div style="height:44px;background:#E6E8EE;border-radius:16px"></div><div style="margin-top:6px;font:500 11px 'Archivo',sans-serif;color:#545C6E">r-4 16</div></div>
+          <div style="width:64px"><div style="height:44px;background:#E6E8EE;border-radius:999px"></div><div style="margin-top:6px;font:500 11px 'Archivo',sans-serif;color:#545C6E">pill</div></div>
+        </div>
+        <div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:14px">
+          <div style="width:88px"><div style="height:48px;background:#FFFFFF;border:1px solid #E6E8EE;border-radius:12px;box-shadow:0 1px 2px rgba(18,22,28,.08)"></div><div style="margin-top:6px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">e-1 карточка</div></div>
+          <div style="width:88px"><div style="height:48px;background:#FFFFFF;border-radius:12px;box-shadow:0 2px 8px rgba(18,22,28,.12)"></div><div style="margin-top:6px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">e-2 плавающее</div></div>
+          <div style="width:88px"><div style="height:48px;background:#FFFFFF;border-radius:12px;box-shadow:0 -6px 28px rgba(18,22,28,.18)"></div><div style="margin-top:6px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">e-3 нижний лист</div></div>
+          <div style="width:88px"><div style="height:48px;background:#2B313C;border-radius:12px;box-shadow:0 2px 4px rgba(18,22,28,.35)"></div><div style="margin-top:6px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">e-pin</div></div>
+        </div>
+        <div style="margin-top:14px;font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E">На тёмной теме тени срезаются вдвое, глубину даёт бордер <code style="font:500 12px 'Archivo',sans-serif">rgba(255,255,255,.07)</code> сверху.</div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(18,22,28,.06)">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Зона нажатия</div>
+        <div style="margin-top:16px;display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+          <div><div style="width:44px;height:44px;border:2px dashed #B4BAC7;border-radius:8px;display:grid;place-items:center"><div style="width:30px;height:30px;background:#D8368F;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg)"></div></div><div style="margin-top:6px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">44 · пин</div></div>
+          <div><div style="width:48px;height:48px;background:#F2F3F7;border:1px solid #E6E8EE;border-radius:12px"></div><div style="margin-top:6px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">48 · иконка</div></div>
+          <div><div style="width:120px;height:52px;background:#FFDD00;border-radius:12px;display:grid;place-items:center;font:700 15px 'Archivo',sans-serif;color:#12161C">52 · CTA</div><div style="margin-top:6px;font:500 11px/1.4 'Archivo',sans-serif;color:#545C6E">основная кнопка</div></div>
+        </div>
+        <div style="margin-top:14px;font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E">Минимум 44×44 (WCAG 2.2 §2.5.8), рабочий стандарт 48. Зазор между целями ≥ 8. Главное действие живёт в нижних 25% экрана; верхние 88 px отданы карте.</div>
+        <div style="margin-top:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <button type="button" style="min-height:52px;padding:14px 20px;border:none;border-radius:12px;background:#FFDD00;font:700 15px 'Archivo',sans-serif;color:#12161C;outline:3px solid #12161C;outline-offset:2px;box-shadow:0 0 0 6px rgba(255,221,0,.35)">Фокус</button>
+          <span style="font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E;max-width:24ch">Двойное кольцо: 3 px asphalt-950 + мягкий жёлтый ореол — видно и на жёлтом, и на асфальте.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px">
+    <div style="height:10px;background:repeating-linear-gradient(115deg,#FFDD00 0 16px,#12161C 16px 32px);border-radius:2px"></div>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;background:#12161C;border-radius:14px;padding:24px">
+      <div>
+        <div style="font:700 20px/1.3 'Archivo',sans-serif;color:#FBFBFD">Дальше — 11 компонентов</div>
+        <div style="margin-top:6px;font:400 14px/1.5 'Archivo',sans-serif;color:#B4BAC7">Пины, плашки, карточки, загрузка фото, поля, кнопки, фильтры, счётчик, нижний лист, пустые состояния, переключатель языка.</div>
+      </div>
+      <a href="RavonRoad%20Components.dc.html" style="text-decoration:none;background:#FFDD00;color:#12161C;font:700 15px 'Archivo',sans-serif;border-radius:12px;padding:16px 20px;min-height:52px;display:grid;place-items:center">Открыть Components →</a>
+    </div>
+  </section>
+</main>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { glyphChecks: [] };
+  componentDidMount() {
+    const probe = () => {
+      const tests = [
+        ['ʻ U+02BB', 'ʻ'],
+        ['ʼ U+02BC', 'ʼ'],
+        ['Cyrillic', 'Чиланзарский'],
+        ['uz-Latn', 'Ulugʻbek'],
+        ['ru+uz', 'Mirzo Ulugʻbek tumani · Чиланзарский район']
+      ];
+      const checks = tests.map(([label, text]) => {
+        let ok = true;
+        try { ok = document.fonts.check('16px "Archivo"', text); } catch (e) { ok = null; }
+        return { label: (ok === null ? '? ' : ok ? '✓ ' : '✕ ') + label, ok: ok };
+      });
+      this.setState({ glyphChecks: checks });
+    };
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(probe); else probe();
+  }
+  renderVals() {
+    return { glyphChecks: this.state.glyphChecks };
+  }
+}
+
+</script>
+</body>
+</html>

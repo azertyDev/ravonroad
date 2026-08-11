@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400;75..100,500;75..100,600;75..100,700;75..100,800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #E9EAEF; color: #1D222A; font-family: 'Archivo', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  p { text-wrap: pretty; }
+  a { color: #1D222A; text-decoration-color: #FFDD00; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  a:hover { color: #2B313C; text-decoration-color: #B89C00; }
+  ::selection { background: #FFDD00; color: #12161C; }
+</style>
+</helmet>
+
+<div style="padding:32px 24px 56px;display:grid;gap:20px;justify-items:center">
+  <div style="width:100%;max-width:640px;display:grid;gap:10px">
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+      <span style="font:700 11px/1.2 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#545C6E">Вариант C</span>
+      <span style="font:600 11px/1 'Archivo',sans-serif;padding:6px 8px;border-radius:6px;background:#12161C;color:#FFDD00">Archivo 800</span>
+      <span style="font:600 11px/1 'Archivo',sans-serif;padding:6px 8px;border-radius:6px;background:#FFFFFF;border:1px solid #D2D6DF;color:#3E4553">{{ fontProof }}</span>
+    </div>
+    <h1 style="margin:0;font:800 26px/1.1 'Archivo',sans-serif;letter-spacing:-.03em;color:#12161C">Плакат кампании</h1>
+    <p style="margin:0;font:400 15px/1.55 'Archivo',sans-serif;color:#545C6E">Не интерфейс, а обращение. Счётчик становится героем страницы во всю ширину, жёлтый работает как поле, а не как кнопка, карта уходит в полосу под ним. Сознательно нарушает правило «жёлтый только для действий» — в обмен на то, что страница перестаёт быть сухой. Добавлены фильтры карты из варианта B (в плакатной подаче: прямые углы, капслок) и блок «Shu hafta» из варианта A — во всю ширину, без карточки.</p>
+  </div>
+
+  <div style="width:390px;height:844px;border-radius:28px;overflow:hidden;background:#12161C;position:relative;box-shadow:0 8px 40px rgba(18,22,28,.22);border:1px solid #D2D6DF;display:grid;grid-template-rows:auto 1fr auto">
+
+    <div>
+      <div style="height:10px;background:repeating-linear-gradient(115deg,#FFDD00 0 16px,#12161C 16px 32px)"></div>
+      <div style="padding:30px 20px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em;color:#FBFBFD">RavonRoad</div>
+        <button type="button" lang="uz" title="Oʻzbekcha" aria-label="Til · Oʻzbekcha" style="min-height:44px;min-width:44px;padding:11px 12px;border:none;border-radius:10px;background:#2B313C;display:inline-flex;align-items:center;gap:8px;cursor:pointer"><span aria-hidden="true" style="width:24px;height:17px;border-radius:2px;overflow:hidden;position:relative;flex:none;background:linear-gradient(#0099B5 0 32%,#CE1126 32% 34.5%,#FFFFFF 34.5% 65.5%,#CE1126 65.5% 68%,#1EB53A 68% 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.3)"><span style="position:absolute;left:3px;top:2px;width:6px;height:6px;border-radius:50%;background:#FFFFFF"></span><span style="position:absolute;left:4.8px;top:2px;width:6px;height:6px;border-radius:50%;background:#0099B5"></span></span><span aria-hidden="true" style="width:7px;height:7px;border-right:2px solid #8F97A8;border-bottom:2px solid #8F97A8;transform:rotate(45deg);flex:none;margin-top:-4px"></span></button>
+      </div>
+    </div>
+
+    <div style="overflow:auto">
+      <div style="padding:4px 20px 0">
+        <h2 style="margin:0;font:800 34px/0.98 'Archivo',sans-serif;letter-spacing:-.035em;text-transform:uppercase;color:#FBFBFD">Chuqurni<br>belgilang.<br><span style="color:#FFDD00">Brigada tuzatadi.</span></h2>
+        <p style="margin:14px 0 0;font:400 16px/1.5 'Archivo',sans-serif;color:#B4BAC7">Davlat organlari ishtirok etmaydi. Faqat siz va volontyorlar.</p>
+      </div>
+
+      <div style="margin-top:22px;background:#FFDD00;padding:20px">
+        <div style="font:700 12px/1.2 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#12161C">Taʼmirlangan chuqurlar</div>
+        <div style="margin-top:12px;display:flex;gap:4px;align-items:flex-end">
+          <span style="min-width:56px;padding:8px 4px;background:#12161C;border-radius:6px;font:800 54px/0.9 'Archivo',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.04em;color:#FFDD00;text-align:center">3</span>
+          <span style="min-width:56px;padding:8px 4px;background:#12161C;border-radius:6px;font:800 54px/0.9 'Archivo',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.04em;color:#FFDD00;text-align:center">4</span>
+          <span style="min-width:56px;padding:8px 4px;background:#12161C;border-radius:6px;font:800 54px/0.9 'Archivo',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.04em;color:#FFDD00;text-align:center">7</span>
+          <span style="min-width:56px;padding:8px 4px;background:#FBFBFD;border-radius:6px;font:800 54px/0.9 'Archivo',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.04em;color:#12161C;text-align:center">1</span>
+        </div>
+        <div style="margin-top:14px;height:14px;background:#12161C;position:relative;overflow:hidden;border-radius:3px">
+          <div style="position:absolute;inset:0 65.3% 0 0;background:#FBFBFD"></div>
+          <div style="position:absolute;left:0;right:0;top:6px;height:2px;background:repeating-linear-gradient(90deg,rgba(18,22,28,.55) 0 10px,transparent 10px 20px)"></div>
+        </div>
+        <div style="margin-top:10px;display:flex;justify-content:space-between;font:700 13px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#12161C"><span>10 000 gacha</span><span>+128 shu hafta</span></div>
+      </div>
+
+      <div style="padding:16px 20px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button type="button" style="min-height:44px;padding:12px 14px;border:none;border-radius:6px;background:#FFDD00;font:800 13px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#12161C;display:inline-flex;align-items:center;gap:9px;cursor:pointer"><span style="display:grid;gap:2.5px;flex:none"><span style="width:14px;height:2.5px;background:#12161C"></span><span style="width:10px;height:2.5px;background:#12161C"></span><span style="width:6px;height:2.5px;background:#12161C"></span></span>Filtrlar<span style="min-width:20px;height:20px;border-radius:4px;background:#12161C;color:#FFDD00;font:800 12px/20px 'Archivo',sans-serif;text-align:center;padding:0 5px">2</span></button>
+        <button type="button" style="min-height:44px;padding:12px 14px;border:2px solid #F7A9CF;border-radius:6px;background:#3A1128;font:700 13px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#F7A9CF;display:inline-flex;align-items:center;gap:8px;cursor:pointer"><span style="width:11px;height:11px;border:2px solid #F7A9CF;border-radius:50%;flex:none"></span>Yangi</button>
+        <button type="button" style="min-height:44px;padding:12px 14px;border:2px solid #A9C2F7;border-radius:6px;background:#101F42;font:700 13px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#A9C2F7;display:inline-flex;align-items:center;gap:8px;cursor:pointer"><span style="display:flex;gap:2px;transform:rotate(-45deg);flex:none"><span style="width:2px;height:11px;background:#A9C2F7"></span><span style="width:2px;height:11px;background:#A9C2F7"></span></span>Ish jarayonida</button>
+        <button type="button" style="min-height:44px;padding:12px 14px;border:1px solid #2B313C;border-radius:6px;background:transparent;font:700 13px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8F97A8;display:inline-flex;align-items:center;gap:8px;cursor:pointer"><span style="width:12px;height:7px;border-left:2px solid #8F97A8;border-bottom:2px solid #8F97A8;transform:rotate(-45deg);margin-bottom:2px;flex:none"></span>Taʼmirlandi</button>
+      </div>
+
+      <div style="position:relative;height:196px;overflow:hidden;background:#171B22;background-image:linear-gradient(#2A303A,#2A303A),linear-gradient(#2A303A,#2A303A),linear-gradient(#333A46,#333A46),linear-gradient(#1F2A24,#1F2A24);background-size:100% 13px,11px 100%,100% 2px,120px 96px;background-position:0 44%,32% 0,0 22%,6% 56%;background-repeat:no-repeat">
+        <div style="position:absolute;left:70px;top:56px;width:30px;height:30px;background:#D8368F;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(0,0,0,.55);display:grid;place-items:center"><span style="width:11px;height:11px;border:2.5px solid #FFFFFF;border-radius:50%"></span></div>
+        <div style="position:absolute;left:198px;top:40px;width:30px;height:30px;background:#EE6A21;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(0,0,0,.55);display:grid;place-items:center"><span style="width:10px;height:10px;background:#FFFFFF"></span></div>
+        <div style="position:absolute;left:132px;top:112px;width:30px;height:30px;background:#4E7BE8;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(0,0,0,.55);display:grid;place-items:center"><span style="display:flex;gap:3px"><span style="width:2.5px;height:12px;background:#FFFFFF"></span><span style="width:2.5px;height:12px;background:#FFFFFF"></span></span></div>
+        <div style="position:absolute;left:272px;top:118px;width:30px;height:30px;background:#0F9FA6;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(0,0,0,.55);display:grid;place-items:center"><span style="width:12px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;margin-bottom:2px"></span></div>
+        <div style="position:absolute;left:32px;top:126px;width:34px;height:34px;border-radius:50%;background:#FBFBFD;border:2px solid #12161C;display:grid;place-items:center;font:800 13px/1 'Archivo',sans-serif;color:#12161C">14</div>
+        <div style="position:absolute;left:16px;bottom:14px;right:16px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <span style="font:700 13px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#FBFBFD;background:rgba(18,22,28,.72);border-radius:6px;padding:9px 11px">Mirzo Ulugʻbek · 412 ta</span>
+          <span style="font:800 13px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#12161C;background:#FFDD00;border-radius:6px;padding:9px 11px">Xarita →</span>
+        </div>
+      </div>
+
+      <div style="padding:22px 20px 0;display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+        <div style="font:700 12px/1.2 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8F97A8">Shu hafta</div>
+        <div style="font:800 14px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8FDDE1">+128 ta</div>
+      </div>
+      <div style="margin-top:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;background:#2B313C">
+          <div style="aspect-ratio:1/1;background:repeating-linear-gradient(115deg,#2B313C 0 8px,#232833 8px 16px);display:grid;place-items:end start;padding:10px"><span style="font:800 11px/1.2 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#B4BAC7">Oldin</span></div>
+          <div style="aspect-ratio:1/1;background:repeating-linear-gradient(115deg,#1E4A4D 0 8px,#18393C 8px 16px);display:grid;place-items:end start;padding:10px"><span style="font:800 11px/1.2 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#8FDDE1">Keyin</span></div>
+        </div>
+        <div style="padding:14px 20px 0;display:grid;gap:6px">
+          <div style="font:800 20px/1.15 'Archivo',sans-serif;letter-spacing:-.02em;color:#FBFBFD">Amir Temur shoh koʻchasi 88</div>
+          <div style="font:400 14px/1.45 'Archivo',sans-serif;color:#B4BAC7">Yunusobod · 4 kunda · brigada 4</div>
+          <span style="justify-self:start;margin-top:4px;display:inline-flex;align-items:center;gap:8px;background:#06282B;border:1px solid #12565B;border-radius:6px;padding:7px 11px;font:700 12px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8FDDE1"><span style="width:11px;height:6px;border-left:2px solid #8FDDE1;border-bottom:2px solid #8FDDE1;transform:rotate(-45deg);margin-bottom:2px;flex:none"></span>Taʼmirlandi</span>
+        </div>
+      </div>
+
+      <div style="padding:24px 20px 14px;display:grid;gap:14px">
+        <div style="font:700 12px/1.2 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8F97A8">Holatlar</div>
+        <div style="display:grid;gap:10px">
+          <div style="display:flex;align-items:center;gap:12px"><span style="width:13px;height:13px;border:2.5px solid #F7A9CF;border-radius:50%;flex:none"></span><span style="font:600 15px/1.2 'Archivo',sans-serif;color:#FBFBFD">Yangi</span><span style="flex:1;height:1px;background:#2B313C"></span><span style="font:700 15px/1.2 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#F7A9CF">186</span></div>
+          <div style="display:flex;align-items:center;gap:12px"><span style="width:12px;height:12px;background:#FFBE93;transform:rotate(45deg);flex:none"></span><span style="font:600 15px/1.2 'Archivo',sans-serif;color:#FBFBFD">Qabul qilindi</span><span style="flex:1;height:1px;background:#2B313C"></span><span style="font:700 15px/1.2 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#FFBE93">142</span></div>
+          <div style="display:flex;align-items:center;gap:12px"><span style="display:flex;gap:3px;transform:rotate(-45deg);flex:none"><span style="width:2.5px;height:13px;background:#A9C2F7"></span><span style="width:2.5px;height:13px;background:#A9C2F7"></span></span><span style="font:600 15px/1.2 'Archivo',sans-serif;color:#FBFBFD">Ish jarayonida</span><span style="flex:1;height:1px;background:#2B313C"></span><span style="font:700 15px/1.2 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#A9C2F7">84</span></div>
+          <div style="display:flex;align-items:center;gap:12px"><span style="width:14px;height:8px;border-left:2.5px solid #8FDDE1;border-bottom:2.5px solid #8FDDE1;transform:rotate(-45deg);margin-bottom:3px;flex:none"></span><span style="font:600 15px/1.2 'Archivo',sans-serif;color:#FBFBFD">Taʼmirlandi</span><span style="flex:1;height:1px;background:#2B313C"></span><span style="font:700 15px/1.2 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#8FDDE1">3 471</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:14px 20px 26px;display:grid;gap:8px;border-top:1px solid #2B313C;background:#12161C">
+      <button type="button" style="min-height:58px;width:100%;border:none;border-radius:10px;background:#FFDD00;font:800 17px/1.2 'Archivo',sans-serif;letter-spacing:.02em;text-transform:uppercase;color:#12161C;cursor:pointer" style-active="background:#E6C400;transform:translateY(1px)">Chuqur haqida xabar berish</button>
+      <div style="font:500 13px/1.4 'Archivo',sans-serif;color:#8F97A8;text-align:center">Roʻyxatdan oʻtish shart emas · 30 soniya</div>
+    </div>
+  </div>
+</div>
+
+
+<div style="padding:8px 24px 56px;display:grid;gap:20px;justify-items:center">
+  <div style="width:100%;max-width:640px;display:grid;gap:10px">
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+      <span style="font:700 11px/1.2 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#545C6E">Светлая тема</span>
+      <span style="font:600 11px/1 'Archivo',sans-serif;padding:6px 8px;border-radius:6px;background:#FFDD00;color:#12161C">по умолчанию днём</span>
+    </div>
+    <h2 style="margin:0;font:800 24px/1.12 'Archivo',sans-serif;letter-spacing:-.03em;color:#12161C">Тот же плакат на асфальтовом светлом</h2>
+    <p style="margin:0;font:400 15px/1.55 'Archivo',sans-serif;color:#545C6E">Ключ держится не тёмным фоном, а масштабом и жёлтым полем — поэтому на светлом он не рассыпается. Переключение по <code style="font:500 14px 'Archivo',sans-serif">prefers-color-scheme</code>: днём светлая, вечером тёмная, вручную не спрашиваем. Что меняется: подложка карты, цвет текста, пины IN_PROGRESS и DONE опускаются на ступень светлоты, кластер становится тёмным на белой обводке. Жёлтое поле счётчика не меняется вообще — это константа бренда.</p>
+  </div>
+
+  <div style="width:390px;height:844px;border-radius:28px;overflow:hidden;background:#FBFBFD;position:relative;box-shadow:0 8px 40px rgba(18,22,28,.18);border:1px solid #D2D6DF;display:grid;grid-template-rows:auto 1fr auto">
+
+    <div>
+      <div style="height:10px;background:repeating-linear-gradient(115deg,#FFDD00 0 16px,#12161C 16px 32px)"></div>
+      <div style="padding:30px 20px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em;color:#12161C">RavonRoad</div>
+        <button type="button" lang="uz" title="Oʻzbekcha" aria-label="Til · Oʻzbekcha" style="min-height:44px;min-width:44px;padding:11px 12px;border:1px solid #E6E8EE;border-radius:10px;background:#FFFFFF;display:inline-flex;align-items:center;gap:8px;cursor:pointer"><span aria-hidden="true" style="width:24px;height:17px;border-radius:2px;overflow:hidden;position:relative;flex:none;background:linear-gradient(#0099B5 0 32%,#CE1126 32% 34.5%,#FFFFFF 34.5% 65.5%,#CE1126 65.5% 68%,#1EB53A 68% 100%);box-shadow:inset 0 0 0 1px rgba(18,22,28,.25)"><span style="position:absolute;left:3px;top:2px;width:6px;height:6px;border-radius:50%;background:#FFFFFF"></span><span style="position:absolute;left:4.8px;top:2px;width:6px;height:6px;border-radius:50%;background:#0099B5"></span></span><span aria-hidden="true" style="width:7px;height:7px;border-right:2px solid #545C6E;border-bottom:2px solid #545C6E;transform:rotate(45deg);flex:none;margin-top:-4px"></span></button>
+      </div>
+    </div>
+
+    <div style="overflow:auto">
+      <div style="padding:4px 20px 0">
+        <h3 style="margin:0;font:800 34px/0.98 'Archivo',sans-serif;letter-spacing:-.035em;text-transform:uppercase;color:#12161C">Chuqurni<br>belgilang.<br><span style="background:#FFDD00;padding:0 4px">Brigada tuzatadi.</span></h3>
+        <p style="margin:14px 0 0;font:400 16px/1.5 'Archivo',sans-serif;color:#3E4553">Davlat organlari ishtirok etmaydi. Faqat siz va volontyorlar.</p>
+      </div>
+
+      <div style="margin-top:22px;background:#FFDD00;padding:20px">
+        <div style="font:700 12px/1.2 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#12161C">Taʼmirlangan chuqurlar</div>
+        <div style="margin-top:12px;display:flex;gap:4px;align-items:flex-end">
+          <span style="min-width:56px;padding:8px 4px;background:#12161C;border-radius:6px;font:800 54px/0.9 'Archivo',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.04em;color:#FFDD00;text-align:center">3</span>
+          <span style="min-width:56px;padding:8px 4px;background:#12161C;border-radius:6px;font:800 54px/0.9 'Archivo',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.04em;color:#FFDD00;text-align:center">4</span>
+          <span style="min-width:56px;padding:8px 4px;background:#12161C;border-radius:6px;font:800 54px/0.9 'Archivo',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.04em;color:#FFDD00;text-align:center">7</span>
+          <span style="min-width:56px;padding:8px 4px;background:#FBFBFD;border-radius:6px;font:800 54px/0.9 'Archivo',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.04em;color:#12161C;text-align:center">1</span>
+        </div>
+        <div style="margin-top:14px;height:14px;background:#12161C;position:relative;overflow:hidden;border-radius:3px">
+          <div style="position:absolute;inset:0 65.3% 0 0;background:#FBFBFD"></div>
+          <div style="position:absolute;left:0;right:0;top:6px;height:2px;background:repeating-linear-gradient(90deg,rgba(18,22,28,.55) 0 10px,transparent 10px 20px)"></div>
+        </div>
+        <div style="margin-top:10px;display:flex;justify-content:space-between;font:700 13px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#12161C"><span>10 000 gacha</span><span>+128 shu hafta</span></div>
+      </div>
+
+      <div style="padding:16px 20px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button type="button" style="min-height:44px;padding:12px 14px;border:2px solid #12161C;border-radius:6px;background:#FFDD00;font:800 13px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#12161C;display:inline-flex;align-items:center;gap:9px;cursor:pointer"><span style="display:grid;gap:2.5px;flex:none"><span style="width:14px;height:2.5px;background:#12161C"></span><span style="width:10px;height:2.5px;background:#12161C"></span><span style="width:6px;height:2.5px;background:#12161C"></span></span>Filtrlar<span style="min-width:20px;height:20px;border-radius:4px;background:#12161C;color:#FFDD00;font:800 12px/20px 'Archivo',sans-serif;text-align:center;padding:0 5px">2</span></button>
+        <button type="button" style="min-height:44px;padding:12px 14px;border:2px solid #8E1A5C;border-radius:6px;background:#FBE9F3;font:700 13px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8E1A5C;display:inline-flex;align-items:center;gap:8px;cursor:pointer"><span style="width:11px;height:11px;border:2px solid #8E1A5C;border-radius:50%;flex:none"></span>Yangi</button>
+        <button type="button" style="min-height:44px;padding:12px 14px;border:2px solid #1B4093;border-radius:6px;background:#E9EFFC;font:700 13px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#1B4093;display:inline-flex;align-items:center;gap:8px;cursor:pointer"><span style="display:flex;gap:2px;transform:rotate(-45deg);flex:none"><span style="width:2px;height:11px;background:#1B4093"></span><span style="width:2px;height:11px;background:#1B4093"></span></span>Ish jarayonida</button>
+        <button type="button" style="min-height:44px;padding:12px 14px;border:1px solid #D2D6DF;border-radius:6px;background:#FFFFFF;font:700 13px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#545C6E;display:inline-flex;align-items:center;gap:8px;cursor:pointer"><span style="width:12px;height:7px;border-left:2px solid #545C6E;border-bottom:2px solid #545C6E;transform:rotate(-45deg);margin-bottom:2px;flex:none"></span>Taʼmirlandi</button>
+      </div>
+
+      <div style="position:relative;height:196px;overflow:hidden;background:#EDEEF1;background-image:linear-gradient(#FFFFFF,#FFFFFF),linear-gradient(#FFFFFF,#FFFFFF),linear-gradient(#DFE2E8,#DFE2E8),linear-gradient(#DDE9DC,#DDE9DC);background-size:100% 13px,11px 100%,100% 2px,120px 96px;background-position:0 44%,32% 0,0 22%,6% 56%;background-repeat:no-repeat">
+        <div style="position:absolute;left:70px;top:56px;width:30px;height:30px;background:#D8368F;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(18,22,28,.4);display:grid;place-items:center"><span style="width:11px;height:11px;border:2.5px solid #FFFFFF;border-radius:50%"></span></div>
+        <div style="position:absolute;left:198px;top:40px;width:30px;height:30px;background:#EE6A21;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(18,22,28,.4);display:grid;place-items:center"><span style="width:10px;height:10px;background:#FFFFFF"></span></div>
+        <div style="position:absolute;left:132px;top:112px;width:30px;height:30px;background:#2F5FD0;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(18,22,28,.4);display:grid;place-items:center"><span style="display:flex;gap:3px"><span style="width:2.5px;height:12px;background:#FFFFFF"></span><span style="width:2.5px;height:12px;background:#FFFFFF"></span></span></div>
+        <div style="position:absolute;left:272px;top:118px;width:30px;height:30px;background:#0F9FA6;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 5px rgba(18,22,28,.4);display:grid;place-items:center"><span style="width:12px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;margin-bottom:2px"></span></div>
+        <div style="position:absolute;left:32px;top:126px;width:34px;height:34px;border-radius:50%;background:#12161C;border:2px solid #FFFFFF;box-shadow:0 2px 5px rgba(18,22,28,.4);display:grid;place-items:center;font:800 13px/1 'Archivo',sans-serif;color:#FFFFFF">14</div>
+        <div style="position:absolute;left:16px;bottom:14px;right:16px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <span style="font:700 13px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#12161C;background:rgba(255,255,255,.94);border:1px solid #E6E8EE;border-radius:6px;padding:9px 11px">Mirzo Ulugʻbek · 412 ta</span>
+          <span style="font:800 13px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#12161C;background:#FFDD00;border-radius:6px;padding:9px 11px">Xarita →</span>
+        </div>
+      </div>
+
+      <div style="padding:22px 20px 0;display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+        <div style="font:700 12px/1.2 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#545C6E">Shu hafta</div>
+        <div style="font:800 14px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#0A5D62">+128 ta</div>
+      </div>
+      <div style="margin-top:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;background:#E6E8EE">
+          <div style="aspect-ratio:1/1;background:repeating-linear-gradient(115deg,#E6E8EE 0 8px,#D8DCE4 8px 16px);display:grid;place-items:end start;padding:10px"><span style="font:800 11px/1.2 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#3E4553">Oldin</span></div>
+          <div style="aspect-ratio:1/1;background:repeating-linear-gradient(115deg,#DCEFF0 0 8px,#CDE7E9 8px 16px);display:grid;place-items:end start;padding:10px"><span style="font:800 11px/1.2 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#0A5D62">Keyin</span></div>
+        </div>
+        <div style="padding:14px 20px 0;display:grid;gap:6px">
+          <div style="font:800 20px/1.15 'Archivo',sans-serif;letter-spacing:-.02em;color:#12161C">Amir Temur shoh koʻchasi 88</div>
+          <div style="font:400 14px/1.45 'Archivo',sans-serif;color:#545C6E">Yunusobod · 4 kunda · brigada 4</div>
+          <span style="justify-self:start;margin-top:4px;display:inline-flex;align-items:center;gap:8px;background:#E2F5F6;border:1px solid #B7E1E3;border-radius:6px;padding:7px 11px;font:700 12px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#0A5D62"><span style="width:11px;height:6px;border-left:2px solid #0A5D62;border-bottom:2px solid #0A5D62;transform:rotate(-45deg);margin-bottom:2px;flex:none"></span>Taʼmirlandi</span>
+        </div>
+      </div>
+
+      <div style="padding:24px 20px 14px;display:grid;gap:14px">
+        <div style="font:700 12px/1.2 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#545C6E">Holatlar</div>
+        <div style="display:grid;gap:10px">
+          <div style="display:flex;align-items:center;gap:12px"><span style="width:13px;height:13px;border:2.5px solid #8E1A5C;border-radius:50%;flex:none"></span><span style="font:600 15px/1.2 'Archivo',sans-serif;color:#12161C">Yangi</span><span style="flex:1;height:1px;background:#E6E8EE"></span><span style="font:800 15px/1.2 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#8E1A5C">186</span></div>
+          <div style="display:flex;align-items:center;gap:12px"><span style="width:12px;height:12px;background:#8E3308;transform:rotate(45deg);flex:none"></span><span style="font:600 15px/1.2 'Archivo',sans-serif;color:#12161C">Qabul qilindi</span><span style="flex:1;height:1px;background:#E6E8EE"></span><span style="font:800 15px/1.2 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#8E3308">142</span></div>
+          <div style="display:flex;align-items:center;gap:12px"><span style="display:flex;gap:3px;transform:rotate(-45deg);flex:none"><span style="width:2.5px;height:13px;background:#1B4093"></span><span style="width:2.5px;height:13px;background:#1B4093"></span></span><span style="font:600 15px/1.2 'Archivo',sans-serif;color:#12161C">Ish jarayonida</span><span style="flex:1;height:1px;background:#E6E8EE"></span><span style="font:800 15px/1.2 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#1B4093">84</span></div>
+          <div style="display:flex;align-items:center;gap:12px"><span style="width:14px;height:8px;border-left:2.5px solid #0A5D62;border-bottom:2.5px solid #0A5D62;transform:rotate(-45deg);margin-bottom:3px;flex:none"></span><span style="font:600 15px/1.2 'Archivo',sans-serif;color:#12161C">Taʼmirlandi</span><span style="flex:1;height:1px;background:#E6E8EE"></span><span style="font:800 15px/1.2 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#0A5D62">3 471</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:14px 20px 26px;display:grid;gap:8px;border-top:1px solid #E6E8EE;background:#FBFBFD">
+      <button type="button" style="min-height:58px;width:100%;border:none;border-radius:10px;background:#FFDD00;font:800 17px/1.2 'Archivo',sans-serif;letter-spacing:.02em;text-transform:uppercase;color:#12161C;cursor:pointer" style-active="background:#E6C400;transform:translateY(1px)">Chuqur haqida xabar berish</button>
+      <div style="font:500 13px/1.4 'Archivo',sans-serif;color:#545C6E;text-align:center">Roʻyxatdan oʻtish shart emas · 30 soniya</div>
+    </div>
+  </div>
+
+  <div style="width:100%;max-width:640px;display:grid;gap:10px">
+    <div style="padding:14px 16px;background:#FBFBFD;border:1px solid #E6E8EE;border-radius:10px;font:400 14px/1.55 'Archivo',sans-serif;color:#3E4553"><strong style="font-weight:800">Жёлтая подложка под строкой заголовка.</strong> На тёмном ключевая фраза выделялась жёлтым текстом; на светлом жёлтый текст не читается, поэтому выделение переезжает в плашку под строку — приём тот же, носитель другой.</div>
+    <div style="padding:14px 16px;background:#FBFBFD;border:1px solid #E6E8EE;border-radius:10px;font:400 14px/1.55 'Archivo',sans-serif;color:#3E4553"><strong style="font-weight:800">Статусные чипы меняют роль цвета.</strong> На тёмном — тёмная подложка и светлый ink, на светлом — светлый tint и тёмный ink. Форма-иконка не меняется никогда: именно она носит смысл.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { fontProof: 'проверка глифов…' };
+  componentDidMount() {
+    const run = () => {
+      let ok = null;
+      try { ok = document.fonts.check('16px "Archivo"', 'Ulugʻbek Чиланзар'); } catch (e) { ok = null; }
+      this.setState({ fontProof: ok === null ? '? глифы ʻ ʼ' : ok ? '✓ ʻ ʼ + кириллица' : '✕ нет ʻ ʼ' });
+    };
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(run); else run();
+  }
+  renderVals() { return { fontProof: this.state.fontProof }; }
+}
+
+</script>
+</body>
+</html>
