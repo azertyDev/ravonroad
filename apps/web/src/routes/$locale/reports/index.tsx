@@ -135,7 +135,11 @@ export function ReportListPage() {
         )}
       </div>
 
-      <ActionBar caption={t('home.ctaCaption')} className="order-4 lg:col-span-2">
+      {/* На ноутбуке действие уже стоит в шапке, и вторая кнопка во всю ширину внизу —
+          то же самое действие, набранное вчетверо крупнее. Прячется тем же правилом,
+          что и на главной: панель принадлежит телефону, где кнопка живёт под большим
+          пальцем, а в шапке её нет. */}
+      <ActionBar caption={t('home.ctaCaption')} className="order-4 lg:hidden">
         <Link to="/$locale/new" params={{ locale }} className={CTA}>
           {t('home.cta')}
         </Link>
