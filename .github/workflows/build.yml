@@ -70,7 +70,7 @@ jobs:
           # их уже не подставить. Значение по умолчанию — публичный адрес dev-экстракта,
           # переменная репозитория перебивает его, не трогая workflow.
           build-args: |
-            VITE_MAP_PMTILES_URL=${{ vars.VITE_MAP_PMTILES_URL || 'https://storage.googleapis.com/ravonroad-dev-photos/map/tashkent-20260810.pmtiles' }}
+            VITE_MAP_PMTILES_URL=${{ vars.VITE_MAP_PMTILES_URL || '/map/tashkent-20260810.pmtiles' }}
             VITE_CAMPAIGN_CONTACT_URL=${{ vars.VITE_CAMPAIGN_CONTACT_URL }}
           push: true
           # Плавающий тег `dev` двигается только сборкой dev: иначе он однажды указал бы

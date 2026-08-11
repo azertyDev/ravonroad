@@ -89,12 +89,17 @@ services:
       dockerfile: Dockerfile.web
       # Vite запекает VITE_* в бандл при сборке образа, а не читает их в рантайме.
       args:
-        VITE_MAP_PMTILES_URL: ${VITE_MAP_PMTILES_URL:-}
+        # По умолчанию карта читается из самого образа: экстракт лежит рядом со статикой,
+        # и путь относительный. Внешний адрес поддерживается — им пользуется `pnpm dev`,
+        # где статики нет, — но перестал быть значением по умолчанию (ADR-0008).
+        VITE_MAP_PMTILES_URL: ${VITE_MAP_PMTILES_URL:-/map/tashkent-20260810.pmtiles}
         VITE_CAMPAIGN_CONTACT_URL: ${VITE_CAMPAIGN_CONTACT_URL:-}
     environment:
       # Тот же адрес, что запечён в бандл: из него envsubst собирает connect-src в CSP.
       # Разъедутся — браузер заблокирует тайлы, поэтому переменная в .env одна.
-      MAP_PMTILES_URL: ${VITE_MAP_PMTILES_URL:-}
+      # Относительный путь до CSP не доходит вовсе: его покрывает `'self'`, а лишний
+      # мусор в директиве убирает 10-csp-origins.envsh.
+      MAP_PMTILES_URL: ${VITE_MAP_PMTILES_URL:-/map/tashkent-20260810.pmtiles}
       # Тот же адрес, что api кладёт в ссылки на фотографии: из него собирается img-src.
       # Переменная в .env одна на обе стороны — разъедутся, и карточка заявки покажет
       # битую картинку вместо фото ямы.
