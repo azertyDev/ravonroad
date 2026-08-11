@@ -66,6 +66,9 @@ services:
       # и api говорит об этом на старте.
       TELEGRAM_ALERT_CHAT_ID: ${TELEGRAM_ALERT_CHAT_ID:-}
       INTAKE_CONCURRENCY: ${INTAKE_CONCURRENCY:-8}
+      # Пул соединений Prisma. Сумма пулов плюс запас на миграции и psql обязана быть
+      # меньше max_connections базы (SRS §12.1, §12.2).
+      DB_POOL: ${DB_POOL:-8}
       PHOTO_WORKERS: ${PHOTO_WORKERS:-1}
       # libvips не поднимает пул потоков: обработка идёт по одной фотографии за раз,
       # и пик памяти остаётся ~15 МБ поверх базовой, а не кратным числу ядер (SRS §5.7).

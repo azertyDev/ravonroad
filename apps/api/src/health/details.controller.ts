@@ -3,7 +3,7 @@ import { queueDepths } from '../common/queue-depths'
 import { S3Service } from '../media/s3.service'
 import { PrismaService } from '../prisma/prisma.service'
 import { WebhookHealthService, type WebhookState } from '../telegram/webhook-health.service'
-import { HealthService } from './health.service'
+import { HealthService, type DbState } from './health.service'
 
 /** Диагностическая сводка (SRS §10.1): что именно сломалось, когда `/ready` уже сказал,
  *  что сломалось хоть что-то.
@@ -32,7 +32,8 @@ interface QueueSummary {
 export interface HealthDetails {
   status: 'ok' | 'degraded'
   uptimeS: number
-  db: 'up' | 'down'
+  /** `slow` — ответила только со второй попытки: занята, а не мертва (SRS §10.1). */
+  db: DbState
   /** Кэш 60 с: страница диагностики не должна сама стать нагрузкой на хранилище. */
   s3: 'up' | 'down'
   telegram: WebhookState
@@ -61,11 +62,12 @@ export class HealthDetailsController {
 
   @Get('details')
   async getDetails(): Promise<HealthDetails> {
-    const [dbUp, s3Up, telegram] = await Promise.all([
-      this.health.isDatabaseUp(),
+    const [db, s3Up, telegram] = await Promise.all([
+      this.health.probeDatabase(),
       this.s3Reachable(),
       this.webhook.state(),
     ])
+    const dbUp = db !== 'down'
 
     // Очереди и возраст апдейта читаются из той же БД: она лежит — читать нечего,
     // и притворяться нулями было бы враньём в самом заметном месте.
@@ -73,9 +75,9 @@ export class HealthDetailsController {
     const lastUpdateAgeS = dbUp ? await this.lastUpdateAgeS() : null
 
     return {
-      status: dbUp && s3Up && telegram.webhook === 'ok' ? 'ok' : 'degraded',
+      status: db === 'up' && s3Up && telegram.webhook === 'ok' ? 'ok' : 'degraded',
       uptimeS: this.health.uptimeS(),
-      db: dbUp ? 'up' : 'down',
+      db,
       s3: s3Up ? 'up' : 'down',
       telegram,
       queues: {
