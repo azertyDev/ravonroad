@@ -5,13 +5,13 @@ import type { ErrorCode } from '@ravonroad/shared-types'
  *  Латиница использует ʻ (U+02BB) и ʼ (U+02BC) — как в глоссарии и в GeoJSON районов. */
 export const uzUi = {
   'app.name': 'RavonRoad',
+  'app.slogan': 'Toshkent yoʻllarini oʻzimiz taʼmirlaymiz',
   'header.localeNavLabel': 'Sayt tili',
   'locale.uz': 'Oʻzbekcha',
   'locale.ru': 'Русский',
   // Сокращение языка, а не флаг: флаг обозначает страну, а корректных SVG в исходных
   // материалах нет. Полное имя остаётся в aria-label переключателя.
-  'locale.uz.short': 'OʻZ',
-  'locale.ru.short': 'RU',
+  'map.tab': 'Xarita',
   // Заголовок главной набирается в две строки: действие жителя и обещание бригады.
   // Вторая строка выделена цветом, поэтому это два ключа, а не один с разметкой внутри.
   'home.titleAction': 'Chuqurni belgilang.',

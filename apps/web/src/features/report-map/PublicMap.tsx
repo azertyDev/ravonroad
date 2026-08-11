@@ -126,7 +126,7 @@ export function PublicMap({
       </div>
 
       {hasArchive && locate && (
-        <div className="absolute bottom-[var(--s-3)] left-[var(--s-3)]">
+        <div className="absolute right-[var(--s-3)] bottom-[var(--s-3)] flex flex-col items-end gap-[var(--s-2)]">
           <LocateButton onLocated={setFocus} />
         </div>
       )}

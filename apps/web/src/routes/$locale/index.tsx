@@ -3,7 +3,7 @@ import { PublicMap } from '../../features/report-map/PublicMap'
 import { CampaignCounter } from '../../features/stats/CampaignCounter'
 import { useI18n } from '../../shared/i18n/useI18n'
 import { ActionBar } from '../../shared/ui/control/ActionBar'
-import { COMPACT_ACCENT, CTA, GUTTER } from '../../shared/ui/control/styles'
+import { CTA, GUTTER } from '../../shared/ui/control/styles'
 
 /** Главная в плакатном ключе (Home C): обращение, счётчик кампании во всю ширину,
  *  полоса карты и одно действие внизу.
@@ -24,15 +24,21 @@ export function HomePage() {
           locate={false}
           className="h-[196px] lg:h-[calc(100dvh-160px)] lg:min-h-[420px] lg:rounded-[var(--r-4)] lg:border lg:border-[var(--border-1)]"
         />
-        {/* Полоса карты на телефоне — не рабочая карта, а приглашение: разглядывать
-            яму на 196 px нельзя, и рядом стоит вход туда, где можно. */}
-        <Link
-          to="/$locale/reports"
-          params={{ locale }}
-          className={`${COMPACT_ACCENT} absolute right-[var(--s-3)] bottom-[var(--s-3)]`}
-        >
-          {t('list.open')}
-        </Link>
+        {/* Сегментный переключатель слева внизу карты: где смотреть заявки — на карте
+            или списком. Вкладки «Sputnik» нет: спутниковых тайлов у нас не существует,
+            экстракт векторный. */}
+        <nav className="absolute bottom-[var(--s-3)] left-[var(--s-3)] flex overflow-hidden rounded-[var(--r-3)] shadow-[var(--e-2)]">
+          <span aria-current="page" className="t-chip bg-[var(--surface-card)] px-[var(--s-4)] py-[var(--s-3)] text-[var(--text-1)]">
+            {t('map.tab')}
+          </span>
+          <Link
+            to="/$locale/reports"
+            params={{ locale }}
+            className="t-chip bg-[rgba(18,22,28,.78)] px-[var(--s-4)] py-[var(--s-3)] text-[#FBFBFD] hover:bg-[rgba(18,22,28,.9)]"
+          >
+            {t('list.open')}
+          </Link>
+        </nav>
       </div>
 
       <div className="order-1 flex flex-col gap-[var(--block-gap)] lg:order-2">

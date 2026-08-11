@@ -3,11 +3,11 @@ import type { UiKey } from './uz'
 
 export const ruUi: Record<UiKey, string> = {
   'app.name': 'RavonRoad',
+  'app.slogan': 'Дороги Ташкента чиним сами',
   'header.localeNavLabel': 'Язык сайта',
   'locale.uz': 'Oʻzbekcha',
   'locale.ru': 'Русский',
-  'locale.uz.short': 'OʻZ',
-  'locale.ru.short': 'RU',
+  'map.tab': 'Карта',
   'home.titleAction': 'Отметьте яму.',
   'home.titlePromise': 'Бригада починит.',
   'home.lead': 'Государственные органы не участвуют. Только вы и волонтёры.',

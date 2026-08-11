@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "./shared/styles/tokens/index.css";
 
+/* Порог десктопной раскладки — 1100, как размечено на Desktop C, а не 1024 из
+   умолчаний Tailwind. Одна строка вместо переименования `lg:` в четырёх файлах. */
+@theme {
+  --breakpoint-lg: 1100px;
+}
+
 @layer base {
   body {
     font: var(--t-body);
