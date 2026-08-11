@@ -91,7 +91,9 @@ export function ReportDetailPage() {
 
       <ReportSummary report={report} />
 
-      <ActionBar caption={t('footer.volunteers')}>
+      {/* Без подписи: «проект ведут волонтёры» уже стоит в подвале страницей ниже,
+          и второй раз подряд эта строка читается как сбой вёрстки, а не как строка. */}
+      <ActionBar>
         <button
           type="button"
           className={CTA}
