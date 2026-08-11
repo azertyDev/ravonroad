@@ -14,7 +14,7 @@ import { summarize, type CampaignSummary } from './summary'
  *  ручка: на проде ей же снижается задержка счётчика, если 30 секунд окажутся много. */
 const DEFAULT_TTL_MS = 30_000
 
-function ttlMs(): number {
+export function ttlMs(): number {
   const raw = Number(process.env['POINTS_CACHE_TTL_MS'])
   return Number.isFinite(raw) && raw >= 0 ? raw : DEFAULT_TTL_MS
 }
