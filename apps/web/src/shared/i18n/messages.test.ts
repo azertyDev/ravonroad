@@ -1,6 +1,19 @@
+import {
+  OUT_OF_SCOPE_REASON_CODES,
+  REJECT_REASON_CODES,
+  REPORT_STATUSES,
+} from '@ravonroad/shared-types'
 import { describe, expect, it } from 'vitest'
 import { LOCALES, type Locale } from './locale'
 import { MESSAGES } from './messages'
+
+/** Ключи доменных кодов собираются из контракта, а не переписываются: список,
+ *  набранный руками, разошёлся бы с машиной состояний ровно тогда, когда в неё
+ *  добавили причину (SRS §8.2). */
+const DOMAIN_KEYS = [
+  ...REPORT_STATUSES.map((status) => `status.${status}`),
+  ...[...REJECT_REASON_CODES, ...OUT_OF_SCOPE_REASON_CODES].map((code) => `reason.${code}`),
+]
 
 const [reference, ...rest] = LOCALES
 
@@ -36,6 +49,35 @@ describe('словари локалей', () => {
     const expected = Object.keys(MESSAGES[reference].error).sort()
     for (const locale of rest) {
       expect(Object.keys(MESSAGES[locale].error).sort()).toEqual(expected)
+    }
+  })
+
+  it('переводят каждый доменный код контракта (US-015, AC-2)', () => {
+    // Дублирует проверку типа из messages.ts намеренно: тип ловит забытый ключ
+    // при сборке, а тест — ещё и пустую строку на его месте.
+    for (const locale of LOCALES) {
+      const ui: Record<string, string | undefined> = MESSAGES[locale].ui
+      for (const key of DOMAIN_KEYS) expect(ui[key]?.trim()).not.toBe('')
+      expect(DOMAIN_KEYS.filter((key) => ui[key] === undefined)).toEqual([])
+    }
+  })
+
+  it('дают каждому статусу свою подпись: одинаковые неразличимы в монохроме (AC-8)', () => {
+    for (const locale of LOCALES) {
+      const ui: Record<string, string> = MESSAGES[locale].ui
+      const labels = REPORT_STATUSES.map((status) => ui[`status.${status}`])
+      expect(new Set(labels).size).toBe(REPORT_STATUSES.length)
+    }
+  })
+
+  it('не содержат ключей категорий: их переводы живут в БД (SRS §2.5, AC-4)', () => {
+    // Категория добавляется INSERT-ом, без передеплоя фронта. Строка в словаре
+    // означала бы, что новая категория показывается кодом до следующей сборки.
+    for (const locale of LOCALES) {
+      const suspicious = Object.keys(MESSAGES[locale].ui).filter((key) =>
+        /^categor(y|ies)\./.test(key),
+      )
+      expect(suspicious).toEqual([])
     }
   })
 
