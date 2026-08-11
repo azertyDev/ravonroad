@@ -128,7 +128,7 @@ export default function ReportMap({
   onBoundsChange,
   focus,
 }: ReportMapProps) {
-  const { t } = useI18n()
+  const { locale, t } = useI18n()
   const container = useRef<HTMLDivElement>(null)
   const map = useRef<MapLibreMap | null>(null)
   const held = useRef(new Map<string, HeldMarker>())
@@ -159,6 +159,15 @@ export default function ReportMap({
       // без компаса житель уже не сможет.
       dragRotate: false,
       attributionControl: { compact: true },
+      locale: {
+        'Map.Title': t('map.canvasLabel'),
+        'Marker.Title': t('map.marker.label'),
+        'AttributionControl.ToggleAttribution': t('map.attribution'),
+      },
+      // Свои подписи вместо встроенных английских: MapLibre вешает aria-label на холст,
+      // на маркер и на кнопку источников, и на /uz скринридер читал бы «Map»,
+      // «Map marker» и «Toggle attribution» — три английских слова на карте, которую
+      // житель открыл на узбекском (US-015).
     })
     instance.touchZoomRotate.disableRotation()
     map.current = instance
@@ -194,6 +203,9 @@ export default function ReportMap({
           element.style.height = 'var(--pin-hit)'
           element.style.display = 'grid'
           element.style.placeItems = 'center'
+          // Роль ставим сами: иначе MapLibre объявит обёртку кнопкой, а внутри неё
+          // лежит настоящая кнопка со своей подписью — вложенных кнопок не бывает.
+          element.setAttribute('role', 'presentation')
           const marker = new Marker({ element, anchor: 'center' }).setLngLat([longitude, latitude]).addTo(instance)
           held.current.set(described.key, { marker, element })
           next.push({ ...described, element })
@@ -269,6 +281,18 @@ export default function ReportMap({
     const source = map.current?.getSource(SOURCE)
     if (source instanceof GeoJSONSource) source.setData(featureCollection(points, statuses))
   }, [points, statuses])
+
+  // Свои подписи MapLibre берёт из конструктора и один раз, а карта при переключении
+  // языка не пересоздаётся: внутри неё позиция, зум и уже скачанные тайлы, и терять
+  // их ради двух строк дороже, чем переписать эти две строки (US-015).
+  useEffect(() => {
+    const instance = map.current
+    if (instance === null) return
+    instance.getCanvas().setAttribute('aria-label', t('map.canvasLabel'))
+    const attribution = instance.getContainer().querySelector('.maplibregl-ctrl-attrib-button')
+    attribution?.setAttribute('aria-label', t('map.attribution'))
+    attribution?.setAttribute('title', t('map.attribution'))
+  }, [locale, t])
 
   useEffect(() => {
     if (focus === null) return

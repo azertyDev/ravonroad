@@ -35,6 +35,8 @@ export const uzUi = {
   'map.locate.denied': 'Joylashuvga ruxsat berilmadi. Xarita butun Toshkentni koʻrsatmoqda.',
   'map.offline': 'Aloqa yoʻq. Xarita yangilanmadi.',
   'map.title': 'Xaritadagi arizalar',
+  'map.canvasLabel': 'Xarita',
+  'map.attribution': 'Xarita manbalari',
   'map.unavailable': 'Xarita hozircha mavjud emas. Arizalar roʻyxatda koʻrinadi.',
   'map.close': 'Yopish',
   'report.title': 'Ariza',

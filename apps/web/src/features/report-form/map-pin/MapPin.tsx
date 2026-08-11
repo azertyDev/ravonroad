@@ -1,5 +1,6 @@
 import { Map as MapLibreMap, Marker, type LngLat } from 'maplibre-gl'
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '../../../shared/i18n/useI18n'
 import { basemapStyle, MAX_ZOOM, MIN_ZOOM } from '../../../shared/map/basemap'
 import { LoadingState } from '../../../shared/ui/state/LoadingState'
 import { roundCoordinate, TASHKENT_CENTER, type Point } from './coordinates'
@@ -15,7 +16,9 @@ interface MapPinProps {
 /** Виджет выбора точки: тянет координаты внутрь, отдаёт координаты наружу. Ничего
  *  больше наружу не торчит — провайдера карты меняли уже дважды. */
 export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
+  const { locale, t } = useI18n()
   const container = useRef<HTMLDivElement>(null)
+  const map = useRef<MapLibreMap | null>(null)
   const marker = useRef<Marker | null>(null)
   const [drawn, setDrawn] = useState(false)
   const latest = useRef(onChange)
@@ -34,7 +37,7 @@ export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
       })
     }
 
-    const map = new MapLibreMap({
+    const instance = new MapLibreMap({
       container: root,
         style: basemapStyle(archiveUrl),
         center: [start.longitude, start.latitude],
@@ -45,11 +48,20 @@ export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
         // без компаса житель уже не сможет.
         dragRotate: false,
         attributionControl: { compact: true },
+        // Английские подписи MapLibre заменяются своими: на /uz «Map» и «Map marker»
+        // читаются скринридером как есть (US-015). Пин здесь — место ямы, а не заявка,
+        // поэтому подпись у него своя, а не та, что на публичной карте.
+        locale: {
+          'Map.Title': t('map.canvasLabel'),
+          'Marker.Title': t('form.point.legend'),
+          'AttributionControl.ToggleAttribution': t('map.attribution'),
+        },
       })
-    map.touchZoomRotate.disableRotation()
+    map.current = instance
+    instance.touchZoomRotate.disableRotation()
     // Первый тайл приходит через несколько секунд: PMTiles читает заголовок, каталог
     // и лист последовательно. До этого показывается загрузка, а не пустой прямоугольник.
-    map.once('idle', () => setDrawn(true))
+    instance.once('idle', () => setDrawn(true))
 
     // Свой элемент, а не встроенный маркер MapLibre: тот рисует свою синюю каплю и
     // принимает цвет строкой в SVG-атрибут `fill`, где `var()` не резолвится. Форму
@@ -70,20 +82,34 @@ export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
 
     const entity = new Marker({ element: pin, anchor: 'bottom', draggable: true })
       .setLngLat([start.longitude, start.latitude])
-      .addTo(map)
+      .addTo(instance)
     entity.on('dragend', () => report(entity.getLngLat()))
     marker.current = entity
 
     // Тап ставит пин туда, куда попал палец: перетаскивание требует прицелиться дважды.
-    map.on('click', (event) => report(event.lngLat))
+    instance.on('click', (event) => report(event.lngLat))
 
     return () => {
-      map.remove()
+      instance.remove()
+      map.current = null
       marker.current = null
     }
     // Карта создаётся один раз: значение ниже двигает существующий маркер, а пересоздание
     // означало бы заново скачанные тайлы на платном трафике.
   }, [])
+
+  // Подписи, которые MapLibre рисует сам, применяются один раз — в конструкторе.
+  // Карта при переключении языка не пересоздаётся (см. ниже), поэтому две её строки
+  // переписываются здесь: иначе на /ru у холста остался бы узбекский ярлык (US-015).
+  useEffect(() => {
+    const instance = map.current
+    if (instance === null) return
+    instance.getCanvas().setAttribute('aria-label', t('map.canvasLabel'))
+    marker.current?.getElement().setAttribute('aria-label', t('form.point.legend'))
+    const attribution = instance.getContainer().querySelector('.maplibregl-ctrl-attrib-button')
+    attribution?.setAttribute('aria-label', t('map.attribution'))
+    attribution?.setAttribute('title', t('map.attribution'))
+  }, [locale, t])
 
   // Поля широты и долготы и кнопка «моё местоположение» двигают тот же пин.
   useEffect(() => {

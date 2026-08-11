@@ -33,6 +33,8 @@ export const ruUi: Record<UiKey, string> = {
   'map.locate.denied': 'Доступ к местоположению не разрешён. Карта показывает весь Ташкент.',
   'map.offline': 'Нет связи. Карта не обновилась.',
   'map.title': 'Заявки на карте',
+  'map.canvasLabel': 'Карта',
+  'map.attribution': 'Источники карты',
   'map.unavailable': 'Карта сейчас недоступна. Заявки видны в списке.',
   'map.close': 'Закрыть',
   'report.title': 'Заявка',

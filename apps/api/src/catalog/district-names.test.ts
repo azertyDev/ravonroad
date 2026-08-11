@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 /** Названия районов житель читает на своём языке (US-015), и живут они в трёх местах:
@@ -9,7 +10,10 @@ import { describe, expect, it } from 'vitest'
  *  Сравнение посимвольное: `ʻ` (U+02BB) и `ʼ` (U+02BC) при копировании через редактор
  *  или через чужой терминал превращаются в ASCII-апостроф молча, и на глаз разница
  *  между `Ulugʻbek` и `Ulug'bek` не читается вовсе (AC-2). */
-const ROOT = new URL('../../../../', import.meta.url)
+/** Путь от корня пакета, а не от `import.meta.url`: apps/api собирается в CommonJS
+ *  ради NestJS, и `tsc --noEmit` запрещает там meta-property. Vitest запускает пакет
+ *  из его собственного каталога, поэтому `cwd` — это apps/api. */
+const ROOT = resolve(process.cwd(), '../..')
 
 interface DistrictNames {
   code: string
@@ -18,7 +22,7 @@ interface DistrictNames {
 }
 
 function read(path: string): string {
-  return readFileSync(new URL(path, ROOT), 'utf8')
+  return readFileSync(resolve(ROOT, path), 'utf8')
 }
 
 function byCode(districts: DistrictNames[]): DistrictNames[] {
