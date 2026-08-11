@@ -12,6 +12,10 @@ export interface Env {
   API_PORT: number
   /** Одновременных запросов на приёме заявок. Восемь на проде, два на dev (SRS §12.2). */
   INTAKE_CONCURRENCY: number
+  /** Размер пула соединений Prisma. Восемь на проде, пять на dev: из 12 `max_connections`
+   *  три зарезервированы под суперпользователя, и пул обязан оставить место миграциям
+   *  и `psql` (SRS §12.2). */
+  DB_POOL: number
   /** Воркеров обработки фотографий. Один даёт 5–8 фото/с при всплеске в 0,83 фото/с,
    *  но при задержке хранилища в 200 мс запас исчезает — тогда их становится два,
    *  и это одна переменная, а не правка кода (SRS §5.4). */
@@ -44,6 +48,7 @@ const DEFAULT_API_PORT = 3000
 const MAX_PORT = 65535
 const DEFAULT_INTAKE_CONCURRENCY = 8
 const DEFAULT_PHOTO_WORKERS = 1
+const DEFAULT_DB_POOL = 8
 
 function requireString(source: Record<string, unknown>, name: string, errors: string[]): string {
   const value = source[name]
@@ -88,6 +93,7 @@ export function validateEnv(source: Record<string, unknown>): Env {
     WEB_ORIGIN: requireString(source, 'WEB_ORIGIN', errors),
     API_PORT: DEFAULT_API_PORT,
     INTAKE_CONCURRENCY: DEFAULT_INTAKE_CONCURRENCY,
+    DB_POOL: DEFAULT_DB_POOL,
     PHOTO_WORKERS: DEFAULT_PHOTO_WORKERS,
     S3_ENDPOINT: requireString(source, 'S3_ENDPOINT', errors),
     S3_REGION: requireString(source, 'S3_REGION', errors),
@@ -112,6 +118,8 @@ export function validateEnv(source: Record<string, unknown>): Env {
   env.API_PORT = readInteger(source, 'API_PORT', 1, MAX_PORT, errors) ?? env.API_PORT
   env.INTAKE_CONCURRENCY =
     readInteger(source, 'INTAKE_CONCURRENCY', 1, 64, errors) ?? env.INTAKE_CONCURRENCY
+  // Верхняя граница — `max_connections` прода: пул больше него невыполним by construction.
+  env.DB_POOL = readInteger(source, 'DB_POOL', 1, 20, errors) ?? env.DB_POOL
   // Ноль воркеров — рабочая настройка, а не ошибка: так очередь останавливают,
   // не трогая приём заявок. Именно этим проверяется, что заявка принимается
   // и при остановленной обработке (AC-5).
