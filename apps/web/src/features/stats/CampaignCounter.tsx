@@ -101,21 +101,16 @@ export function CampaignCounter() {
         </span>
       </div>
 
-      {/* Остальные числа плаката. Сетка `auto-fit`, а не три колонки: за неделю может
-          не закрыться ничего, ячейка тогда не рисуется вовсе, и оставшиеся две
-          растягиваются сами. «+0 за неделю» на плакате кампании читается как поломка,
-          а не как факт.
+      {/* Остальные числа плаката. Сетка `auto-fit`, а не две колонки: набор ячеек ещё
+          вырастет, и ширину им считает сетка, а не мы.
+
+          Прибавки за неделю тут нет: она стоит строкой ниже, над парой «до / после»
+          последней закрытой заявки, и печатать её дважды подряд незачем (Desktop C).
 
           Числа бригад тут нет и не будет: такой сущности в системе не существует
           (макет её показывает, контракт — нет). */}
       {stats.data !== undefined && (
         <dl className="mt-[var(--s-5)] grid grid-cols-[repeat(auto-fit,minmax(96px,1fr))] gap-[var(--s-3)] border-t border-[rgba(18,22,28,.25)] pt-[var(--s-4)]">
-          {stats.data.doneLastWeek > 0 && (
-            // Бирюзовый берётся solid-вариантом, а не ink: ink переворачивается вместе
-            // с темой, а поле под ним жёлтое в обеих, и светлая бирюза на жёлтом
-            // даёт 1.3:1.
-            <Stat value={`+${formatNumber(stats.data.doneLastWeek)}`} label={t('home.lastWeek')} tone="var(--status-done-solid)" />
-          )}
           <Stat value={formatNumber(stats.data.queued)} label={t('home.queued')} />
           <Stat value={formatNumber(stats.data.districts)} label={tp('home.districts', stats.data.districts)} />
         </dl>

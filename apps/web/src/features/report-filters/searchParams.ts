@@ -70,6 +70,19 @@ export function toSearch(filters: ReportFilters): ReportSearch {
   })
 }
 
+/** Сколько фильтров включено — число на кнопке «Фильтры» (Desktop C › строка над картой).
+ *  Статусы считаются поштучно: снимают их тоже по одному. Поле даты не считается —
+ *  оно уточняет период, а само по себе ничего не отбирает. */
+export function countFilters(filters: ReportFilters): number {
+  return (
+    filters.status.length +
+    (filters.category === null ? 0 : 1) +
+    (filters.district === null ? 0 : 1) +
+    (filters.from === null ? 0 : 1) +
+    (filters.to === null ? 0 : 1)
+  )
+}
+
 export function isEmptyFilters(filters: ReportFilters): boolean {
   return (
     filters.status.length === 0 &&

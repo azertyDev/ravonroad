@@ -37,9 +37,12 @@ const localeRoute = createRoute({
   component: LocaleLayout,
 })
 
+/** Главная несёт те же фильтры, что и список: набор один на карту и на список, и переход
+ *  между ними обязан его сохранять, а ссылкой на срез — делиться (SRS §7.3). */
 const homeRoute = createRoute({
   getParentRoute: () => localeRoute,
   path: '/',
+  validateSearch: validateReportSearch,
   component: HomePage,
 })
 

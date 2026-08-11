@@ -40,9 +40,9 @@ interface PublicMapProps {
   /** Размер и кромка задаются снаружи: на главной карта — полоса во всю ширину экрана,
    *  в списке — рабочее поле в рамке, на ноутбуке — колонка во всю высоту. */
   className?: string
-  /** «Моё местоположение». На полосе главной его нет: на 196 пикселях высоты ехать
-   *  некуда, а кнопка там занимает четверть карты и наезжает на вход в список. */
-  locate?: boolean
+  /** «Моё местоположение». `'desktop'` — только на ноутбуке: на полосе главной в 196
+   *  пикселей высоты ехать некуда, а кнопка занимает там четверть карты. */
+  locate?: boolean | 'desktop'
 }
 
 const DEFAULT_SHAPE = 'h-[60vh] min-h-[320px] rounded-[var(--r-3)] border border-[var(--border-1)]'
@@ -125,8 +125,12 @@ export function PublicMap({
         )}
       </div>
 
-      {hasArchive && locate && (
-        <div className="absolute right-[var(--s-3)] bottom-[var(--s-3)] flex flex-col items-end gap-[var(--s-2)]">
+      {hasArchive && locate !== false && (
+        <div
+          className={`absolute right-[var(--s-3)] bottom-[var(--s-3)] flex-col items-end gap-[var(--s-2)] ${
+            locate === 'desktop' ? 'hidden lg:flex' : 'flex'
+          }`}
+        >
           <LocateButton onLocated={setFocus} />
         </div>
       )}
