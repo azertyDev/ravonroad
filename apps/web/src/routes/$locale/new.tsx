@@ -7,9 +7,7 @@ import { ReportForm } from '../../features/report-form/ReportForm'
 export function NewReportPage() {
   const [created, setCreated] = useState<CreateReportResponse | null>(null)
 
-  return (
-    <div className="px-[var(--gutter)]">
-      {created === null ? <ReportForm onCreated={setCreated} /> : <Confirmation report={created} />}
-    </div>
-  )
+  // Поле экрана держат сами блоки, а не маршрут: в форме и на подтверждении есть
+  // плакатные полосы во всю ширину — жёлтое поле номера и полоса ошибки.
+  return created === null ? <ReportForm onCreated={setCreated} /> : <Confirmation report={created} />
 }

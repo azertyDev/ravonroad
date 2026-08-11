@@ -62,7 +62,9 @@ export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
     pin.style.height = 'var(--pin-size-selected)'
     pin.style.background = 'var(--status-new-pin)'
     pin.style.border = 'var(--pin-border-selected)'
-    pin.style.borderRadius = 'var(--r-pill) var(--r-pill) var(--r-1) var(--r-pill)'
+    // Та же капля, что на публичной карте: жёсткий угол внизу слева, повёрнутый вниз.
+    pin.style.borderRadius = 'var(--pin-radius)'
+    pin.style.rotate = '-45deg'
     pin.style.boxShadow = 'var(--e-pin-selected)'
     pin.style.cursor = 'grab'
     // Иначе палец, потянувший пин, прокрутит страницу вместо перетаскивания.
@@ -91,7 +93,7 @@ export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
   }, [value])
 
   return (
-    <div className="relative h-[240px] w-full overflow-hidden rounded-[var(--r-3)] border border-[var(--border-1)]">
+    <div className="relative h-[150px] w-full overflow-hidden rounded-[var(--r-4)] border border-[var(--border-1)] md:h-[196px]">
       <div ref={container} className="h-full w-full" />
       {!drawn && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center bg-[var(--surface-sunken)]">

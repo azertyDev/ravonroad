@@ -336,16 +336,22 @@ export default function ReportMap({
               className="grid h-full w-full place-items-center"
             >
               <span
-                className="grid place-items-center rounded-[var(--r-pill)] text-[var(--pin-stroke)]"
+                className="grid place-items-center text-[var(--pin-stroke)]"
                 style={{
                   background: MARKER_LOOK[entry.status].color,
+                  borderRadius: 'var(--pin-radius)',
+                  transform: 'rotate(-45deg)',
                   border: selected === entry.number ? 'var(--pin-border-selected)' : 'var(--pin-border)',
                   boxShadow: selected === entry.number ? 'var(--e-pin-selected)' : 'var(--e-pin)',
                   width: selected === entry.number ? 'var(--pin-size-selected)' : 'var(--pin-size)',
                   height: selected === entry.number ? 'var(--pin-size-selected)' : 'var(--pin-size)',
                 }}
               >
-                <StatusMark status={entry.status} />
+                {/* Обратный поворот: капля наклонена, форма статуса — нет. Она носит
+                    смысл, и наклонённая галочка перестаёт быть галочкой. */}
+                <span className="grid place-items-center" style={{ transform: 'rotate(45deg)' }}>
+                  <StatusMark status={entry.status} />
+                </span>
               </span>
             </button>
           ),

@@ -37,9 +37,18 @@ interface PublicMapProps {
   filters?: ReportFilters
   /** Куда подогнать границы снаружи: выбранный район (US-031). */
   focus?: Bounds | null
+  /** Размер и кромка задаются снаружи: на главной карта — полоса во всю ширину экрана,
+   *  в списке — рабочее поле в рамке, на ноутбуке — колонка во всю высоту. */
+  className?: string
 }
 
-export function PublicMap({ filters = EMPTY_FILTERS, focus: requested = null }: PublicMapProps = {}) {
+const DEFAULT_SHAPE = 'h-[60vh] min-h-[320px] rounded-[var(--r-3)] border border-[var(--border-1)]'
+
+export function PublicMap({
+  filters = EMPTY_FILTERS,
+  focus: requested = null,
+  className = DEFAULT_SHAPE,
+}: PublicMapProps = {}) {
   const { t } = useI18n()
   const [bbox, setBbox] = useState(CITY_BBOX)
   const [selected, setSelected] = useState<number | null>(null)
@@ -65,7 +74,7 @@ export function PublicMap({ filters = EMPTY_FILTERS, focus: requested = null }: 
   return (
     <section
       aria-label={t('map.title')}
-      className="relative h-[60vh] min-h-[320px] w-full overflow-hidden rounded-[var(--r-3)] border border-[var(--border-1)] bg-[var(--surface-sunken)]"
+      className={`relative w-full overflow-hidden bg-[var(--surface-sunken)] ${className}`}
     >
       {hasArchive ? (
         <Suspense fallback={null}>

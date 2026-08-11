@@ -3,6 +3,8 @@ import { useEffect, useId, useMemo, useState } from 'react'
 import { useI18n } from '../../../shared/i18n/useI18n'
 import type { UiKey } from '../../../shared/i18n/messages'
 import { randomUuid } from '../../../shared/lib/uuid'
+import { StepHeader } from '../../../shared/ui/control/StepHeader'
+import { Glyph } from '../../../shared/ui/icon/Glyph'
 import { compressPhoto, type CompressedPhoto, type PhotoRejection } from './compress'
 
 export interface SelectedPhoto extends CompressedPhoto {
@@ -23,11 +25,21 @@ interface PhotoPickerProps {
   error?: string | undefined
 }
 
+/** Плитка-приглашение: пустая форма показывает одну большую, заполненная — маленькую
+ *  в конце ряда. Обе — `<label>` над одним и тем же `<input type="file">`, поэтому
+ *  системный выбор открывается и по касанию, и с клавиатуры. */
+const TILE = 'grid cursor-pointer place-items-center border-2 border-dashed border-[var(--border-2)] bg-[var(--surface-sunken)] text-[var(--text-2)] hover:bg-[var(--surface-control-hover)] aria-disabled:opacity-50'
+
 /** Выбор и предпросмотр фотографий (US-008).
  *
  *  Уменьшение и перекодирование идут здесь же, до отправки: житель платит за мобильный
  *  трафик, и 3–6 МБ против 300 КБ — это его деньги (SRS §5.2). Предпросмотр показывает
- *  уже сжатый кадр, поэтому он и есть то, что уйдёт на сервер. */
+ *  уже сжатый кадр, поэтому он и есть то, что уйдёт на сервер.
+ *
+ *  Отказ по одному файлу не отменяет остальные и не блокирует отправку: снимок остаётся
+ *  ненабранным, заявка уходит с тем, что набралось. Кнопки «повторить» рядом с отказом
+ *  нет намеренно — файл забракован при разборе, а не при передаче, и повторять нечего:
+ *  тот же файл разберётся так же. */
 export function PhotoPicker({ photos, onChange, error }: PhotoPickerProps) {
   const { t } = useI18n()
   const fieldId = useId()
@@ -63,45 +75,65 @@ export function PhotoPicker({ photos, onChange, error }: PhotoPickerProps) {
   }
 
   const errorId = `${fieldId}-error`
+  const inputId = `${fieldId}-input`
   const full = photos.length >= MAX_PHOTOS_PER_REPORT
 
   return (
     <fieldset className="flex flex-col gap-[var(--s-3)] border-0 p-0">
-      <legend className="t-h3 mb-[var(--s-2)]">{t('form.photos.legend')}</legend>
-      <p className="t-caption text-[var(--text-2)]">{t('form.photos.hint')}</p>
+      <legend className="mb-[var(--s-2)] w-full">
+        <StepHeader
+          step="01"
+          label={t('form.step.photos')}
+          aside={<span className="tabular-nums">{`${photos.length} / ${MAX_PHOTOS_PER_REPORT}`}</span>}
+        />
+      </legend>
 
-      {photos.length > 0 && (
-        <ul className="flex flex-wrap gap-[var(--s-3)]">
+      {photos.length === 0 ? (
+        <label htmlFor={inputId} className={`${TILE} min-h-[128px] gap-[var(--s-3)] rounded-[var(--r-4)] p-[var(--s-4)]`}>
+          <span className="grid h-[48px] w-[48px] place-items-center rounded-[var(--r-4)] bg-[var(--accent)] text-[var(--text-on-accent)]">
+            <Glyph name="plus" size={20} />
+          </span>
+          <span className="t-step text-[var(--text-1)]">{busy ? t('form.photos.working') : t('form.photos.capture')}</span>
+          <span className="t-caption text-center text-[var(--text-2)]">{t('form.photos.formats')}</span>
+        </label>
+      ) : (
+        <ul className="grid grid-cols-3 gap-[var(--s-2)]">
           {photos.map((photo, index) => (
-            <li key={photo.id} className="flex flex-col gap-[var(--s-1)]">
-              <img
-                src={previews[index]}
-                alt=""
-                width={96}
-                height={96}
-                className="h-[96px] w-[96px] rounded-[var(--r-2)] border border-[var(--border-1)] object-cover"
-              />
+            <li key={photo.id} className="relative aspect-[3/4] overflow-hidden rounded-[var(--r-4)]">
+              <img src={previews[index]} alt="" className="h-full w-full object-cover" />
+              {/* Зона нажатия 44 px при кружке 26: попасть по крестику на снимке 3/4
+                  пальцем иначе нельзя, а увеличивать сам кружок значит закрыть им яму. */}
               <button
                 type="button"
                 onClick={() => onChange(photos.filter((candidate) => candidate.id !== photo.id))}
-                className="t-caption min-h-[var(--touch-min)] rounded-[var(--r-2)] border border-[var(--border-2)] px-[var(--s-2)]"
+                aria-label={`${t('form.photos.remove')} ${index + 1}`}
+                className="absolute top-0 right-0 grid h-[var(--touch-min)] w-[var(--touch-min)] place-items-center"
               >
-                {t('form.photos.remove')}
+                <span className="grid h-[26px] w-[26px] place-items-center rounded-[var(--r-pill)] bg-[rgba(18,22,28,.8)] text-[#FFFFFF]">
+                  <Glyph name="close" size={10} />
+                </span>
               </button>
+              <span className="t-label absolute bottom-[var(--s-1)] left-[var(--s-1)] rounded-[var(--r-1)] bg-[var(--accent)] px-[var(--s-1)] py-[2px] text-[var(--text-on-accent)] tabular-nums">
+                {String(index + 1).padStart(2, '0')}
+              </span>
             </li>
           ))}
+          {!full && (
+            <li className="contents">
+              <label
+                htmlFor={inputId}
+                aria-disabled={busy}
+                className={`${TILE} aspect-[3/4] rounded-[var(--r-4)]`}
+              >
+                <Glyph name="plus" size={18} label={busy ? t('form.photos.working') : t('form.photos.add')} />
+              </label>
+            </li>
+          )}
         </ul>
       )}
 
-      <label
-        className="t-label inline-flex min-h-[var(--touch-base)] w-fit cursor-pointer items-center rounded-[var(--r-2)] border border-[var(--border-2)] px-[var(--s-4)] aria-disabled:opacity-50"
-        aria-disabled={full}
-        htmlFor={`${fieldId}-input`}
-      >
-        {busy ? t('form.photos.working') : t('form.photos.add')}
-      </label>
       <input
-        id={`${fieldId}-input`}
+        id={inputId}
         type="file"
         // HEIC в списке есть: на iOS его декодирует системный кодек, и конвертация
         // в JPEG происходит здесь же, до отправки (SRS §5.2).
@@ -119,10 +151,14 @@ export function PhotoPicker({ photos, onChange, error }: PhotoPickerProps) {
       />
 
       {/* Отказы объявляются вслух: без live-региона житель узнал бы о них, только
-          заметив, что фотографий стало меньше, чем он выбрал. */}
-      <div role="status" aria-live="polite" className="flex flex-col gap-[var(--s-1)]">
+          заметив, что фотографий стало меньше, чем он выбрал. Красный здесь допустим —
+          статусов в форме нет, и с REJECTED его не спутать. */}
+      <div role="status" aria-live="polite" className="flex flex-col gap-[var(--s-2)] empty:hidden">
         {messages.map((message) => (
-          <p key={message} className="t-caption text-[var(--text-2)]">
+          <p
+            key={message}
+            className="t-caption rounded-[var(--r-4)] border border-[var(--status-rejected-line)] bg-[var(--status-rejected-tint)] px-[var(--s-3)] py-[var(--s-3)] text-[var(--status-rejected-ink)]"
+          >
             {message}
           </p>
         ))}

@@ -1,5 +1,5 @@
 import type { ReportStatus } from '@ravonroad/shared-types'
-import type { ReactNode } from 'react'
+import type { ReactNode, Ref } from 'react'
 import { StatusMark } from '../status/StatusMark'
 import { STATUS_SLUG } from '../status/statusShape'
 
@@ -13,6 +13,8 @@ interface ToggleChipProps {
   /** Статус окрашивает выбранную плашку своими тремя токенами и ставит рядом свою форму —
    *  ту же, что внутри пина на карте. Без него выбранная плашка жёлтая. */
   status?: ReportStatus
+  /** Ссылка на сам `<input>`: форма переводит сюда фокус, когда группа не заполнена. */
+  ref?: Ref<HTMLInputElement>
   children: ReactNode
 }
 
@@ -24,7 +26,7 @@ interface ToggleChipProps {
  *
  *  Выбранное состояние несёт не только цвет: у статуса это ещё и его форма, у категории —
  *  вес 800 против 600. Цвет как единственный носитель здесь запрещён так же, как на карте. */
-export function ToggleChip({ type, name, checked, onChange, status, children }: ToggleChipProps) {
+export function ToggleChip({ type, name, checked, onChange, status, ref, children }: ToggleChipProps) {
   const slug = status === undefined ? null : STATUS_SLUG[status]
 
   return (
@@ -47,6 +49,7 @@ export function ToggleChip({ type, name, checked, onChange, status, children }: 
       }
     >
       <input
+        ref={ref}
         type={type}
         name={name}
         checked={checked}
