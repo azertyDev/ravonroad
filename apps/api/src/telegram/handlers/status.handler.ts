@@ -5,7 +5,7 @@ import { applyTransition, isTerminal } from '../../reports/transitions'
 import { CardUpdater } from '../card.updater'
 import { STATUS_LABELS, displayNumber } from '../card.renderer'
 import { applyOnce } from '../idempotency'
-import { logEvent } from '../log'
+import { logEvent } from '../../common/logger'
 import type { ActiveModerator } from '../moderator.guard'
 import type { CallbackAnswer } from '../update'
 

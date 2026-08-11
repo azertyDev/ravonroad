@@ -1,7 +1,7 @@
 import { Injectable, type OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PrismaService } from '../prisma/prisma.service'
-import { logEvent } from './log'
+import { logEvent } from '../common/logger'
 import { seedModerators } from './moderators.seed'
 
 export interface ActiveModerator {

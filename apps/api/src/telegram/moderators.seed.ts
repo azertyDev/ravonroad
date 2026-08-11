@@ -1,5 +1,5 @@
 import type { PrismaService } from '../prisma/prisma.service'
-import { logEvent } from './log'
+import { logEvent } from '../common/logger'
 
 /** Первичный засев allowlist (ADR-0005, SRS §2.8).
  *

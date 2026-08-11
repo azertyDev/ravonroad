@@ -1,5 +1,6 @@
 import { Injectable, type OnModuleDestroy, type OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { logEvent } from '../common/logger'
 import { PrismaService } from '../prisma/prisma.service'
 import { ProcessService } from './process.service'
 import { S3Service } from './s3.service'
@@ -50,15 +51,9 @@ export class PhotoWorker implements OnModuleInit, OnModuleDestroy {
       // завершается: приём заявок падал бы вместе с воркером.
       const timer = setInterval(() => {
         this.tick(index).catch((error: unknown) => {
-          const message = error instanceof Error ? error.message : String(error)
-          console.error(
-            JSON.stringify({
-              ts: new Date().toISOString(),
-              level: 'error',
-              msg: 'photo_worker_tick_failed',
-              error: message,
-            }),
-          )
+          logEvent('error', 'photo_worker_tick_failed', {
+            error: error instanceof Error ? error.message : String(error),
+          })
         })
       }, POLL_INTERVAL_MS)
       // Незавершённый таймер не должен держать процесс живым при остановке контейнера.

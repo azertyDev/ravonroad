@@ -10,7 +10,7 @@ import {
 import { CardRenderer } from './card.renderer'
 import { DIGEST_SIZE, DIGEST_THRESHOLD, DigestService } from './digest.service'
 import { DuplicatesService } from './duplicates.service'
-import { logEvent } from './log'
+import { logEvent } from '../common/logger'
 import { pendingCardCount, pendingCardsByPriority } from './queue-order'
 
 /** Доставка в Telegram (SRS §6.7).
@@ -50,6 +50,7 @@ const LEASE_MS = 60_000
  *  Dead-letter нет: заявка обязана дойти (US-018). */
 const BACKOFF_MS = [10_000, 30_000, 120_000, 600_000, 1_800_000]
 const HOURLY_MS = 3_600_000
+
 
 interface OutboxRow {
   id: bigint
@@ -97,7 +98,7 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
     this.running = true
     try {
       const depth = await pendingCardCount(this.prisma)
-      if (depth > 0) logEvent('info', 'queue_depth', { depth })
+      if (depth > 0) logEvent('info', 'queue_depth', { count: depth })
       if (depth > DIGEST_THRESHOLD) return await this.sendDigest()
       return await this.sendDue()
     } finally {
