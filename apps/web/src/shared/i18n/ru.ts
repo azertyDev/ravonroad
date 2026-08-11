@@ -63,6 +63,7 @@ export const ruUi: Record<UiKey, string> = {
   'report.photosPending': 'Фото готовится',
   'report.publication': 'Открыть публикацию',
   'report.notPublished': 'Заявка не опубликована',
+  'report.notPublished.hint': 'Возможно, номер неверный. Отклонённые и дублирующие заявки тоже не публикуются.',
   'report.back': 'Назад',
   'report.share': 'Поделиться',
   'report.before': 'До',

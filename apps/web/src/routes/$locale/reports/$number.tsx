@@ -53,7 +53,7 @@ export function ReportDetailPage() {
 
   if (!isNumber || apiErrorCode(detail.error) === 'NOT_FOUND') {
     return (
-      <ErrorScreen title={t('report.notPublished')} lead={t('map.empty.hint')}>
+      <ErrorScreen title={t('report.notPublished')} lead={t('report.notPublished.hint')}>
         <Link to="/$locale" params={{ locale }} className={`${SECONDARY} w-auto`}>
           {t('form.done.backToMap')}
         </Link>

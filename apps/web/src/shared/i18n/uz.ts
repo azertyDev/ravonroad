@@ -71,6 +71,7 @@ export const uzUi = {
   'report.photosPending': 'Suratlar tayyorlanmoqda',
   'report.publication': 'Nashrni ochish',
   'report.notPublished': 'Ariza eʼlon qilinmagan',
+  'report.notPublished.hint': 'Raqam notoʻgʻri boʻlishi mumkin. Ariza rad etilgan yoki takroriy boʻlsa ham, u eʼlon qilinmaydi.',
   'report.back': 'Orqaga',
   'report.share': 'Ulashish',
   'report.before': 'Oldin',
