@@ -26,14 +26,16 @@ interface StatusMarkProps {
   /** Подпись для скринридера. Без неё значок остаётся декоративным и рядом обязан
    *  стоять текст статуса — цвет и форма сами по себе не читаются вслух. */
   label?: string
+  /** Сторона в пикселях. В плашке форма мельче подписи, на легенде — вровень с текстом. */
+  size?: number
 }
 
-export function StatusMark({ status, label }: StatusMarkProps) {
+export function StatusMark({ status, label, size = 16 }: StatusMarkProps) {
   return (
     <svg
       viewBox="0 0 16 16"
-      width="16"
-      height="16"
+      width={size}
+      height={size}
       role={label === undefined ? 'presentation' : 'img'}
       aria-label={label}
       aria-hidden={label === undefined}

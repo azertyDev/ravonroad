@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { catalogKeys, fetchCategories, fetchDistricts, localizedName } from '../catalog/api'
 import { formatDate, formatDateTime } from '../../shared/format/date'
 import { useI18n } from '../../shared/i18n/useI18n'
+import { StatusChip } from '../../shared/ui/status/StatusChip'
 import { StatusMark } from '../../shared/ui/status/StatusMark'
 
 /** Тело карточки заявки: фото, поля, история.
@@ -22,9 +23,8 @@ export function ReportSummary({ report }: { report: ReportDetail }) {
 
   return (
     <>
-      <p className="t-label inline-flex items-center gap-[var(--s-2)]">
-        <StatusMark status={report.status} />
-        {t(`status.${report.status}`)}
+      <p>
+        <StatusChip status={report.status} />
       </p>
 
       <section className="flex flex-col gap-[var(--s-3)]">
