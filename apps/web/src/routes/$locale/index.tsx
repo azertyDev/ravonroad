@@ -90,7 +90,9 @@ export function HomePage() {
 
       {/* Прокручивается правая колонка, а не страница: карта слева при этом остаётся
           на месте целиком (Desktop C). */}
-      <div className="order-1 flex flex-col gap-[var(--block-gap)] py-[var(--s-4)] lg:order-2 lg:min-h-0 lg:gap-[var(--s-5)] lg:overflow-auto lg:py-[var(--s-4)]">
+      {/* Верхнего поля на ноутбуке нет: жёлтая плита начинается от той же линии, что
+          и полоса фильтров слева, и любой отступ над ней читается как съехавший блок. */}
+      <div className="order-1 flex flex-col gap-[var(--block-gap)] py-[var(--s-4)] lg:order-2 lg:min-h-0 lg:gap-[var(--s-5)] lg:overflow-auto lg:pt-0 lg:pb-[var(--s-4)]">
         {/* Заголовок разбит на две строки блочными span'ами, а не жёстким <br>: перенос
             в макете расставлен под 390 px и под узбекский, а русская строка короче.
 
