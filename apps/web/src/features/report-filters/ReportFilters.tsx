@@ -6,6 +6,7 @@ import { formatNumber } from '../../shared/format/number'
 import { useI18n } from '../../shared/i18n/useI18n'
 import { CTA, FIELD, SECONDARY } from '../../shared/ui/control/styles'
 import { Sheet } from '../../shared/ui/control/Sheet'
+import { CatalogState } from '../../shared/ui/state/CatalogState'
 import { ToggleChip } from '../../shared/ui/control/ToggleChip'
 import { isEmptyFilters } from './searchParams'
 
@@ -81,7 +82,8 @@ export function ReportFilters({ filters, onChange, onClose, count }: ReportFilte
 
         <fieldset className="flex flex-col gap-[var(--s-3)] border-0 p-0">
           <legend className="t-section mb-[var(--s-2)] text-[var(--text-2)]">{t('filters.category')}</legend>
-          <div className="flex flex-wrap gap-[var(--s-2)]">
+          <CatalogState query={categories} />
+          <div className="flex flex-wrap gap-[var(--s-2)] empty:hidden">
             {(categories.data ?? []).map((category) => (
               <ToggleChip
                 key={category.code}
@@ -100,6 +102,7 @@ export function ReportFilters({ filters, onChange, onClose, count }: ReportFilte
 
         <label className="flex flex-col gap-[var(--s-2)]">
           <span className="t-section text-[var(--text-2)]">{t('filters.district')}</span>
+          <CatalogState query={districts} />
           <select
             className={FIELD}
             value={filters.district ?? ''}

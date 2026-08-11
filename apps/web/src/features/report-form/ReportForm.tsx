@@ -8,6 +8,7 @@ import { useI18n } from '../../shared/i18n/useI18n'
 import type { UiKey } from '../../shared/i18n/messages'
 import { randomUuid } from '../../shared/lib/uuid'
 import { ActionBar } from '../../shared/ui/control/ActionBar'
+import { CatalogState } from '../../shared/ui/state/CatalogState'
 import { StepHeader } from '../../shared/ui/control/StepHeader'
 import { COMPACT, CTA, CTA_MUTED, FIELD, GUTTER } from '../../shared/ui/control/styles'
 import { ToggleChip } from '../../shared/ui/control/ToggleChip'
@@ -235,7 +236,8 @@ export function ReportForm({ onCreated }: { onCreated: (report: CreateReportResp
           <legend className="mb-[var(--s-2)] w-full">
             <StepHeader step="04" label={t('form.step.category')} />
           </legend>
-          <div className="flex flex-wrap gap-[var(--s-2)]">
+          <CatalogState query={categories} />
+          <div className="flex flex-wrap gap-[var(--s-2)] empty:hidden">
             {(categories.data ?? []).map((category, index) => (
               <ToggleChip
                 key={category.code}
