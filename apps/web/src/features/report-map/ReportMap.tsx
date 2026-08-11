@@ -158,11 +158,12 @@ export default function ReportMap({
       // Поворот выключен: заявкам он ничего не даёт, а вернуть карту на север
       // без компаса житель уже не сможет.
       dragRotate: false,
-      // Свой контрол вместо встроенного: встроенный жёстко живёт справа внизу, а там
-      // на полосе главной стоит вход в список — и подпись OSM накрывала его целиком.
+      // Свой контрол вместо встроенного: встроенный жёстко живёт справа внизу. Оба
+      // нижних угла карты заняты — слева переключатель «карта / список», справа кнопка
+      // геопозиции, — и подпись OSM накрывала бы один из них (Desktop C).
       attributionControl: false,
     })
-    instance.addControl(new AttributionControl({ compact: true }), 'bottom-left')
+    instance.addControl(new AttributionControl({ compact: true }), 'top-right')
     instance.touchZoomRotate.disableRotation()
     map.current = instance
 
