@@ -1,5 +1,5 @@
 import type { ReportMapPoint, ReportStatus } from '@ravonroad/shared-types'
-import { GeoJSONSource, Map as MapLibreMap, Marker } from 'maplibre-gl'
+import { AttributionControl, GeoJSONSource, Map as MapLibreMap, Marker } from 'maplibre-gl'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { formatNumber } from '../../shared/format/number'
@@ -158,8 +158,11 @@ export default function ReportMap({
       // Поворот выключен: заявкам он ничего не даёт, а вернуть карту на север
       // без компаса житель уже не сможет.
       dragRotate: false,
-      attributionControl: { compact: true },
+      // Свой контрол вместо встроенного: встроенный жёстко живёт справа внизу, а там
+      // на полосе главной стоит вход в список — и подпись OSM накрывала его целиком.
+      attributionControl: false,
     })
+    instance.addControl(new AttributionControl({ compact: true }), 'bottom-left')
     instance.touchZoomRotate.disableRotation()
     map.current = instance
 
@@ -321,8 +324,10 @@ export default function ReportMap({
                   а не сообщает их состояние. Смесь статусов внутри одним цветом
                   не описывается, и попытка описать её врала бы. */}
               <span
-                className="t-label grid h-[var(--cluster-size)] min-w-[var(--cluster-size)] place-items-center rounded-[var(--r-pill)] bg-[var(--asphalt-700)] px-[var(--s-2)] text-[var(--asphalt-0)] tabular-nums shadow-[var(--e-pin)]"
-                style={{ border: 'var(--pin-border)' }}
+                // Кластер инвертируется вместе с подложкой: на тёмной карте он светлый,
+                // на светлой тёмный. Обводка берёт цвет страницы, а не белый: белое
+                // кольцо вокруг белого кружка на тёмной карте не читается.
+                className="t-label grid h-[var(--cluster-size)] min-w-[var(--cluster-size)] place-items-center rounded-[var(--r-pill)] border-2 border-[var(--surface-page)] bg-[var(--text-1)] px-[var(--s-2)] text-[var(--surface-page)] tabular-nums shadow-[var(--e-pin)]"
               >
                 {formatNumber(entry.count)}
               </span>

@@ -20,7 +20,10 @@ export function HomePage() {
           во всю высоту экрана. Порядок задан `order`, а не второй разметкой:
           два дерева разъехались бы на первой же правке. */}
       <div className="relative order-2 lg:order-1 lg:sticky lg:top-[var(--s-4)]">
-        <PublicMap className="h-[196px] lg:h-[calc(100dvh-160px)] lg:min-h-[420px] lg:rounded-[var(--r-4)] lg:border lg:border-[var(--border-1)]" />
+        <PublicMap
+          locate={false}
+          className="h-[196px] lg:h-[calc(100dvh-160px)] lg:min-h-[420px] lg:rounded-[var(--r-4)] lg:border lg:border-[var(--border-1)]"
+        />
         {/* Полоса карты на телефоне — не рабочая карта, а приглашение: разглядывать
             яму на 196 px нельзя, и рядом стоит вход туда, где можно. */}
         <Link
@@ -42,7 +45,7 @@ export function HomePage() {
                 токен несёт оба варианта, поэтому строка здесь одна. `box-decoration-break`
                 нужен для узбекского — он длиннее и переносится на две строки, а подложка
                 обязана обнять обе. */}
-            <span className="box-decoration-clone inline bg-[var(--hero-accent-bg)] px-[var(--s-1)] text-[var(--hero-accent-ink)]">
+            <span className="box-decoration-clone inline bg-[var(--hero-accent-bg)] px-[var(--hero-accent-pad)] text-[var(--hero-accent-ink)]">
               {t('home.titlePromise')}
             </span>
           </h1>

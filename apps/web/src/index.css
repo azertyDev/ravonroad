@@ -33,6 +33,16 @@
   letter-spacing: var(--t-h1-tracking);
 }
 
+.t-h2 {
+  font: var(--t-h2);
+  letter-spacing: var(--t-h2-tracking);
+}
+
+.t-h3 { font: var(--t-h3); }
+
+/* Тот же кегль, что у body. Класс всё равно нужен: внутри блока, который задал
+   свой шрифт, — плашки, заголовка, кнопки — наследование даёт не его. */
+.t-body { font: var(--t-body); }
 .t-body-l { font: var(--t-body-l); }
 .t-caption { font: var(--t-caption); }
 

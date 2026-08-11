@@ -114,6 +114,9 @@
      исчезает. Приём тот же, носитель другой (Home C › «Жёлтая подложка»). */
   --hero-accent-bg: var(--signal-500);
   --hero-accent-ink: var(--asphalt-950);
+  /* Поле подложки — часть приёма, а не отступ строки: на тёмной теме подложки нет,
+     и те же 4 px сдвинули бы жёлтую строку относительно белой над ней. */
+  --hero-accent-pad: var(--s-1);
   --accent-hover: #FFE84D;
   --accent-press: var(--signal-600);
   --focus-ring: var(--asphalt-950);
@@ -150,6 +153,7 @@
     --text-accent: var(--signal-500);
     --hero-accent-bg: transparent;
     --hero-accent-ink: var(--signal-500);
+    --hero-accent-pad: 0px;
 
     --status-new-tint: #3A1128;      --status-new-ink: #F7A9CF;      --status-new-line: #6B2249;
     --status-accepted-tint: #3A1D0A; --status-accepted-ink: #FFBE93; --status-accepted-line: #6E3A16;
@@ -182,6 +186,7 @@
   --text-accent: var(--signal-500);
   --hero-accent-bg: transparent;
   --hero-accent-ink: var(--signal-500);
+  --hero-accent-pad: 0px;
 
   --status-new-tint: #3A1128;      --status-new-ink: #F7A9CF;      --status-new-line: #6B2249;
   --status-accepted-tint: #3A1D0A; --status-accepted-ink: #FFBE93; --status-accepted-line: #6E3A16;

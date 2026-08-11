@@ -40,6 +40,9 @@ interface PublicMapProps {
   /** Размер и кромка задаются снаружи: на главной карта — полоса во всю ширину экрана,
    *  в списке — рабочее поле в рамке, на ноутбуке — колонка во всю высоту. */
   className?: string
+  /** «Моё местоположение». На полосе главной его нет: на 196 пикселях высоты ехать
+   *  некуда, а кнопка там занимает четверть карты и наезжает на вход в список. */
+  locate?: boolean
 }
 
 const DEFAULT_SHAPE = 'h-[60vh] min-h-[320px] rounded-[var(--r-3)] border border-[var(--border-1)]'
@@ -48,6 +51,7 @@ export function PublicMap({
   filters = EMPTY_FILTERS,
   focus: requested = null,
   className = DEFAULT_SHAPE,
+  locate = true,
 }: PublicMapProps = {}) {
   const { t } = useI18n()
   const [bbox, setBbox] = useState(CITY_BBOX)
@@ -121,7 +125,7 @@ export function PublicMap({
         )}
       </div>
 
-      {hasArchive && (
+      {hasArchive && locate && (
         <div className="absolute bottom-[var(--s-3)] left-[var(--s-3)]">
           <LocateButton onLocated={setFocus} />
         </div>
