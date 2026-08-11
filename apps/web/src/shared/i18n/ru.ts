@@ -14,6 +14,10 @@ export const ruUi: Record<UiKey, string> = {
   'home.repairedLabel': 'Отремонтировано ям',
   'home.goalLabel': 'Цель кампании',
   'home.goalShort': 'Цель',
+  // Существительное без числительного: «районов» вранёт на «1», «района» на «11».
+  'home.lastWeek': 'За неделю',
+  'home.queued': 'В очереди',
+  'home.districts': 'Районы',
   'footer.contact': 'Связаться с кампанией',
   'footer.volunteers': 'Проект ведут волонтёры.',
   'home.cta': 'Сообщить о яме',
