@@ -68,6 +68,9 @@
   --text-3: var(--asphalt-500);
   --text-3-sunken: var(--asphalt-600);
   --text-on-accent: var(--asphalt-950);
+  /* Жёлтый как ТЕКСТ, а не как поле: signal-500 на светлом фоне даёт 1.3:1 и читается
+     только на тёмном. Для светлой темы палитра держит затемнённый signal-700 (4.6:1). */
+  --text-accent: var(--signal-700);
   --surface-page: var(--asphalt-50);
   --surface-card: #FFFFFF;
   --surface-sunken: #F8F9FB;
@@ -105,6 +108,7 @@
     --border-2: var(--asphalt-700);
     --border-strong: var(--asphalt-0);
     --focus-ring: var(--asphalt-0);
+    --text-accent: var(--signal-500);
 
     --status-new-tint: #3A1128;      --status-new-ink: #F7A9CF;      --status-new-line: #6B2249;
     --status-accepted-tint: #3A1D0A; --status-accepted-ink: #FFBE93; --status-accepted-line: #6E3A16;
@@ -131,6 +135,7 @@
   --border-2: var(--asphalt-700);
   --border-strong: var(--asphalt-0);
   --focus-ring: var(--asphalt-0);
+  --text-accent: var(--signal-500);
 
   --status-new-tint: #3A1128;      --status-new-ink: #F7A9CF;      --status-new-line: #6B2249;
   --status-accepted-tint: #3A1D0A; --status-accepted-ink: #FFBE93; --status-accepted-line: #6E3A16;

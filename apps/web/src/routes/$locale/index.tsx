@@ -7,9 +7,14 @@ export function HomePage() {
 
   return (
     <div className="flex flex-col gap-[var(--block-gap)]">
-      <div className="flex flex-col gap-[var(--s-3)]">
-        <h1 className="t-display">{t('home.title')}</h1>
-        <p className="t-body-l text-[var(--text-2)]">{t('home.lead')}</p>
+      {/* Заголовок разбит на две строки блочными span'ами, а не жёстким <br>: перенос
+          в макете расставлен под 390 px и под узбекский, а русская строка короче. */}
+      <div className="flex flex-col gap-[var(--s-3)] px-[var(--gutter)]">
+        <h1 className="t-display uppercase">
+          <span className="block">{t('home.titleAction')}</span>
+          <span className="block text-[var(--text-accent)]">{t('home.titlePromise')}</span>
+        </h1>
+        <p className="t-body text-[var(--text-2)]">{t('home.lead')}</p>
       </div>
 
       <CampaignCounter />

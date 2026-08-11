@@ -8,10 +8,14 @@ export const uzUi = {
   'header.localeNavLabel': 'Sayt tili',
   'locale.uz': 'Oʻzbekcha',
   'locale.ru': 'Русский',
-  'home.title': 'Toshkent yoʻllaridagi chuqurlar',
-  'home.lead': 'Chuqur haqida xabar bering — brigada uni oʻzi taʼmirlaydi.',
+  // Заголовок главной набирается в две строки: действие жителя и обещание бригады.
+  // Вторая строка выделена цветом, поэтому это два ключа, а не один с разметкой внутри.
+  'home.titleAction': 'Chuqurni belgilang.',
+  'home.titlePromise': 'Brigada tuzatadi.',
+  'home.lead': 'Davlat organlari ishtirok etmaydi. Faqat siz va volontyorlar.',
   'home.repairedLabel': 'Taʼmirlangan chuqurlar',
   'home.goalLabel': 'Kampaniya maqsadi',
+  'home.goalShort': 'Maqsad',
   'footer.contact': 'Kampaniya bilan bogʻlanish',
   'state.loading': 'Yuklanmoqda…',
   'state.errorTitle': 'Nimadir xato ketdi',

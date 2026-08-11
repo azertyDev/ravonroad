@@ -46,6 +46,13 @@
   text-transform: uppercase;
 }
 
+/* Плашка: капслок кеглем 13 — статусы, подписи шкалы, компактные кнопки. */
+.t-chip {
+  font: var(--t-chip);
+  letter-spacing: var(--t-chip-tracking);
+  text-transform: uppercase;
+}
+
 .t-counter {
   font: var(--t-counter);
   letter-spacing: var(--t-counter-tracking);

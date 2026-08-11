@@ -48,7 +48,7 @@ export function ReportDetailPage() {
   if (detail.data === undefined) return <LoadingState />
 
   return (
-    <article className="flex flex-col gap-[var(--block-gap)]">
+    <article className="flex flex-col gap-[var(--block-gap)] px-[var(--gutter)]">
       <h1 className="t-display">
         {t('report.title')} {detail.data.displayNumber}
       </h1>

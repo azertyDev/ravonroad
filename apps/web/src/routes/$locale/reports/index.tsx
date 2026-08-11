@@ -56,7 +56,7 @@ export function ReportListPage() {
   ].filter((value): value is string => value !== null && value !== undefined)
 
   return (
-    <div className="flex flex-col gap-[var(--block-gap)]">
+    <div className="flex flex-col gap-[var(--block-gap)] px-[var(--gutter)]">
       <h1 className="t-display">{t('list.title')}</h1>
 
       <ReportFilters

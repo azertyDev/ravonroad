@@ -7,5 +7,9 @@ import { ReportForm } from '../../features/report-form/ReportForm'
 export function NewReportPage() {
   const [created, setCreated] = useState<CreateReportResponse | null>(null)
 
-  return created === null ? <ReportForm onCreated={setCreated} /> : <Confirmation report={created} />
+  return (
+    <div className="px-[var(--gutter)]">
+      {created === null ? <ReportForm onCreated={setCreated} /> : <Confirmation report={created} />}
+    </div>
+  )
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatNumber } from './number'
+import { formatNumber, formatPercent } from './number'
 
 const THIN_SPACE = ' '
 const NBSP = ' '
@@ -28,5 +28,29 @@ describe('formatNumber', () => {
   it('сохраняет знак и отбрасывает дробную часть', () => {
     expect(formatNumber(-10000)).toBe(`-10${THIN_SPACE}000`)
     expect(formatNumber(10000.9)).toBe(`10${THIN_SPACE}000`)
+  })
+})
+
+describe('formatPercent', () => {
+  it('разделяет дробную часть по правилам языка', () => {
+    expect(formatPercent(0.3471, 'ru')).toBe('34,7%')
+    expect(formatPercent(0.3471, 'uz')).toBe('34.7%')
+  })
+
+  it('совпадает с числами счётчика: 3471 из 10 000 — это 34,7%', () => {
+    // Шкала на главной заполняется этой же долей. Разъехавшись с цифрами над ней,
+    // она читается как обман, поэтому пара проверяется вместе.
+    expect(formatPercent(3471 / 10000, 'ru')).toBe('34,7%')
+  })
+
+  it('держит одну десятую даже там, где её не видно', () => {
+    expect(formatPercent(0, 'ru')).toBe('0,0%')
+    expect(formatPercent(1, 'ru')).toBe('100,0%')
+    expect(formatPercent(0.5, 'uz')).toBe('50.0%')
+  })
+
+  it('округляет до десятой, а не отбрасывает', () => {
+    expect(formatPercent(0.34675, 'uz')).toBe('34.7%')
+    expect(formatPercent(0.00004, 'uz')).toBe('0.0%')
   })
 })

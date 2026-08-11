@@ -68,7 +68,7 @@ export function TrackPage() {
   const report = view.data
 
   return (
-    <article className="flex flex-col gap-[var(--block-gap)]">
+    <article className="flex flex-col gap-[var(--block-gap)] px-[var(--gutter)]">
       <h1 className="t-display">
         {t('track.title')} {report.displayNumber}
       </h1>
