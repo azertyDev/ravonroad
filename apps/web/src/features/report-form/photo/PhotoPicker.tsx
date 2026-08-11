@@ -44,6 +44,7 @@ export function PhotoPicker({ photos, onChange, error }: PhotoPickerProps) {
   const { t } = useI18n()
   const fieldId = useId()
   const [busy, setBusy] = useState(false)
+  const [dragging, setDragging] = useState(false)
   const [messages, setMessages] = useState<string[]>([])
 
   // Ссылки на превью держатся ровно столько, сколько живут сами фотографии:
@@ -88,6 +89,22 @@ export function PhotoPicker({ photos, onChange, error }: PhotoPickerProps) {
         />
       </legend>
 
+      {/* Перетаскивание — путь ноутбука: снимок уже лежит в папке, и открывать ради него
+          системный выбор незачем. Он не заменяет кнопку, а стоит рядом с ней: на телефоне
+          перетаскивать нечем, и «выберите файл» обязано остаться (Desktop C › «Surat»). */}
+      <div
+        onDragOver={(event) => {
+          event.preventDefault()
+          setDragging(true)
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(event) => {
+          event.preventDefault()
+          setDragging(false)
+          void accept(event.dataTransfer.files)
+        }}
+        className={dragging ? 'rounded-[var(--r-4)] outline-2 outline-dashed outline-[var(--accent)]' : ''}
+      >
       {photos.length === 0 ? (
         <label htmlFor={inputId} className={`${TILE} min-h-[128px] gap-[var(--s-3)] rounded-[var(--r-4)] p-[var(--s-4)]`}>
           <span className="grid h-[48px] w-[48px] place-items-center rounded-[var(--r-4)] bg-[var(--accent)] text-[var(--text-on-accent)]">
@@ -118,19 +135,38 @@ export function PhotoPicker({ photos, onChange, error }: PhotoPickerProps) {
               </span>
             </li>
           ))}
-          {!full && (
+          {/* Снимок в обработке занимает своё место в ряду, а не прячется до готовности:
+              иначе плитки прыгают, а житель не знает, взяли его файл или нет. Доли
+              процента здесь нет и не будет — сжатие идёт одним проходом, и рисовать
+              шкалу было бы враньём. */}
+          {busy && (
+            <li className="grid aspect-[3/4] place-items-center rounded-[var(--r-4)] bg-[var(--surface-sunken)]">
+              <span
+                aria-hidden="true"
+                className="h-[24px] w-[24px] animate-[rr-spin_.8s_linear_infinite] rounded-[var(--r-pill)] border-[3px] border-[var(--border-2)] border-t-[var(--accent)]"
+              />
+            </li>
+          )}
+          {!full && !busy && (
             <li className="contents">
               <label
                 htmlFor={inputId}
                 aria-disabled={busy}
                 className={`${TILE} aspect-[3/4] rounded-[var(--r-4)]`}
               >
-                <Glyph name="plus" size={18} label={busy ? t('form.photos.working') : t('form.photos.add')} />
+                <Glyph name="plus" size={18} label={t('form.photos.add')} />
               </label>
             </li>
           )}
         </ul>
       )}
+
+      {/* Подсказка стоит под сеткой всегда, а не только на пустой форме: ограничение
+          по размеру и формату нужно знать перед вторым снимком так же, как перед первым. */}
+      <p className="t-caption text-[var(--text-2)]">
+        {t('form.photos.drop')} · {t('form.photos.formats')}
+      </p>
+      </div>
 
       <input
         id={inputId}
