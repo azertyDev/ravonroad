@@ -52,7 +52,13 @@ export class AlertsService implements OnModuleInit, OnModuleDestroy {
     private readonly bot: BotApiClient,
     private readonly webhook: WebhookHealthService,
   ) {
-    this.chatId = config.get<string>('TELEGRAM_ALERT_CHAT_ID') ?? null
+    // compose передаёт переменную как `${TELEGRAM_ALERT_CHAT_ID:-}`, поэтому «не задана»
+    // приходит пустой строкой, а не undefined. Без этой проверки сервис считал бы себя
+    // настроенным и раз в пять минут слал алерты в чат с пустым идентификатором —
+    // проверено на стенде: строки `alerts_disabled` в логе не было, хотя переменной
+    // в `.env` нет.
+    const chatId = config.get<string>('TELEGRAM_ALERT_CHAT_ID')?.trim()
+    this.chatId = chatId === undefined || chatId === '' ? null : chatId
   }
 
   onModuleInit(): void {
@@ -78,6 +84,8 @@ export class AlertsService implements OnModuleInit, OnModuleDestroy {
   /** Один проход проверки. Публичный и с явным `now`, потому что дедупликация проверяется
    *  подменой времени: ждать час в тесте значило бы не проверять её вовсе. */
   async check(now: number = Date.now()): Promise<Alert[]> {
+    // Канала нет — и проверять нечего: возвращается то, что **отправлено**.
+    if (this.chatId === null) return []
     const alerts = [...(await this.databaseAlerts()), ...(await this.telegramAlerts())]
     const due = alerts.filter((alert) => {
       const last = this.sentAt.get(alert.condition)

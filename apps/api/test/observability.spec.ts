@@ -46,10 +46,16 @@ afterAll(async () => {
   await prisma.$disconnect()
 })
 
-function alertsService(): AlertsService {
+function alertsService(alertChatId: string = ALERT_CHAT_ID): AlertsService {
   const config = new ConfigService()
   const bot = new BotApiClient(config)
-  return new AlertsService(config, prisma, bot, new WebhookHealthService(config, bot))
+  // Значение подменяется здесь, а не в process.env: BotApiClient читает окружение
+  // в конструкторе, и подмена после сборки клиента ни на что бы не влияла.
+  const withChat = {
+    get: (key: string) => (key === 'TELEGRAM_ALERT_CHAT_ID' ? alertChatId : config.get(key)),
+    getOrThrow: (key: string) => config.getOrThrow(key),
+  } as unknown as ConfigService
+  return new AlertsService(withChat, prisma, bot, new WebhookHealthService(config, bot))
 }
 
 describe('queue_depth — три глубины и провалы (SRS §10.3)', () => {
@@ -159,6 +165,23 @@ describe('Алерты координатору (SRS §10.4)', () => {
     // Час прошёл — поломка всё ещё здесь, и напомнить о ней надо.
     await alerts.check(start + HOUR_MS)
     expect(telegram.of('sendMessage')).toHaveLength(2)
+  })
+
+  it('считает пустой TELEGRAM_ALERT_CHAT_ID незаданным', async () => {
+    // compose передаёт переменную как `${VAR:-}`, и «не задана» приходит пустой строкой.
+    // Сервис, считающий себя настроенным, слал бы алерты в чат с пустым идентификатором.
+    await prisma.reportPhoto.create({
+      data: {
+        reportId: (await seedReport(prisma)).id,
+        kind: 'BEFORE',
+        sortOrder: 0,
+        state: 'FAILED',
+        rawKey: 'incoming/dead',
+      },
+    })
+
+    expect(await alertsService('').check()).toEqual([])
+    expect(telegram.of('sendMessage')).toHaveLength(0)
   })
 
   it('молчит, когда всё в порядке', async () => {
