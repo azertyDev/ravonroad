@@ -1,3 +1,4 @@
+import { PUBLIC_STATUSES, type PublicStatus } from '@ravonroad/shared-types'
 import type { FilterableReport } from '../reports/filters'
 
 /** «За неделю» — семь суток назад от момента снимка, а не «с понедельника»: неделя
@@ -9,6 +10,14 @@ export interface CampaignSummary {
   doneLastWeek: number
   queued: number
   districts: number
+  /** Сколько заявок в каждом публичном статусе. Ими подписаны чипы фильтров и список
+   *  «Holatlar» на главной: житель видит не только цель кампании, но и что происходит
+   *  прямо сейчас. Статусы, которых нет ни у одной заявки, приходят нулями, а не
+   *  отсутствуют, — иначе клиенту пришлось бы гадать, ноль это или сервер старше. */
+  byStatus: Record<PublicStatus, number>
+  /** Заявки по районам: подпись «Mirzo Ulugʻbek tumani · 412 ta» над картой. Ключ —
+   *  код района, названия живут в словарях клиента (SRS §8.2). */
+  byDistrict: Record<string, number>
 }
 
 /** Числа плаката на главной. Считаются одним проходом по тому же снимку, из которого
@@ -22,6 +31,10 @@ export interface CampaignSummary {
  *  и `IN_PROGRESS` уже разобраны и в очереди не стоят. */
 export function summarize(rows: readonly FilterableReport[], now: number): CampaignSummary {
   const since = now - WEEK_MS
+  // Все публичные статусы объявлены нулями заранее: отсутствующий ключ клиент не отличит
+  // от «ещё не приехало», и чип фильтра остался бы без числа.
+  const byStatus = Object.fromEntries(PUBLIC_STATUSES.map((status) => [status, 0])) as Record<PublicStatus, number>
+  const byDistrict: Record<string, number> = {}
   const districts = new Set<string>()
   let done = 0
   let doneLastWeek = 0
@@ -29,6 +42,8 @@ export function summarize(rows: readonly FilterableReport[], now: number): Campa
 
   for (const row of rows) {
     districts.add(row.districtCode)
+    byStatus[row.status] += 1
+    byDistrict[row.districtCode] = (byDistrict[row.districtCode] ?? 0) + 1
     if (row.status === 'NEW') queued += 1
     if (row.status !== 'DONE') continue
     done += 1
@@ -37,5 +52,5 @@ export function summarize(rows: readonly FilterableReport[], now: number): Campa
     if (row.doneAt !== null && row.doneAt.getTime() >= since) doneLastWeek += 1
   }
 
-  return { done, doneLastWeek, queued, districts: districts.size }
+  return { done, doneLastWeek, queued, districts: districts.size, byStatus, byDistrict }
 }

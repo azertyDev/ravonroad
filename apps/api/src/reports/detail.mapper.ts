@@ -53,7 +53,14 @@ export interface DetailRow {
   history: HistoryRow[]
 }
 
-export function mapDetail(report: DetailRow, publicUrl: (key: string) => string): ReportDetail {
+/** `nearby` приходит снаружи, а не считается здесь: список соседей берётся из снимка
+ *  точек, которого у страницы отслеживания нет и не должно быть — там показывается одна
+ *  заявка по ссылке, а не окрестности (SRS §4.5). */
+export function mapDetail(
+  report: DetailRow,
+  publicUrl: (key: string) => string,
+  nearby: ReportDetail['nearby'] = [],
+): ReportDetail {
   // Фото не в `READY` в ответе отсутствуют: ключа у них ещё нет, и ссылка вела бы
   // в пустоту. Что они появятся, сообщает `photosPending` (SRS §4.4).
   // Порядок задаётся здесь, а не в запросе: строк на заявку не больше шести,
@@ -92,5 +99,6 @@ export function mapDetail(report: DetailRow, publicUrl: (key: string) => string)
     publicationUrl: report.publicationUrl,
     createdAt: report.createdAt.toISOString(),
     doneAt: report.doneAt === null ? null : report.doneAt.toISOString(),
+    nearby,
   }
 }

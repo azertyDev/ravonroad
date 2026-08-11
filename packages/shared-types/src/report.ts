@@ -178,4 +178,18 @@ export interface ReportDetail {
   publicationUrl: string | null
   createdAt: string
   doneAt: string | null
+  /** Соседние заявки в радиусе трёх километров, ближайшие первыми — список
+   *  «Yaqin atrofda» на странице заявки. На странице отслеживания по личной ссылке
+   *  список пуст: там показывается одна заявка, а не окрестности (SRS §4.5). */
+  nearby: NearbyReport[]
+}
+
+/** Соседняя заявка: номер, статус, район и расстояние по прямой в метрах.
+ *  Адреса здесь нет и быть не может — геокодер не используется, адреса не хранятся
+ *  (ADR-0004). Человек узнаёт место по ориентиру, который увидит, открыв заявку. */
+export interface NearbyReport {
+  number: number
+  status: PublicStatus
+  districtCode: string
+  distanceM: number
 }
