@@ -5,6 +5,16 @@ name: build
 on:
   push:
     branches: [dev]
+  # Сборка произвольной ветки. Нужна не разово: доказательство иногда живёт внутри
+  # образа (логи api, маршруты nginx), а `docker build` на серверах запрещён —
+  # e2-micro упирается в память и в 0,25 vCPU baseline (SRS §12.2 п.1). Собранный тег
+  # выкатывается штатным `deploy-dev` и так же штатно откатывается обратно на dev.
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: ветка или sha, образы которых собрать
+        required: false
+        default: dev
 
 permissions:
   contents: read
@@ -24,6 +34,13 @@ jobs:
             dockerfile: Dockerfile.migrate
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      # Тег образа — sha того, что реально собрано. При ручном запуске `github.sha`
+      # указывает на ветку запуска, а не на то, что положил checkout.
+      - id: sha
+        run: echo "value=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       # GHCR принимает только строчные имена, а владелец репозитория пишется смешанным.
       - id: name
@@ -56,8 +73,10 @@ jobs:
             VITE_MAP_PMTILES_URL=${{ vars.VITE_MAP_PMTILES_URL || 'https://storage.googleapis.com/ravonroad-dev-photos/map/tashkent-20260810.pmtiles' }}
             VITE_CAMPAIGN_CONTACT_URL=${{ vars.VITE_CAMPAIGN_CONTACT_URL }}
           push: true
+          # Плавающий тег `dev` двигается только сборкой dev: иначе он однажды указал бы
+          # на ветку, и «что развёрнуто» перестало бы читаться по имени образа.
           tags: |
-            ghcr.io/${{ steps.name.outputs.repo }}-${{ matrix.name }}:dev
-            ghcr.io/${{ steps.name.outputs.repo }}-${{ matrix.name }}:${{ github.sha }}
+            ghcr.io/${{ steps.name.outputs.repo }}-${{ matrix.name }}:${{ steps.sha.outputs.value }}
+            ${{ (inputs.ref || 'dev') == 'dev' && format('ghcr.io/{0}-{1}:dev', steps.name.outputs.repo, matrix.name) || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
