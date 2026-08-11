@@ -15,9 +15,21 @@ export interface ReportSearch {
   from?: string
   to?: string
   dateField?: 'done'
+  /** Куда навести карту при открытии — не фильтр, а прицел: «показать на карте»
+   *  со страницы заявки (Desktop C › экран 3). В набор заявок не входит и в `toFilters`
+   *  не попадает, поэтому смена фильтра его не сохраняет: человек уже посмотрел. */
+  lat?: number
+  lon?: number
 }
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/
+
+/** Координата из адреса: только конечное число в пределах круга. Мусор отбрасывается
+ *  молча — карта откроется на городе, а не на ошибке. */
+function degrees(value: unknown, limit: number): number | undefined {
+  const parsed = typeof value === 'number' ? value : Number(text(value))
+  return Number.isFinite(parsed) && Math.abs(parsed) <= limit ? parsed : undefined
+}
 
 function text(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined
@@ -45,6 +57,10 @@ export function validateReportSearch(raw: Record<string, unknown>): ReportSearch
     // Единственное непустое значение поля даты: `created` — умолчание, и держать его
     // в адресе значит только удлинять ссылку.
     ...(text(raw['dateField']) === 'done' ? { dateField: 'done' as const } : {}),
+    // Половина прицела бесполезна: без второй координаты наводить карту не на что.
+    ...(degrees(raw['lat'], 90) === undefined || degrees(raw['lon'], 180) === undefined
+      ? {}
+      : { lat: degrees(raw['lat'], 90), lon: degrees(raw['lon'], 180) }),
   }
 }
 

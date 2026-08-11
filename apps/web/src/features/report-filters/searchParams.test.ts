@@ -28,6 +28,14 @@ describe('фильтры в адресе', () => {
     expect(isEmptyFilters(toFilters(validateReportSearch({ district: 'yunusobod' })))).toBe(false)
   })
 
+  it('берёт прицел карты только парой координат', () => {
+    expect(validateReportSearch({ lat: '41.31', lon: '69.28' })).toEqual({ lat: 41.31, lon: 69.28 })
+    expect(validateReportSearch({ lat: '41.31' })).toEqual({})
+    expect(validateReportSearch({ lat: 'сюда', lon: '69.28' })).toEqual({})
+    // Прицел — не фильтр: в набор заявок он не входит и на кнопке «Фильтры» не считается.
+    expect(countFilters(toFilters(validateReportSearch({ lat: 41.31, lon: 69.28 })))).toBe(0)
+  })
+
   it('считает каждый статус отдельно — их и снимают по одному', () => {
     expect(countFilters(toFilters(validateReportSearch({})))).toBe(0)
     // Поле даты в счёт не идёт: без самих дат оно ничего не отбирает.

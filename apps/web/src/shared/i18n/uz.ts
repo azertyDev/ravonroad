@@ -99,9 +99,11 @@ export const uzUi = {
   'report.photoAfterPending': 'Keyin surati kutilmoqda',
   'report.showOnMap': 'Xaritada koʻrsatish',
   'report.copyLink': 'Havolani nusxalash',
+  'report.newReport': 'Yangi ariza',
   'report.copied': 'Nusxalandi',
   'report.trackHint': 'Kuzatish faqat shu havola bilan',
   'report.source': 'saytdan',
+  'report.campaign': 'Kampaniya',
   'report.campaignLine': 'Bu chuqur 10 000 dan biri',
   // Пояснение к статусу пишется только там, где его написал дизайнер: выдумывать
   // обещания бригады на публичном сайте нельзя.

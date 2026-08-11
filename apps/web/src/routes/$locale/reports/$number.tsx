@@ -8,7 +8,7 @@ import { useI18n } from '../../../shared/i18n/useI18n'
 import { useOnline } from '../../../shared/lib/useOnline'
 import { ActionBar } from '../../../shared/ui/control/ActionBar'
 import { ShareButton } from '../../../shared/ui/control/ShareButton'
-import { CTA, GUTTER, SECONDARY } from '../../../shared/ui/control/styles'
+import { COMPACT, COMPACT_ACCENT, CTA, GUTTER, SECONDARY } from '../../../shared/ui/control/styles'
 import { Glyph } from '../../../shared/ui/icon/Glyph'
 import { PageHead } from '../../../shared/ui/layout/PageHead'
 import { ErrorScreen } from '../../../shared/ui/state/ErrorScreen'
@@ -81,12 +81,42 @@ export function ReportDetailPage() {
 
   const report = detail.data
 
+  const copy = (): void => {
+    void navigator.clipboard.writeText(globalThis.location.href).then(
+      () => setCopied(true),
+      // Буфер недоступен без https и в части браузеров: адрес остаётся
+      // в строке браузера, и скопировать его можно оттуда.
+      () => undefined,
+    )
+  }
+
   return (
-    // Ноутбук: карточку держит колонка 820 px по центру, а не вся ширина main.
-    // Правой колонки из макета здесь нет — она уносит историю и полосу кампании,
-    // а ради этого пришлось бы разрезать ReportSummary, общий с /z/<token>.
-    <article className="flex flex-1 flex-col lg:mx-auto lg:w-full lg:max-w-[820px]">
-      <PageHead title={report.displayNumber} action={<ShareButton title={report.displayNumber} />} />
+    // Ноутбук: карточка заявки и колонка «где это» стоят в колонке 1120 px по центру,
+    // а не во всю ширину карточки экрана (Desktop C › экран 3).
+    <article className="flex flex-1 flex-col lg:mx-auto lg:w-full lg:max-w-[1120px]">
+      {/* Номер и действия в одной строке: на телефоне «поделиться» системным листом,
+          на ноутбуке — копирование ссылки и новая заявка, как в макете. Лист там
+          не открывается, а копирование в шапке заменяет нижнюю панель. */}
+      <PageHead
+        title={report.displayNumber}
+        action={
+          <>
+            <span className="lg:hidden">
+              <ShareButton title={report.displayNumber} />
+            </span>
+            <span className="hidden gap-[var(--s-2)] lg:flex">
+              <button type="button" onClick={copy} className={COMPACT}>
+                <Glyph name="copy" size={14} />
+                {copied ? t('report.copied') : t('report.copyLink')}
+              </button>
+              <Link to="/$locale/new" params={{ locale }} className={COMPACT_ACCENT}>
+                <Glyph name="plus" size={14} />
+                {t('report.newReport')}
+              </Link>
+            </span>
+          </>
+        }
+      />
 
       {/* Связи нет, а страница уже приехала: показанное — сохранённая версия, а не
           свежая. Молчать об этом нельзя, но и ошибкой это не является. */}
@@ -94,21 +124,12 @@ export function ReportDetailPage() {
 
       <ReportSummary report={report} />
 
-      {/* Без подписи: «проект ведут волонтёры» уже стоит в подвале страницей ниже,
+      {/* Нижняя панель — только на телефоне: на ноутбуке те же действия стоят в строке
+          с номером, а «показать на карте» — под мини-картой в правой колонке.
+          Без подписи: «проект ведут волонтёры» уже стоит в подвале страницей ниже,
           и второй раз подряд эта строка читается как сбой вёрстки, а не как строка. */}
-      <ActionBar>
-        <button
-          type="button"
-          className={CTA}
-          onClick={() => {
-            void navigator.clipboard.writeText(globalThis.location.href).then(
-              () => setCopied(true),
-              // Буфер недоступен без https и в части браузеров: адрес остаётся
-              // в строке браузера, и скопировать его можно оттуда.
-              () => undefined,
-            )
-          }}
-        >
+      <ActionBar className="lg:hidden">
+        <button type="button" className={CTA} onClick={copy}>
           <Glyph name="copy" size={18} />
           {copied ? t('report.copied') : t('report.copyLink')}
         </button>

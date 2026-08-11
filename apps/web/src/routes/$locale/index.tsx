@@ -6,6 +6,7 @@ import type { ReportFilters as Filters } from '../../entities/report/api'
 import { MapToolbar } from '../../features/report-filters/MapToolbar'
 import { ReportFilters } from '../../features/report-filters/ReportFilters'
 import { toFilters, toSearch, validateReportSearch } from '../../features/report-filters/searchParams'
+import { around } from '../../features/report-map/bbox'
 import { PublicMap } from '../../features/report-map/PublicMap'
 import { CampaignCounter } from '../../features/stats/CampaignCounter'
 import { LatestRepaired } from '../../features/stats/LatestRepaired'
@@ -34,6 +35,12 @@ export function HomePage() {
   const filters = toFilters(search)
   const districts = useQuery({ queryKey: catalogKeys.districts, queryFn: fetchDistricts, staleTime: Infinity })
   const district = districts.data?.find((item) => item.code === filters.district)
+  // Прицел из адреса важнее района: по нему пришли со страницы заявки, чтобы увидеть
+  // именно её, а район в фильтре мог остаться с прошлого просмотра.
+  const focus =
+    search.lat !== undefined && search.lon !== undefined
+      ? around(search.lon, search.lat)
+      : (district?.bbox ?? null)
   // Цель указана явно, а не «сюда же»: фильтры меняют и с главной, и из-под формы,
   // а адрес среза всегда один — карта.
   const apply = (next: Filters): void =>
@@ -52,7 +59,7 @@ export function HomePage() {
         <div className="relative min-h-0 flex-1">
           <PublicMap
             filters={filters}
-            focus={district?.bbox ?? null}
+            focus={focus}
             locate="desktop"
             className="h-[196px] lg:h-full"
           />
