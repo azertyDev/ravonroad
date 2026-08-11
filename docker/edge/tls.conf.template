@@ -2,6 +2,9 @@
 # /docker-entrypoint.d/20-enable-tls.sh проверяет его наличие и копирует этот шаблон
 # в conf.d/tls/. Без сертификата nginx поднимается как раньше, по одному 80 порту,
 # и остаётся пригоден для ACME-проверки — курица и яйцо разведены именно так.
+#
+# Здесь только порт и сертификат. Всё остальное — в site.conf, общем с сервером 80:
+# копия маршрутов уже один раз разошлась с оригиналом и молча выключила микрокэш.
 
 server {
   listen 443 ssl;
@@ -14,49 +17,5 @@ server {
   ssl_session_timeout 1h;
   ssl_protocols       TLSv1.2 TLSv1.3;
 
-  include /etc/nginx/conf.d/security-headers.conf;
-
-  location /api/ {
-    proxy_pass http://api:3000;
-    proxy_http_version 1.1;
-    proxy_set_header Host              $host;
-    proxy_set_header X-Real-IP         $remote_addr;
-    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_read_timeout 30s;
-  }
-
-  location = /health {
-    proxy_pass http://api:3000;
-    proxy_http_version 1.1;
-    proxy_read_timeout 5s;
-  }
-
-  location = /ready {
-    proxy_pass http://api:3000;
-    proxy_http_version 1.1;
-    proxy_read_timeout 5s;
-  }
-
-  root /usr/share/nginx/html;
-  index index.html;
-
-  location /assets/ {
-    expires 1y;
-    add_header Cache-Control "public, immutable" always;
-    include /etc/nginx/conf.d/security-headers.conf;
-    try_files $uri =404;
-  }
-
-  location /fonts/ {
-    expires 1y;
-    add_header Cache-Control "public, immutable" always;
-    include /etc/nginx/conf.d/security-headers.conf;
-    try_files $uri =404;
-  }
-
-  location / {
-    expires -1;
-    try_files $uri $uri/ /index.html;
-  }
+  include /etc/nginx/site.conf;
 }

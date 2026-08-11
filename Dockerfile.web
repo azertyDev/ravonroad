@@ -25,6 +25,8 @@ COPY docker/edge/nginx.conf /etc/nginx/nginx.conf
 COPY docker/edge/security-headers.conf.template /etc/nginx/templates/security-headers.conf.template
 # TLS-конфиг лежит рядом, но не в conf.d: его включает 20-enable-tls.sh и только тогда,
 # когда сертификат уже есть. Иначе nginx падал бы на старте до первого выпуска.
+# Тело сайта общее для сервера 80 и сервера 443: маршруты и кэш обязаны совпадать.
+COPY docker/edge/site.conf /etc/nginx/site.conf
 COPY docker/edge/tls.conf.template /etc/nginx/tls-available/tls.conf.template
 COPY docker/edge/20-enable-tls.sh /docker-entrypoint.d/20-enable-tls.sh
 RUN chmod +x /docker-entrypoint.d/20-enable-tls.sh
