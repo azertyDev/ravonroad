@@ -44,7 +44,7 @@ export function MapToolbar({ filters, onChange, onOpen }: MapToolbarProps) {
         : { name: localizedName(district, locale), count: stats.data.byDistrict[district.code] ?? 0 }
 
   return (
-    <div className="flex flex-wrap items-center gap-[var(--s-2)] border-b border-[var(--border-1)] px-[var(--gutter)] py-[var(--s-3)]">
+    <div className="flex flex-wrap items-center gap-[var(--s-2)] border-b border-[var(--border-1)] px-[var(--gutter)] py-[var(--s-3)] lg:px-[var(--s-6)]">
       <button type="button" onClick={onOpen} className={COMPACT_ACCENT}>
         <Glyph name="filter" size={14} />
         {t('filters.open')}

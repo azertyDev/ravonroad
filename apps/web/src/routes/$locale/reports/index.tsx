@@ -77,7 +77,9 @@ export function ReportListPage() {
     // таблице целиком, и колонок больше нет — экран становится одним столбцом
     // (Desktop C › экран 1b).
     <div className="flex flex-1 flex-col">
-      <div className={`order-1 flex flex-col gap-[var(--s-4)] ${GUTTER} lg:gap-0 lg:px-0`}>
+      {/* Поле держат сами блоки: у заголовка своё, у строки фильтров своё — на обёртке
+          оно складывалось бы с ними вдвое. */}
+      <div className="order-1 flex flex-col gap-[var(--s-4)] lg:gap-0">
         <h1 className={`t-display uppercase lg:sr-only ${GUTTER} lg:px-0`}>{t('list.title')}</h1>
         <MapToolbar filters={filters} onChange={apply} onOpen={() => setFiltersOpen(true)} />
       </div>
