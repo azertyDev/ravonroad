@@ -18,8 +18,18 @@
 
 /* Шрифтовые шорткаты дизайн-системы. Раскладка — Tailwind, типографика — токены:
    иначе кегли и межстрочные разъезжаются по компонентам. */
-.t-display { font: var(--t-display); }
-.t-h1 { font: var(--t-h1); }
+/* Трекинг идёт рядом с `font`, а не внутри: шорткат его не переносит, а в плакатном
+   ключе заголовок без отрицательного трекинга выглядит разряженным. */
+.t-display {
+  font: var(--t-display);
+  letter-spacing: var(--t-display-tracking);
+}
+
+.t-h1 {
+  font: var(--t-h1);
+  letter-spacing: var(--t-h1-tracking);
+}
+
 .t-body-l { font: var(--t-body-l); }
 .t-caption { font: var(--t-caption); }
 
