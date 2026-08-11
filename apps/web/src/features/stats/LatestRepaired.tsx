@@ -6,6 +6,7 @@ import { repairDays } from '../../shared/format/date'
 import { formatNumber } from '../../shared/format/number'
 import { useI18n } from '../../shared/i18n/useI18n'
 import { PhotoPlate } from '../../shared/ui/media/PhotoPlate'
+import { latestRepairedView } from './latest'
 import { STATS_INTERVAL, useCampaignStats } from './useCampaignStats'
 
 /** Последняя закрытая заявка — та же выборка, что и число «отремонтировано». */
@@ -43,14 +44,11 @@ export function LatestRepaired() {
   })
 
   const report = detail.data
-  const before = report?.photos.find((photo) => photo.kind === 'BEFORE')
-  const after = report?.photos.find((photo) => photo.kind === 'AFTER')
-  // Без пары показывать нечего: одна плита «до» рядом с пустотой читается как
-  // недогруженная страница, а не как заявка, у которой ещё нет снимка «после».
-  const pair = before !== undefined && after !== undefined ? { before, after } : null
-  const week = stats.data?.doneLastWeek ?? 0
-
-  if (week === 0 && pair === null) return null
+  // Правила пустоты вынесены из разметки и проверяются тестом: на данных без
+  // фотографий блок обязан не занимать место, а не оставлять полполосы.
+  const view = latestRepairedView(stats.data?.doneLastWeek ?? 0, report?.photos ?? [])
+  if (view === null) return null
+  const { week, pair } = view
 
   const district = districts.data?.find((item) => item.code === report?.districtCode)
   const districtName = district === undefined ? null : localizedName(district, locale)
