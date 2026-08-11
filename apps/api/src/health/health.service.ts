@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { logEvent } from '../common/logger'
 import { PrismaService } from '../prisma/prisma.service'
 
 /** Таймаут SELECT 1 из SRS §10.1: зависшая БД обязана дать 503 за две секунды,
@@ -31,7 +32,10 @@ export class HealthService {
     try {
       await withTimeout(this.prisma.$queryRaw`SELECT 1`, DB_PROBE_TIMEOUT_MS)
       return true
-    } catch {
+    } catch (error) {
+      // Обязательное событие SRS §10.2. `/ready` отдаёт наружу только `{"db":"down"}`,
+      // и без этой строки причина отказа не осталась бы нигде.
+      logEvent('error', 'db_unavailable', { error: error instanceof Error ? error.message : String(error) })
       return false
     }
   }

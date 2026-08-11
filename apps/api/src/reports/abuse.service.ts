@@ -1,6 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { MAX_PHOTOS_PER_REPORT } from '@ravonroad/shared-types'
 import { ApiException } from '../common/api-error'
+import { ipPrefix, logEvent } from '../common/logger'
 import { RATE_LIMITS, rateLimitKey, RateLimiter } from '../common/rate-limit'
 
 /** Меньше пяти секунд при трёх приложенных фотографиях человеку недостижимо: их надо
@@ -45,6 +46,16 @@ export class AbuseService {
 
     const verdict = this.limiter.hit(rateLimitKey('reports', clientIp), RATE_LIMITS.reportsHard)
     if (!verdict.allowed) {
+      // Единственный отказ по адресу во всей системе — и он обязан быть виден: за CGNAT
+      // он отрезает район, а не нарушителя (SRS §9.5). Сеть /24 в логе, адреса нет.
+      const prefix = ipPrefix(clientIp)
+      logEvent('warn', 'report_rate_flagged', {
+        rule: 'IP_RATE_HARD',
+        count: verdict.count,
+        ipPrefix: prefix,
+        route: 'POST /api/reports',
+        status: 429,
+      })
       throw new ApiException('RATE_LIMITED', HttpStatus.TOO_MANY_REQUESTS, 'too many reports from this address', {
         headers: { 'Retry-After': String(verdict.retryAfterS) },
       })
@@ -70,6 +81,8 @@ export class AbuseService {
 
     if (input.reportsThisHour > RATE_LIMITS.reportsSoft.limit) {
       signals.push({ rule: 'IP_RATE', detail: { perHour: input.reportsThisHour } })
+      // Мягкий порог: заявка создаётся, но доля таких заявок — это метрика P-3 (SRS §10.3).
+      logEvent('warn', 'report_rate_flagged', { rule: 'IP_RATE', count: input.reportsThisHour })
     }
 
     return signals

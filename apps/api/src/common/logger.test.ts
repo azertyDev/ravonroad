@@ -68,6 +68,47 @@ describe('запретный список (SRS §8.4)', () => {
   })
 })
 
+function sources(directory: string): string[] {
+  const files: string[] = []
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name)
+    if (entry.isDirectory()) {
+      if (entry.name !== 'generated') files.push(...sources(path))
+    } else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.test.ts')) {
+      files.push(path)
+    }
+  }
+  return files
+}
+
+// Vitest запускается из apps/api — тот же корень, что у `pnpm --filter api test`.
+const SRC = join(process.cwd(), 'src')
+
+/** Двенадцать обязательных событий SRS §10.2. Список закрыт: не «желательно бы логировать»,
+ *  а «без этого поломка не видна». Тест держит его от тихого выпадения при рефакторинге —
+ *  пропавшее событие иначе обнаруживается в тот день, когда оно понадобилось. */
+describe('обязательные события SRS §10.2 присутствуют в коде', () => {
+  const REQUIRED = [
+    'report_created',
+    'report_rejected_geofence',
+    'report_rate_flagged',
+    'status_changed',
+    'status_undone',
+    'unauthorized_button_press',
+    'webhook_auth_failed',
+    'photo_rejected',
+    'outbox_send_failed',
+    'telegram_unavailable',
+    'contacts_deleted',
+    'db_unavailable',
+  ]
+
+  it.each(REQUIRED)('%s пишется где-то в apps/api/src', (event) => {
+    const written = sources(SRC).some((file) => readFileSync(file, 'utf8').includes(`'${event}'`))
+    expect(written).toBe(true)
+  })
+})
+
 /** Тип `LogFields` закрыт, поэтому запретное поле не проходит `pnpm typecheck`. Этот тест
  *  ловит второй способ пронести его в лог — под разрешённым именем: `reason: token`,
  *  `error: report.contactPhone`. Он читает исходники, а не гоняет код, потому что
@@ -87,19 +128,6 @@ describe('ни одна строка лога в коде не берёт зап
     'req.url',
     'buffer',
   ]
-
-  function sources(directory: string): string[] {
-    const files: string[] = []
-    for (const entry of readdirSync(directory, { withFileTypes: true })) {
-      const path = join(directory, entry.name)
-      if (entry.isDirectory()) {
-        if (entry.name !== 'generated') files.push(...sources(path))
-      } else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.test.ts')) {
-        files.push(path)
-      }
-    }
-    return files
-  }
 
   /** Аргументы вызова целиком: от `logEvent(` до парной скобки, со вложенными скобками
    *  и шаблонными строками внутри. */
@@ -123,11 +151,9 @@ describe('ни одна строка лога в коде не берёт зап
   }
 
   it('проверяет каждую строку лога в apps/api/src', () => {
-    // Vitest запускается из apps/api — тот же корень, что у `pnpm --filter api test`.
-    const root = join(process.cwd(), 'src')
     const offences: string[] = []
     let checked = 0
-    for (const file of sources(root)) {
+    for (const file of sources(SRC)) {
       for (const call of calls(readFileSync(file, 'utf8'))) {
         checked += 1
         for (const forbidden of FORBIDDEN) {

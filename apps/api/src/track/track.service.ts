@@ -1,6 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common'
 import type { TrackView } from '@ravonroad/shared-types'
 import { ApiException } from '../common/api-error'
+import { logEvent } from '../common/logger'
 import { S3Service } from '../media/s3.service'
 import { PrismaService } from '../prisma/prisma.service'
 import { DETAIL_SELECT, mapDetail } from '../reports/detail.mapper'
@@ -47,6 +48,9 @@ export class TrackService {
       data: { contactPhone: null, contactTelegram: null, contactsDeletedAt: new Date() },
     })
     if (count === 0) throw this.notFound()
+    // Обязательное событие SRS §10.2. Ни токена, ни контактов в строке нет — только факт
+    // и число: житель воспользовался правом на удаление (PRD §9.2.3).
+    logEvent('info', 'contacts_deleted', { route: 'DELETE /api/track/*/contacts', count })
   }
 
   /** Один и тот же ответ на «не существовал» и «был удалён»: различать их значило бы
