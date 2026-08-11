@@ -19,5 +19,11 @@ add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" alway
 # В connect-src идёт полный URL, а не хост: путь в CSP сверяется целиком, и разрешение
 # получает ровно один файл, а не весь бакет.
 # worker-src обязателен: MapLibre поднимает свой воркер через blob:, и без него карта
-# не стартует вовсе. img-src получит хост S3 вместе с первым показом фотографий.
-add_header Content-Security-Policy "default-src 'self'; img-src 'self' data:; script-src 'self'; worker-src 'self' blob:; connect-src 'self' ${MAP_PMTILES_URL}; frame-ancestors 'none'; base-uri 'none'" always;
+# не стартует вовсе.
+#
+# img-src содержит адрес публичного чтения бакета: фотографии заявок отдаёт он, а не мы.
+# Чужой домен здесь обязателен и безопасен по той же причине, по которой он чужой —
+# браузер не исполняет содержимое картинки на origin сайта (SRS §9.6). Пусто — карточка
+# заявки показывает битую картинку, а в консоли одна строка про CSP: ровно так это
+# и было найдено на стенде.
+add_header Content-Security-Policy "default-src 'self'; img-src 'self' data: ${PHOTO_ORIGIN}; script-src 'self'; worker-src 'self' blob:; connect-src 'self' ${MAP_PMTILES_URL}; frame-ancestors 'none'; base-uri 'none'" always;
