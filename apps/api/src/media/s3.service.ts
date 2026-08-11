@@ -1,6 +1,7 @@
 import {
   DeleteObjectCommand,
   GetObjectCommand,
+  HeadBucketCommand,
   HeadObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -73,6 +74,18 @@ export class S3Service {
   async exists(key: string): Promise<boolean> {
     try {
       await this.client.send(new HeadObjectCommand({ Bucket: this.bucket, Key: key }))
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  /** `HEAD` бакета для `/health/details` (SRS §10.1): проверяется доступность хранилища
+   *  целиком, а не конкретного объекта, — иначе диагностика зависела бы от того, лежит ли
+   *  в бакете именно та фотография, которую мы решили спросить. */
+  async bucketReachable(): Promise<boolean> {
+    try {
+      await this.client.send(new HeadBucketCommand({ Bucket: this.bucket }))
       return true
     } catch {
       return false

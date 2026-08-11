@@ -52,6 +52,12 @@ export async function startFakeStorage(): Promise<FakeStorage> {
         response.writeHead(503).end()
         return
       }
+      // HEAD по бакету, а не по объекту: так `/health/details` проверяет доступность
+      // хранилища целиком (SRS §10.1).
+      if (request.method === 'HEAD' && (path === `/${BUCKET}` || path === `/${BUCKET}/`)) {
+        response.writeHead(200).end()
+        return
+      }
       if (request.method === 'PUT') {
         objects.set(key, Buffer.concat(chunks))
         response.writeHead(200).end()

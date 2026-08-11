@@ -16,7 +16,7 @@ export async function createApp(options: { silent?: boolean } = {}): Promise<INe
   // Единый префикс: наружу edge отдаёт /api/*, внутрь проксирует как есть (SRS §4.1).
   // Проверки живости из него исключены: их адреса — /health и /ready (SRS §4.1, §10.4),
   // по ним настраивается внешний пинг аптайма, и он не должен зависеть от префикса.
-  app.setGlobalPrefix('api', { exclude: ['health', 'ready'] })
+  app.setGlobalPrefix('api', { exclude: ['health', 'health/details', 'ready'] })
   app.use(requestIdMiddleware)
   // Одна форма тела ошибки на весь API, включая исключения самого Nest (SRS §8.1).
   app.useGlobalFilters(new ApiExceptionFilter())
