@@ -32,6 +32,26 @@ export interface InputMediaPhoto {
   parse_mode?: 'HTML'
 }
 
+/** Одна фотография с подписью и клавиатурой — в отличие от `sendMediaGroup`,
+ *  который `reply_markup` не принимает вовсе. */
+export interface SendPhotoParams {
+  chat_id: string
+  photo: string
+  caption: string
+  parse_mode: 'HTML'
+  reply_markup: { inline_keyboard: InlineKeyboardButton[][] }
+}
+
+export interface EditCardParams {
+  chat_id: string
+  message_id: number
+  text: string
+  reply_markup: { inline_keyboard: InlineKeyboardButton[][] }
+  /** Карточка из одного сообщения: текст в ней — подпись к фотографии, а не текст
+   *  сообщения. */
+  asCaption: boolean
+}
+
 export interface TelegramMessage {
   message_id: number
 }
@@ -125,8 +145,28 @@ export class BotApiClient {
     return this.call<TelegramMessage[]>('sendMediaGroup', { chat_id: chatId, media })
   }
 
-  editMessageText(params: SendMessageParams & { message_id: number }): Promise<unknown> {
-    return this.call<unknown>('editMessageText', params)
+  sendPhoto(params: SendPhotoParams): Promise<TelegramMessage> {
+    return this.call<TelegramMessage>('sendPhoto', params)
+  }
+
+  /** Правка карточки. Метод выбирается по тому, чем сообщение является: у фотографии
+   *  текста нет, есть подпись, и `editMessageText` отвечает на неё «there is no text
+   *  in the message to edit» — то есть `400`, который очередь считает мёртвым вызовом
+   *  и закрывает запись. Признак приходит от вызывающего, потому что знает его он:
+   *  объединённая карточка — это совпадение двух `message_id` заявки.
+   *
+   *  Превью ссылки выключено: номер заявки в тексте — ссылка на её страницу, и без
+   *  этого каждая правка разворачивала бы в группе карточку сайта. */
+  editCard(params: EditCardParams): Promise<unknown> {
+    const { asCaption, text, ...rest } = params
+    return asCaption
+      ? this.call<unknown>('editMessageCaption', { ...rest, caption: text, parse_mode: 'HTML' })
+      : this.call<unknown>('editMessageText', {
+          ...rest,
+          text,
+          parse_mode: 'HTML',
+          link_preview_options: { is_disabled: true },
+        })
   }
 
   /** Вызывается **всегда**, в том числе при отказе: иначе у нажавшего крутятся «часики»

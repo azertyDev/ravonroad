@@ -4,7 +4,8 @@ import type { Prisma } from '../generated/prisma/client'
 import { OUT_OF_SCOPE_REASONS, REJECT_REASONS } from '../reports/transitions'
 import type { InlineKeyboardButton, SendMessageParams } from './bot-api.client'
 import { encodeCallbackData } from './callback-data'
-import { REASON_LABELS, displayNumber, escapeHtml } from './card.renderer'
+import { displayNumber, escapeHtml } from './card.renderer'
+import { BUTTONS, CARD, REASON_LABELS } from './labels'
 
 /** Digest-режим (SRS §6.13).
  *
@@ -34,10 +35,12 @@ export interface DigestReport {
 
 @Injectable()
 export class DigestService {
-  private readonly webOrigin: string
+  /** Тот же адрес, из которого карточка строит ссылку на номер заявки: список digest —
+   *  это те же карточки, только строками. */
+  private readonly siteUrl: string
 
   constructor(private readonly config: ConfigService) {
-    this.webOrigin = this.config.getOrThrow<string>('WEB_ORIGIN').replace(/\/+$/, '')
+    this.siteUrl = this.config.getOrThrow<string>('PUBLIC_SITE_URL').replace(/\/+$/, '')
   }
 
   /** Состав пакета фиксируется здесь и больше не пересчитывается: иначе модератор
@@ -54,8 +57,8 @@ export class DigestService {
     })
 
     const reports = await tx.$queryRaw<DigestReport[]>`
-      SELECT r.id AS report_id, r.public_number, d.name_ru AS district,
-             c.name_ru AS category, r.landmark
+      SELECT r.id AS report_id, r.public_number, d.name_uz AS district,
+             c.name_uz AS category, r.landmark
         FROM report r
         JOIN district d ON d.code = r.district_code
         JOIN category c ON c.id = r.category_id
@@ -66,11 +69,11 @@ export class DigestService {
   }
 
   private message(batchId: number, reports: DigestReport[], chatId: string): SendMessageParams {
-    const lines = [`<b>Новых заявок: ${reports.length}</b>`]
+    const lines = [`<b>${CARD.digestTitle(reports.length)}</b>`]
     for (const report of reports) {
       const landmark = report.landmark === null ? '' : ` · «${escapeHtml(report.landmark)}»`
       lines.push(
-        `<a href="${this.webOrigin}/uz/reports/${report.public_number}">${displayNumber(report.public_number)}</a>` +
+        `<a href="${this.siteUrl}/uz/reports/${report.public_number}">${displayNumber(report.public_number)}</a>` +
           ` · ${escapeHtml(report.district)} · ${escapeHtml(report.category)}${landmark}`,
       )
     }
@@ -89,10 +92,10 @@ export class DigestService {
   keyboard(batchId: number): InlineKeyboardButton[][] {
     return [
       [
-        { text: 'Принять все', callback_data: encodeCallbackData({ op: 'B', n: batchId, arg: 'AC' }) },
-        { text: 'Отклонить все', callback_data: encodeCallbackData({ op: 'B', n: batchId, arg: 'RJ' }) },
+        { text: BUTTONS.acceptAll, callback_data: encodeCallbackData({ op: 'B', n: batchId, arg: 'AC' }) },
+        { text: BUTTONS.rejectAll, callback_data: encodeCallbackData({ op: 'B', n: batchId, arg: 'RJ' }) },
       ],
-      [{ text: 'Раскрыть', callback_data: encodeCallbackData({ op: 'b', n: batchId }) }],
+      [{ text: BUTTONS.expand, callback_data: encodeCallbackData({ op: 'b', n: batchId }) }],
     ]
   }
 

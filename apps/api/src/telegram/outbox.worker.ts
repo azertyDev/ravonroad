@@ -7,7 +7,7 @@ import {
   type InputMediaPhoto,
   type SendMessageParams,
 } from './bot-api.client'
-import { CardRenderer } from './card.renderer'
+import { CardRenderer, isCombined } from './card.renderer'
 import { DIGEST_SIZE, DIGEST_THRESHOLD, DigestService } from './digest.service'
 import { DuplicatesService } from './duplicates.service'
 import { logEvent } from '../common/logger'
@@ -36,7 +36,10 @@ const POLL_INTERVAL_MS = 10_000
 const BUDGET_PER_MINUTE = 20
 const WINDOW_MS = 60_000
 
-/** Карточка — два сообщения: альбом и сообщение с кнопками (SRS §6.3). */
+/** Карточка — два сообщения: альбом и сообщение с кнопками (SRS §6.3). Заявка
+ *  с одной фотографией стоит одно: `sendPhoto` несёт и подпись, и клавиатуру. Бюджет
+ *  резервируется по дорогому варианту — сколько фотографий у заявки, до чтения карточки
+ *  неизвестно, а ошибиться в меньшую сторону значит выйти за лимит Telegram. */
 const CARD_COST = 2
 
 /** Больше десяти задач за проход не берём: проход должен заканчиваться быстрее,
@@ -248,46 +251,74 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
       keyboard.push(...this.duplicates.keyboard(batchId, card.publicNumber, members.length))
     }
 
-    const caption = this.cards.caption(card)
+    const single = card.photoUrls.length === 1 ? card.photoUrls[0] : undefined
     let albumMessageId: number | null = null
-    if (card.photoUrls.length > 0) {
-      const media: InputMediaPhoto[] = card.photoUrls.map((url, index) => ({
-        type: 'photo',
-        media: url,
-        // Подпись несёт первое фото альбома — так устроен Telegram.
-        ...(index === 0 ? { caption, parse_mode: 'HTML' as const } : {}),
-      }))
-      const album = await this.bot.sendMediaGroup(this.bot.groupChatId, media)
-      albumMessageId = album[0]?.message_id ?? null
-    } else {
-      // Все фотографии заявки не пережили обработку. Карточка всё равно уходит:
-      // без неё заявка просто не попадёт к модератору (T-074).
-      const text = await this.bot.sendMessage({
-        chat_id: this.bot.groupChatId,
-        text: caption,
-        parse_mode: 'HTML',
-        link_preview_options: { is_disabled: true },
-      })
-      albumMessageId = text.message_id
-    }
+    let cardMessageId: number
+    let cost: number
 
-    const params: SendMessageParams = {
-      chat_id: this.bot.groupChatId,
-      text: this.cards.statusText(card),
-      parse_mode: 'HTML',
-      reply_markup: { inline_keyboard: keyboard },
+    if (single !== undefined) {
+      // Одна фотография — одна карточка одним сообщением: `sendPhoto` принимает и
+      // подпись, и клавиатуру, поэтому делить нечего. Группа получает одно уведомление
+      // вместо двух, а бюджет канала — одну единицу вместо двух. При двух и трёх
+      // фотографиях так не выйдет: `sendMediaGroup` `reply_markup` не принимает,
+      // и карточка остаётся двумя сообщениями (SRS §6.3).
+      const message = await this.bot.sendPhoto({
+        chat_id: this.bot.groupChatId,
+        photo: single,
+        caption: this.cards.photoCaption(card),
+        parse_mode: 'HTML',
+        reply_markup: { inline_keyboard: keyboard },
+      })
+      // Оба идентификатора указывают на одно сообщение: волонтёр отвечает на него
+      // и фотографиями «после», и ссылкой на публикацию, а ищутся они по обоим полям.
+      albumMessageId = message.message_id
+      cardMessageId = message.message_id
+      cost = 1
+    } else {
+      const caption = this.cards.caption(card)
+      if (card.photoUrls.length > 0) {
+        const media: InputMediaPhoto[] = card.photoUrls.map((url, index) => ({
+          type: 'photo',
+          media: url,
+          // Подпись несёт первое фото альбома — так устроен Telegram.
+          ...(index === 0 ? { caption, parse_mode: 'HTML' as const } : {}),
+        }))
+        const album = await this.bot.sendMediaGroup(this.bot.groupChatId, media)
+        albumMessageId = album[0]?.message_id ?? null
+      } else {
+        // Все фотографии заявки не пережили обработку. Карточка всё равно уходит:
+        // без неё заявка просто не попадёт к модератору (T-074).
+        const text = await this.bot.sendMessage({
+          chat_id: this.bot.groupChatId,
+          text: caption,
+          parse_mode: 'HTML',
+          link_preview_options: { is_disabled: true },
+        })
+        albumMessageId = text.message_id
+      }
+
+      const params: SendMessageParams = {
+        chat_id: this.bot.groupChatId,
+        text: this.cards.statusText(card),
+        parse_mode: 'HTML',
+        // Номер заявки в тексте — ссылка на её страницу; без этого Telegram развернул бы
+        // под каждой карточкой превью сайта.
+        link_preview_options: { is_disabled: true },
+        reply_markup: { inline_keyboard: keyboard },
+      }
+      if (albumMessageId !== null) params.reply_to_message_id = albumMessageId
+      cardMessageId = (await this.bot.sendMessage(params)).message_id
+      cost = CARD_COST
     }
-    if (albumMessageId !== null) params.reply_to_message_id = albumMessageId
-    const message = await this.bot.sendMessage(params)
 
     await this.prisma.$transaction(async (tx) => {
       await tx.report.update({
         where: { id: card.id },
-        data: { telegramAlbumMessageId: albumMessageId, telegramCardMessageId: message.message_id },
+        data: { telegramAlbumMessageId: albumMessageId, telegramCardMessageId: cardMessageId },
       })
       await tx.telegramOutbox.update({ where: { id: row.id }, data: { sentAt: new Date() } })
       if (batchId !== null) {
-        await tx.moderationBatch.update({ where: { id: batchId }, data: { messageId: message.message_id } })
+        await tx.moderationBatch.update({ where: { id: batchId }, data: { messageId: cardMessageId } })
         // Спутники кластера уже показаны в этой карточке — своих им не нужно.
         await tx.telegramOutbox.updateMany({
           where: { id: { in: members.map((member) => member.outbox_id) } },
@@ -297,7 +328,7 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
     })
 
     logEvent('info', 'card_sent', { reportId: card.id, ...(batchId === null ? {} : { batchId }) })
-    return CARD_COST
+    return cost
   }
 
   private async editCard(row: OutboxRow): Promise<number> {
@@ -313,12 +344,12 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
       return 0
     }
 
-    await this.bot.editMessageText({
+    await this.bot.editCard({
       chat_id: this.bot.groupChatId,
       message_id: card.cardMessageId,
-      text: this.cards.statusText(card),
-      parse_mode: 'HTML',
+      text: this.cards.cardText(card),
       reply_markup: { inline_keyboard: this.cards.keyboard(card) },
+      asCaption: isCombined(card),
     })
     await this.prisma.telegramOutbox.update({ where: { id: row.id }, data: { sentAt: new Date() } })
     return 1

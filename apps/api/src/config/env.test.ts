@@ -4,6 +4,7 @@ import { validateEnv } from './env'
 const complete = {
   DATABASE_URL: 'postgresql://ravonroad:ravonroad@localhost:5432/ravonroad?schema=public',
   WEB_ORIGIN: 'http://localhost:5173',
+  PUBLIC_SITE_URL: 'http://localhost',
   S3_ENDPOINT: 'https://storage.googleapis.com',
   S3_REGION: 'us-central1',
   S3_BUCKET: 'ravonroad-dev-photos',
@@ -28,6 +29,10 @@ describe('validateEnv', () => {
 
   it('перечисляет все отсутствующие переменные разом', () => {
     expect(() => validateEnv({})).toThrow(/DATABASE_URL is required; WEB_ORIGIN is required/)
+  })
+
+  it('требует адрес сайта: без него в карточке бота ссылка на заявку не соберётся', () => {
+    expect(() => validateEnv(without('PUBLIC_SITE_URL'))).toThrow(/PUBLIC_SITE_URL is required/)
   })
 
   it('требует хранилище фотографий: без него заявка не принимается вовсе', () => {

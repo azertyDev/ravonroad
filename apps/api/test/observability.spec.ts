@@ -224,7 +224,7 @@ describe('Суточная очистка (SRS §9.8, §2.11, §2.12, PRD §9.2.
   })
 
   it('удаляет контакты через 90 дней после терминального статуса, оставляя заявку и фото', async () => {
-    const done = await seedReport(prisma, { status: 'DONE', withReadyPhoto: true })
+    const done = await seedReport(prisma, { status: 'DONE', readyPhotos: 1 })
     const recent = await seedReport(prisma, { status: 'DONE' })
     const open = await seedReport(prisma, { status: 'IN_PROGRESS' })
     await prisma.report.updateMany({ data: { contactPhone: '+998901234567', contactTelegram: '@resident' } })

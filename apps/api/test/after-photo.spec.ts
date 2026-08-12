@@ -24,6 +24,8 @@ let worker: OutboxWorker
 
 const ALBUM_MESSAGE_ID = 77
 const CARD_MESSAGE_ID = 78
+/** Карточка из одного сообщения: у заявки с одной фотографией оба `message_id` его. */
+const COMBINED_MESSAGE_ID = 79
 /** Волонтёр без прав модератора: фото «после» принимает любой участник (PRD §12.4). */
 const VOLUNTEER_TG_ID = 900_000_001
 const MODERATOR_TG_ID = 900_000_002
@@ -111,12 +113,24 @@ describe('Фото «после» закрывают заявку (US-028, BR-00
     const history = await prisma.reportStatusHistory.findFirstOrThrow({ where: { toStatus: 'DONE' } })
     expect(history.actorType).toBe('VOLUNTEER')
     expect(history.moderatorId).toBeNull()
-    expect(await repliesText()).toContain('закрыта')
+    expect(await repliesText()).toContain('arizasi yopildi')
   })
 
   it('принимает ответ и на сообщение с кнопками — для волонтёра это одна карточка', async () => {
     const report = await seedReport(prisma, { status: 'IN_PROGRESS', albumMessageId: ALBUM_MESSAGE_ID, cardMessageId: CARD_MESSAGE_ID })
     await sendPhoto({ replyTo: CARD_MESSAGE_ID })
+    expect((await prisma.report.findUniqueOrThrow({ where: { id: report.id } })).status).toBe('DONE')
+  })
+
+  it('находит заявку и когда карточка — одно сообщение', async () => {
+    // Заявка с одной фотографией отправляется одним `sendPhoto`, и оба `message_id`
+    // указывают на него: поиск идёт по обоим полям и обязан находить её так же.
+    const report = await seedReport(prisma, {
+      status: 'IN_PROGRESS',
+      albumMessageId: COMBINED_MESSAGE_ID,
+      cardMessageId: COMBINED_MESSAGE_ID,
+    })
+    await sendPhoto({ replyTo: COMBINED_MESSAGE_ID })
     expect((await prisma.report.findUniqueOrThrow({ where: { id: report.id } })).status).toBe('DONE')
   })
 
@@ -141,7 +155,7 @@ describe('Фото «после» закрывают заявку (US-028, BR-00
     await sendPhoto({ replyTo: ALBUM_MESSAGE_ID })
 
     expect(await prisma.reportPhoto.count({ where: { reportId: report.id, kind: 'AFTER' } })).toBe(3)
-    expect(await repliesText()).toContain('уже есть 3')
+    expect(await repliesText()).toContain('keyingi 3 ta surat allaqachon bor')
   })
 
   it('фотография не ответом на карточку получает подсказку', async () => {
@@ -149,7 +163,7 @@ describe('Фото «после» закрывают заявку (US-028, BR-00
     await sendPhoto({})
 
     expect(await prisma.reportPhoto.count({ where: { kind: 'AFTER' } })).toBe(0)
-    expect(await repliesText()).toContain('ответом на карточку')
+    expect(await repliesText()).toContain('kartochkasiga javob qilib yuboring')
   })
 
   it('заявка в NEW фотографии не принимает и называет свой статус', async () => {
@@ -158,7 +172,7 @@ describe('Фото «после» закрывают заявку (US-028, BR-00
 
     expect((await prisma.report.findUniqueOrThrow({ where: { id: report.id } })).status).toBe('NEW')
     expect(await prisma.reportPhoto.count({ where: { kind: 'AFTER' } })).toBe(0)
-    expect(await repliesText()).toContain('Новая')
+    expect(await repliesText()).toContain('«Yangi»')
   })
 
   it('в DONE фотографии добавляются, а счётчик повторно не растёт', async () => {
@@ -297,6 +311,26 @@ describe('Ссылка на публикацию (US-029, SRS §6.9)', () => {
     )
   })
 
+  it('принимается и ответом на объединённую карточку', async () => {
+    const report = await seedReport(prisma, {
+      status: 'DONE',
+      albumMessageId: COMBINED_MESSAGE_ID,
+      cardMessageId: COMBINED_MESSAGE_ID,
+      withAfterPhoto: true,
+    })
+    await postUpdate(
+      app.baseUrl,
+      messageUpdate({
+        fromId: VOLUNTEER_TG_ID,
+        text: 'https://instagram.com/p/combined',
+        replyToMessageId: COMBINED_MESSAGE_ID,
+      }),
+    )
+    expect((await prisma.report.findUniqueOrThrow({ where: { id: report.id } })).publicationUrl).toBe(
+      'https://instagram.com/p/combined',
+    )
+  })
+
   it('до закрытия ссылка не принимается', async () => {
     const report = await seedReport(prisma, { status: 'ACCEPTED', albumMessageId: ALBUM_MESSAGE_ID })
     await postUpdate(
@@ -309,7 +343,7 @@ describe('Ссылка на публикацию (US-029, SRS §6.9)', () => {
     )
 
     expect((await prisma.report.findUniqueOrThrow({ where: { id: report.id } })).publicationUrl).toBeNull()
-    expect(await repliesText()).toContain('после закрытия')
+    expect(await repliesText()).toContain('ariza yopilgandan keyin')
   })
 
   it('не-http ссылка ссылкой не считается', async () => {

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { BotApiClient } from './bot-api.client'
+import { ALERTS } from './labels'
 
 /** Активная проверка webhook (SRS §10.4).
  *
@@ -86,22 +87,16 @@ export class WebhookHealthService {
 export function webhookAlerts(state: WebhookState): { condition: string; text: string }[] {
   const alerts: { condition: string; text: string }[] = []
   if (state.webhook === 'missing') {
-    alerts.push({ condition: 'webhook_missing', text: 'Webhook сброшен: у Telegram пустой url. Модерация стоит.' })
+    alerts.push({ condition: 'webhook_missing', text: ALERTS.webhookMissing })
   }
   if (state.webhook === 'foreign') {
-    alerts.push({ condition: 'webhook_foreign', text: 'Webhook уводит апдейты на чужой адрес.' })
+    alerts.push({ condition: 'webhook_foreign', text: ALERTS.webhookForeign })
   }
   if (state.pendingUpdates !== null && state.pendingUpdates > MAX_PENDING_UPDATES) {
-    alerts.push({
-      condition: 'webhook_pending',
-      text: `Telegram копит апдейты: ${state.pendingUpdates} в очереди — мы их не забираем.`,
-    })
+    alerts.push({ condition: 'webhook_pending', text: ALERTS.webhookPending(state.pendingUpdates) })
   }
   if (state.lastErrorAgeS !== null && state.lastErrorAgeS < RECENT_ERROR_S) {
-    alerts.push({
-      condition: 'webhook_errors',
-      text: `Telegram получает от нас ошибки: последняя ${state.lastErrorAgeS} с назад.`,
-    })
+    alerts.push({ condition: 'webhook_errors', text: ALERTS.webhookErrors(state.lastErrorAgeS) })
   }
   return alerts
 }

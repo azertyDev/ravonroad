@@ -4,7 +4,7 @@ import type { Prisma } from '../generated/prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { UNDO_WINDOW_MS, UndoService } from '../reports/undo.service'
 import { BotApiClient } from './bot-api.client'
-import { REASON_LABELS, STATUS_LABELS } from './card.renderer'
+import { ANSWERS, BUTTONS, REASON_LABELS, STATUS_LABELS } from './labels'
 import { CardUpdater } from './card.updater'
 import { encodeCallbackData } from './callback-data'
 import { DigestService } from './digest.service'
@@ -46,18 +46,18 @@ export class BatchService {
     query: IncomingCallbackQuery
   }): Promise<CallbackAnswer> {
     const arg = input.arg
-    if (arg === undefined) return { text: 'Кнопка устарела', alert: true }
+    if (arg === undefined) return { text: ANSWERS.staleButton, alert: true }
 
     // Второй шаг «Отклонить все»: причина обязательна и для пакета (PRD §5.2).
     if (arg === 'RJ') {
       await this.replaceKeyboard(input.query, this.digest.reasonKeyboard(input.batchId, 'REJECTED'))
-      return { text: 'Выберите причину' }
+      return { text: ANSWERS.chooseReason }
     }
     if (arg === 'X') return this.unlinkCluster(input)
     if (arg === 'D') return this.applyStatus({ ...input, to: 'DUPLICATE' })
     if (arg === 'AC') return this.applyStatus({ ...input, to: 'ACCEPTED' })
     if (arg.startsWith('R-')) return this.applyStatus({ ...input, to: 'REJECTED', reason: arg.slice(2) })
-    return { text: 'Кнопка устарела', alert: true }
+    return { text: ANSWERS.staleButton, alert: true }
   }
 
   /** «Раскрыть»: заявки пакета получают свои карточки — уже в пределах бюджета, потому
@@ -67,7 +67,7 @@ export class BatchService {
       where: { id: batchId },
       select: { reportIds: true },
     })
-    if (batch === null) return { text: 'Пакет не найден', alert: true }
+    if (batch === null) return { text: ANSWERS.batchNotFound, alert: true }
 
     const pending = await this.prisma.report.findMany({
       where: { id: { in: batch.reportIds }, telegramCardMessageId: null, status: 'NEW' },
@@ -76,7 +76,7 @@ export class BatchService {
     await this.prisma.$transaction(async (tx) => {
       for (const report of pending) await this.cards.enqueueCreate(tx, report.id)
     })
-    return { text: `Карточек будет отправлено: ${pending.length}` }
+    return { text: ANSWERS.batchExpanded(pending.length) }
   }
 
   /** Отмена пакета целиком (SRS §6.14): 15 минут, только автор, одна кнопка. Отменять
@@ -121,17 +121,17 @@ export class BatchService {
       return { undone, code: 'OK' as const }
     })
 
-    if (outcome === null) return { text: 'Уже обработано' }
+    if (outcome === null) return { text: ANSWERS.alreadyHandled }
     switch (outcome.code) {
       case 'NOT_APPLIED':
-        return { text: 'Пакет ещё не применён', alert: true }
+        return { text: ANSWERS.batchNotApplied, alert: true }
       case 'NOT_AUTHOR':
-        return { text: 'Отменить может только тот, кто применил пакет', alert: true }
+        return { text: ANSWERS.batchUndoNotAuthor, alert: true }
       case 'EXPIRED':
-        return { text: 'Окно отмены истекло', alert: true }
+        return { text: ANSWERS.undoExpired, alert: true }
       default:
         logEvent('info', 'batch_undone', { batchId: input.batchId, count: outcome.undone })
-        return { text: `Отменено заявок: ${outcome.undone}` }
+        return { text: ANSWERS.batchUndone(outcome.undone) }
     }
   }
 
@@ -196,9 +196,9 @@ export class BatchService {
       return { code: 'OK' as const, applied: applied.length, total: targets.length }
     })
 
-    if (outcome === null) return { text: 'Уже обработано' }
-    if (outcome.code === 'NOT_FOUND') return { text: 'Пакет не найден', alert: true }
-    if (outcome.code === 'ALREADY') return { text: 'Пакет уже обработан', alert: true }
+    if (outcome === null) return { text: ANSWERS.alreadyHandled }
+    if (outcome.code === 'NOT_FOUND') return { text: ANSWERS.batchNotFound, alert: true }
+    if (outcome.code === 'ALREADY') return { text: ANSWERS.batchAlreadyApplied, alert: true }
 
     logEvent('info', 'batch_applied', {
       batchId: input.batchId,
@@ -208,10 +208,8 @@ export class BatchService {
     })
     await this.showUndo(input.query, input.batchId)
 
-    const reason = input.reason === undefined ? '' : `, причина «${REASON_LABELS[input.reason] ?? input.reason}»`
-    return {
-      text: `${STATUS_LABELS[input.to]}: применено к ${outcome.applied} из ${outcome.total}${reason}`,
-    }
+    const reason = input.reason === undefined ? null : (REASON_LABELS[input.reason] ?? input.reason)
+    return { text: ANSWERS.batchApplied(STATUS_LABELS[input.to], outcome.applied, outcome.total, reason) }
   }
 
   /** «Разные ямы»: гипотеза системы снимается, статусы не меняются. Гипотеза никогда
@@ -240,8 +238,8 @@ export class BatchService {
       return cleared.count
     })
 
-    if (outcome === null) return { text: 'Пакет не найден', alert: true }
-    return { text: `Связь снята у ${outcome} заявок, статусы не изменены` }
+    if (outcome === null) return { text: ANSWERS.batchNotFound, alert: true }
+    return { text: ANSWERS.clusterUnlinked(outcome) }
   }
 
   /** Кнопка отмены пакета живёт те же 15 минут. Снимать её отдельной записью не нужно:
@@ -249,7 +247,7 @@ export class BatchService {
    *  которая и так уходит вверх ленты. */
   private async showUndo(query: IncomingCallbackQuery, batchId: number): Promise<void> {
     await this.replaceKeyboard(query, [
-      [{ text: '↩︎ Отменить пакет', callback_data: encodeCallbackData({ op: 'U', n: batchId }) }],
+      [{ text: BUTTONS.undoBatch, callback_data: encodeCallbackData({ op: 'U', n: batchId }) }],
     ])
   }
 

@@ -145,7 +145,7 @@ describe('Webhook: allowlist (US-024, AC-2)', () => {
     const answers = telegram.of('answerCallbackQuery')
     expect(answers).toHaveLength(1)
     expect(answers[0]?.params['show_alert']).toBe(true)
-    expect(String(answers[0]?.params['text'])).toContain('модератор')
+    expect(String(answers[0]?.params['text'])).toContain('moderatorlar uchun')
     expect(telegram.of('sendMessage')).toHaveLength(0)
   })
 

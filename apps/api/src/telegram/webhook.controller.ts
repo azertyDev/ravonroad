@@ -5,6 +5,7 @@ import { BotApiClient } from './bot-api.client'
 import { parseCallbackData, type CallbackData } from './callback-data'
 import { CardUpdater } from './card.updater'
 import { statusFromArg } from './card.renderer'
+import { ANSWERS } from './labels'
 import { AfterPhotoHandler } from './handlers/after-photo.handler'
 import { PromptHandler } from './handlers/prompt.handler'
 import { PublicationHandler } from './handlers/publication.handler'
@@ -85,7 +86,7 @@ export class WebhookController {
   private async onCallback(updateId: number, query: IncomingCallbackQuery): Promise<void> {
     const data = parseCallbackData(query.data)
     if (data === null) {
-      await this.bot.answerCallbackQuery(query.id, 'Кнопка устарела', true)
+      await this.bot.answerCallbackQuery(query.id, ANSWERS.staleButton, true)
       return
     }
 
@@ -96,7 +97,7 @@ export class WebhookController {
     // одного человека.
     if (moderator === null && data.op !== 'u') {
       this.guard.reject(query.from.id, updateId)
-      await this.bot.answerCallbackQuery(query.id, 'Действие доступно только модераторам', true)
+      await this.bot.answerCallbackQuery(query.id, ANSWERS.moderatorsOnly, true)
       return
     }
 
@@ -119,12 +120,12 @@ export class WebhookController {
       })
     }
     // Все прочие ветки требуют модератора — он проверен до вызова.
-    if (moderator === null) return { text: 'Действие доступно только модераторам', alert: true }
+    if (moderator === null) return { text: ANSWERS.moderatorsOnly, alert: true }
 
     switch (data.op) {
       case 's': {
         const to = statusFromArg(data.arg)
-        if (to === null) return { text: 'Кнопка устарела', alert: true }
+        if (to === null) return { text: ANSWERS.staleButton, alert: true }
         return this.status.apply({
           updateId,
           publicNumber: data.n,
@@ -170,10 +171,10 @@ export class WebhookController {
     query: IncomingCallbackQuery,
   ): Promise<CallbackAnswer> {
     const chatId = query.message?.chat.id
-    if (chatId === undefined) return { text: 'Сообщение недоступно', alert: true }
+    if (chatId === undefined) return { text: ANSWERS.messageUnavailable, alert: true }
 
     const report = await this.prisma.report.findUnique({ where: { publicNumber }, select: { id: true } })
-    if (report === null) return { text: 'Заявка не найдена', alert: true }
+    if (report === null) return { text: ANSWERS.reportNotFound, alert: true }
 
     await this.prompts.ask({
       chatId,
@@ -183,7 +184,7 @@ export class WebhookController {
       kind: 'DUPLICATE_NUMBER',
       targetStatus: 'DUPLICATE',
     })
-    return { text: 'Ответьте на сообщение бота номером оригинала' }
+    return { text: ANSWERS.answerWithOriginal }
   }
 
   /** Сообщения разбираются в порядке убывания определённости: фотографии — это всегда

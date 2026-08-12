@@ -4,6 +4,7 @@ import { logEvent } from '../common/logger'
 import { queueDepths, type QueueDepths } from '../common/queue-depths'
 import { PrismaService } from '../prisma/prisma.service'
 import { BotApiClient } from './bot-api.client'
+import { ALERTS } from './labels'
 import { WebhookHealthService, webhookAlerts } from './webhook-health.service'
 
 /** Алерты координатору (SRS §10.4).
@@ -111,7 +112,7 @@ export class AlertsService implements OnModuleInit, OnModuleDestroy {
         count: this.dbDownStreak,
       })
       if (this.dbDownStreak < DB_DOWN_STREAK) return []
-      return [{ condition: 'db_down', text: 'База недоступна две проверки подряд. Сайт не принимает заявки.' }]
+      return [{ condition: 'db_down', text: ALERTS.dbDown }]
     }
     this.dbDownStreak = 0
 
@@ -119,26 +120,20 @@ export class AlertsService implements OnModuleInit, OnModuleDestroy {
     if (depths.deliveryQueue > 0 && (depths.oldestDeliveryS ?? 0) > STALE_QUEUE_S) {
       alerts.push({
         condition: 'delivery_stale',
-        text: `Очередь доставки стоит: ${depths.deliveryQueue} неотправленных, старейшая ${minutes(depths.oldestDeliveryS)} мин.`,
+        text: ALERTS.deliveryStale(depths.deliveryQueue, minutes(depths.oldestDeliveryS)),
       })
     }
     if (depths.photoQueue > PHOTO_QUEUE_ALERT || (depths.photoQueue > 0 && (depths.oldestPhotoS ?? 0) > STALE_QUEUE_S)) {
       alerts.push({
         condition: 'photo_queue',
-        text: `Очередь фото: ${depths.photoQueue} в обработке, старейшая ${minutes(depths.oldestPhotoS)} мин. Воркер не справляется или встал.`,
+        text: ALERTS.photoQueue(depths.photoQueue, minutes(depths.oldestPhotoS)),
       })
     }
     if (depths.photoFailed > 0) {
-      alerts.push({
-        condition: 'photo_failed',
-        text: `Не обработано после пяти попыток: ${depths.photoFailed} фото.`,
-      })
+      alerts.push({ condition: 'photo_failed', text: ALERTS.photoFailed(depths.photoFailed) })
     }
     if (depths.moderationQueue > MODERATION_QUEUE_ALERT) {
-      alerts.push({
-        condition: 'moderation_queue',
-        text: `Очередь модерации: ${depths.moderationQueue} заявок в NEW. Людей не хватает — пора включать пакетные действия.`,
-      })
+      alerts.push({ condition: 'moderation_queue', text: ALERTS.moderationQueue(depths.moderationQueue) })
     }
     return alerts
   }
@@ -149,7 +144,7 @@ export class AlertsService implements OnModuleInit, OnModuleDestroy {
 
   private async send(alerts: Alert[]): Promise<void> {
     if (this.chatId === null) return
-    const text = ['⚠️ RavonRoad', ...alerts.map((alert) => `• ${alert.text}`)].join('\n')
+    const text = [ALERTS.title, ...alerts.map((alert) => `• ${alert.text}`)].join('\n')
     try {
       await this.bot.sendMessage({ chat_id: this.chatId, text, link_preview_options: { is_disabled: true } })
       logEvent('warn', 'alert_sent', { count: alerts.length, condition: alerts.map((a) => a.condition).join(',') })

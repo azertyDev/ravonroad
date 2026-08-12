@@ -3,7 +3,8 @@ import type { ReportStatus } from '@ravonroad/shared-types'
 import { PrismaService } from '../../prisma/prisma.service'
 import { applyTransition, isTerminal } from '../../reports/transitions'
 import { CardUpdater } from '../card.updater'
-import { STATUS_LABELS, displayNumber } from '../card.renderer'
+import { displayNumber } from '../card.renderer'
+import { ANSWERS, STATUS_LABELS } from '../labels'
 import { applyOnce } from '../idempotency'
 import { logEvent } from '../../common/logger'
 import type { ActiveModerator } from '../moderator.guard'
@@ -58,7 +59,7 @@ export class StatusHandler {
     })
 
     // Повторная доставка того же апдейта: эффект уже применён, второго не будет.
-    if (outcome === null) return { text: 'Уже обработано' }
+    if (outcome === null) return { text: ANSWERS.alreadyHandled }
 
     if (outcome.ok) {
       logEvent('info', 'status_changed', {
@@ -68,18 +69,18 @@ export class StatusHandler {
         from: outcome.from,
         to: outcome.to,
       })
-      return { text: `${displayNumber(input.publicNumber)} → ${STATUS_LABELS[outcome.to]}` }
+      return { text: ANSWERS.moved(displayNumber(input.publicNumber), STATUS_LABELS[outcome.to]) }
     }
 
     switch (outcome.code) {
       case 'NOT_FOUND':
-        return { text: 'Заявка не найдена', alert: true }
+        return { text: ANSWERS.reportNotFound, alert: true }
       case 'NO_AFTER_PHOTO':
-        return { text: 'Нельзя закрыть заявку без фотографии «после»', alert: true }
+        return { text: ANSWERS.noAfterPhoto, alert: true }
       default:
         // И «переход не разрешён», и «строк не изменилось» с точки зрения нажавшего —
         // одно и то же: пока он думал, статус уехал (PRD 5.3.6).
-        return { text: `Статус уже изменён на «${STATUS_LABELS[outcome.status]}»`, alert: true }
+        return { text: ANSWERS.statusChanged(STATUS_LABELS[outcome.status]), alert: true }
     }
   }
 }

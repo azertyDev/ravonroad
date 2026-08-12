@@ -47,6 +47,8 @@ services:
       # описывает доступ с хоста и здесь не годится.
       DATABASE_URL: postgresql://${POSTGRES_USER:-ravonroad}:${POSTGRES_PASSWORD:-ravonroad}@db:5432/${POSTGRES_DB:-ravonroad}?schema=public
       WEB_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost}
+      # Адрес сайта для ссылок из бота: номер заявки в карточке ведёт на её страницу.
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-http://localhost}
       # Хранилище фотографий обязательно с 002: без него заявка не принимается вовсе.
       S3_ENDPOINT: ${S3_ENDPOINT}
       S3_REGION: ${S3_REGION}
