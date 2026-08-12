@@ -28,7 +28,9 @@ interface PhotoPickerProps {
 /** Плитка-приглашение: пустая форма показывает одну большую, заполненная — маленькую
  *  в конце ряда. Обе — `<label>` над одним и тем же `<input type="file">`, поэтому
  *  системный выбор открывается и по касанию, и с клавиатуры. */
-const TILE = 'grid cursor-pointer place-items-center border-2 border-dashed border-[var(--border-2)] bg-[var(--surface-sunken)] text-[var(--text-2)] hover:bg-[var(--surface-control-hover)] aria-disabled:opacity-50'
+/** `photo-tile` — не оформление, а точка привязки: кольцо фокуса скрытого
+ *  `input[type=file]` рисуется на этой плитке (index.css). */
+const TILE = 'photo-tile grid cursor-pointer place-items-center border-2 border-dashed border-[var(--border-2)] bg-[var(--surface-sunken)] text-[var(--text-2)] hover:bg-[var(--surface-control-hover)] aria-disabled:opacity-50'
 
 /** Выбор и предпросмотр фотографий (US-008).
  *

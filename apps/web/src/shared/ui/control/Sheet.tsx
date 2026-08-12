@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useId, useRef, type ReactNode } from 'react'
 import { useI18n } from '../../i18n/useI18n'
 import { Glyph } from '../icon/Glyph'
 import { ICON_BUTTON } from './styles'
@@ -48,6 +48,7 @@ export function dismissedByBackdrop(pressedBackdrop: boolean, clickTarget: Event
 
 export function Sheet({ title, subtitle, onClose, children, footer, fill = false }: SheetProps) {
   const { t } = useI18n()
+  const titleId = useId()
   const dialog = useRef<HTMLDialogElement>(null)
   const pressedBackdrop = useRef(false)
   // Обработчик читается из ref: слушатель вешается один раз на открытие, а замкнутый
@@ -58,6 +59,11 @@ export function Sheet({ title, subtitle, onClose, children, footer, fill = false
   useEffect(() => {
     const element = dialog.current
     if (element === null) return
+    // Кто открыл окно: сюда фокус вернётся при закрытии. Браузер умеет это сам, но
+    // только через `close()` — а окно снимает с разметки React, и после него
+    // восстанавливать фокус уже некому: он уезжает на <body>, и Tab начинает страницу
+    // заново (проверено обходом с клавиатуры, PRD §8.2).
+    const opener = document.activeElement
     // Повторный showModal на уже открытом диалоге бросает InvalidStateError, а в
     // StrictMode эффект выполняется дважды подряд.
     if (!element.open) element.showModal()
@@ -69,7 +75,13 @@ export function Sheet({ title, subtitle, onClose, children, footer, fill = false
       closing.current()
     }
     element.addEventListener('cancel', cancel)
-    return () => element.removeEventListener('cancel', cancel)
+    return () => {
+      element.removeEventListener('cancel', cancel)
+      // Закрыть до возврата фокуса обязательно: пока окно открыто модальным, всё
+      // за его пределами недоступно, и focus() по открывшей кнопке браузер пропустит.
+      if (element.open) element.close()
+      if (opener instanceof HTMLElement) opener.focus()
+    }
   }, [])
 
   return (
@@ -78,6 +90,9 @@ export function Sheet({ title, subtitle, onClose, children, footer, fill = false
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
     <dialog
       ref={dialog}
+      // Имя окна — его заголовок. Без связи скринридер объявляет открытый диалог
+      // безымянным, и человек, попавший в него по Tab, не знает, куда попал.
+      aria-labelledby={titleId}
       // Нажатие запоминается: закрывает только жест, целиком прошедший по подложке
       // (см. `dismissedByBackdrop`).
       onPointerDown={(event) => {
@@ -109,7 +124,7 @@ export function Sheet({ title, subtitle, onClose, children, footer, fill = false
         )}
         <div className="flex items-start justify-between gap-[var(--s-3)]">
           <div className="flex min-w-0 flex-col gap-[var(--s-1)]">
-            <h2 className="t-h2 uppercase">{title}</h2>
+            <h2 id={titleId} className="t-h2 uppercase">{title}</h2>
             {/* Подзаголовок обычным регистром, а не капслоком секции: здесь это фраза
                 («Регистрация не нужна · 30 секунд»), а капслок в системе носят только
                 короткие служебные ярлыки (Form C, readme › Visual foundations). */}

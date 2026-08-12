@@ -124,8 +124,11 @@ export function ReportFilters({ filters, onChange, onClose, count }: ReportFilte
           </select>
         </label>
 
-        <div className="flex flex-col gap-[var(--s-3)]">
-          <p className="t-section text-[var(--text-2)]">{t('filters.from')}</p>
+        {/* Группа дат — fieldset с legend, а не абзац над полями: два поля образуют
+            один фильтр, и скринридер обязан объявить их как пару. Абзац на этом месте
+            к тому же повторял подпись первого поля дословно. */}
+        <fieldset className="flex flex-col gap-[var(--s-3)] border-0 p-0">
+          <legend className="t-section mb-[var(--s-2)] text-[var(--text-2)]">{t('filters.dates')}</legend>
           <div className="grid grid-cols-2 gap-[var(--s-2)]">
             <label className="flex flex-col gap-[var(--s-1)]">
               <span className="t-caption text-[var(--text-2)]">{t('filters.from')}</span>
@@ -156,7 +159,7 @@ export function ReportFilters({ filters, onChange, onClose, count }: ReportFilte
             />
             {t('filters.doneDates')}
           </label>
-        </div>
+        </fieldset>
       </div>
     </Sheet>
   )

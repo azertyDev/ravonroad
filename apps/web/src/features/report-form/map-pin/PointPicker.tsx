@@ -73,7 +73,13 @@ export function PointPicker({ value, onChange, error }: PointPickerProps) {
       {archiveUrl !== undefined && archiveUrl !== '' && (
         <div className="relative">
           <Suspense fallback={null}>
-            <MapPin archiveUrl={archiveUrl} value={value} onChange={onChange} keyboardLabel={t('form.point.pin')} />
+            <MapPin
+              archiveUrl={archiveUrl}
+              value={value}
+              onChange={onChange}
+              keyboardLabel={t('form.point.pin')}
+              mapLabel={t('form.point.mapLabel')}
+            />
           </Suspense>
         </div>
       )}

@@ -33,6 +33,8 @@ export function PageHead({ title, action }: PageHeadProps) {
       ) : (
         <span className="w-[var(--touch-min)]" />
       )}
+      {/* Не заголовок: имя страницы даёт ориентир в теле заявки (ReportSummary),
+          и второй h1 с номером спорил бы с ним за роль. */}
       <span className="t-h3 font-extrabold tabular-nums">{title}</span>
       {action ?? <span className="w-[var(--touch-min)]" />}
     </div>
