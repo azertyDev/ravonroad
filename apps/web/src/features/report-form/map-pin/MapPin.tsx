@@ -1,6 +1,7 @@
 import { Map as MapLibreMap, Marker, type LngLat } from 'maplibre-gl'
 import { useEffect, useRef, useState } from 'react'
 import { basemapStyle, MAX_ZOOM, MIN_ZOOM } from '../../../shared/map/basemap'
+import { coverZoom, TASHKENT_BOUNDS } from '../../../shared/map/tashkent'
 import { LoadingState } from '../../../shared/ui/state/LoadingState'
 import { roundCoordinate, TASHKENT_CENTER, type Point } from './coordinates'
 
@@ -51,12 +52,28 @@ export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
       })
     map.touchZoomRotate.disableRotation()
 
+    // За границей экстракта данных нет — там чёрное поле, и в кадре размером
+    // с квартал оно занимает половину блока. Те же два ограничения, что на публичной
+    // карте: камера не выходит за нарисованное, а нижний зум таков, что город
+    // закрывает блок целиком.
+    map.setMaxBounds([
+      [TASHKENT_BOUNDS.minLon, TASHKENT_BOUNDS.minLat],
+      [TASHKENT_BOUNDS.maxLon, TASHKENT_BOUNDS.maxLat],
+    ])
+
     // Карта рождается внутри `<dialog>`, который в момент монтирования ещё не раскрыт
     // на свою ширину: полотно оставалось прежним, и справа от него до края блока
     // стояла чёрная полоса. Наблюдатель размера догоняет любое такое изменение —
-    // раскрытие окна, поворот телефона, появление полосы прокрутки.
-    const sizes = new ResizeObserver(() => map.resize())
+    // раскрытие окна, поворот телефона, появление полосы прокрутки, — и вместе
+    // с размером пересчитывает нижний зум: он зависит от сторон блока.
+    const fit = (): void => {
+      map.resize()
+      const floor = coverZoom(TASHKENT_BOUNDS, root.clientWidth, root.clientHeight)
+      if (floor > 0) map.setMinZoom(Math.min(floor, MAX_ZOOM))
+    }
+    const sizes = new ResizeObserver(fit)
     sizes.observe(root)
+    fit()
     // Первый тайл приходит через несколько секунд: PMTiles читает заголовок, каталог
     // и лист последовательно. До этого показывается загрузка, а не пустой прямоугольник.
     map.once('idle', () => setDrawn(true))
