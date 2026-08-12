@@ -6,6 +6,7 @@ import { useReportForm } from '../../../features/report-form/ReportFormDialog'
 import { ReportSummary } from '../../../entities/report/ReportSummary'
 import { apiErrorCode } from '../../../shared/api/client'
 import { useI18n } from '../../../shared/i18n/useI18n'
+import { usePageMeta } from '../../../shared/lib/usePageMeta'
 import { useOnline } from '../../../shared/lib/useOnline'
 import { ActionBar } from '../../../shared/ui/control/ActionBar'
 import { ShareButton } from '../../../shared/ui/control/ShareButton'
@@ -46,6 +47,13 @@ export function ReportDetailPage() {
     staleTime: DETAIL_STALE_TIME,
     enabled: isNumber,
   })
+
+  // Номер в заголовке вкладки: по нему заявку находят среди десяти открытых вкладок,
+  // и он же уходит в закладку. Хук стоит до ранних возвратов — правило хуков.
+  usePageMeta(
+    detail.data === undefined ? t('meta.report.title') : `${detail.data.displayNumber} · ${t('meta.report.title')}`,
+    t('meta.report.description'),
+  )
 
   useEffect(() => {
     if (!copied) return

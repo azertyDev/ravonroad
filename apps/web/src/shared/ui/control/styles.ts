@@ -50,7 +50,7 @@ export const ICON_BUTTON =
 /** Поле ввода. 52 px, а не 48: мимо поля палец промахивается чаще, чем мимо кнопки,
  *  и кегль внутри обязан остаться 16 — ниже iOS зумит страницу при фокусе. */
 export const FIELD =
-  'min-h-[var(--touch-field)] w-full rounded-[var(--r-4)] border-[1.5px] border-[var(--border-2)]' +
+  'min-h-[var(--touch-field)] w-full rounded-[var(--r-4)] border-[1.5px] border-[var(--border-field)]' +
   ' bg-[var(--surface-card)] px-[var(--s-4)] py-[var(--s-3)] text-[length:var(--t-min-input)]' +
   ' text-[var(--text-1)]'
 

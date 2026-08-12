@@ -13,6 +13,14 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Браузер без модулей не выполнит из main.tsx ни строки: тег ниже он пропустит
+         целиком и оставит белую страницу — ровно то, чего PRD §8.5 не допускает.
+         Сообщение поэтому лежит здесь, сразу на двух языках и без словаря локали:
+         словарь — тоже модуль, и прочитать его такому браузеру нечем. -->
+    <script nomodule>
+      document.getElementById('root').textContent =
+        'Brauzer qoʻllab-quvvatlanmaydi, uni yangilang. — Браузер не поддерживается, обновите его.'
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

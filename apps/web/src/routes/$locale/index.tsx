@@ -13,6 +13,7 @@ import { CampaignCounter } from '../../features/stats/CampaignCounter'
 import { LatestRepaired } from '../../features/stats/LatestRepaired'
 import { StatusBreakdown } from '../../features/stats/StatusBreakdown'
 import { useI18n } from '../../shared/i18n/useI18n'
+import { usePageMeta } from '../../shared/lib/usePageMeta'
 import { ActionBar } from '../../shared/ui/control/ActionBar'
 import { CTA, GUTTER } from '../../shared/ui/control/styles'
 
@@ -27,6 +28,7 @@ import { CTA, GUTTER } from '../../shared/ui/control/styles'
  *  между ними обязан его сохранять (SRS §7.3). */
 export function HomePage() {
   const { locale, t } = useI18n()
+  usePageMeta(t('meta.home.title'), t('meta.home.description'))
   const openForm = useReportForm()
   // `strict: false`: экран рисуется и под главной, и под формой, поэтому привязать
   // чтение к одному из двух маршрутов нельзя. Разбор всё равно свой — тот же, что

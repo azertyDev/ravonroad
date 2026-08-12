@@ -9,6 +9,9 @@ interface MiniMapProps {
   archiveUrl: string
   latitude: number
   longitude: number
+  /** Имя полотна для скринридера. Приходит снаружи: словарь живёт на стороне страницы,
+   *  а сюда MapLibre грузится отдельным чанком. */
+  mapLabel: string
 }
 
 /** Место заявки одним кадром: карта без единого органа управления.
@@ -20,7 +23,7 @@ interface MiniMapProps {
  *  Пина здесь нет: карта отцентрована на заявке, поэтому он рисуется разметкой ровно
  *  в середине контейнера (ReportSummary). Маркер MapLibre понадобился бы, только если
  *  бы карту можно было сдвинуть. */
-export default function MiniMap({ archiveUrl, latitude, longitude }: MiniMapProps) {
+export default function MiniMap({ archiveUrl, latitude, longitude, mapLabel }: MiniMapProps) {
   const container = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -35,13 +38,15 @@ export default function MiniMap({ archiveUrl, latitude, longitude }: MiniMapProp
       minZoom: MIN_ZOOM,
       maxZoom: MAX_ZOOM,
       interactive: false,
+      // Полотно без этой строки подписано английским «Map» (SRS §8.2).
+      locale: { 'Map.Title': mapLabel },
       // Подписи на карте нет: источник указан строкой в подвале страницы (`AppFooter`),
       // и в кадре размером с квартал значок «i» занимал бы половину дома.
       attributionControl: false,
     })
 
     return () => map.remove()
-  }, [archiveUrl, latitude, longitude])
+  }, [archiveUrl, latitude, longitude, mapLabel])
 
   return <div ref={container} className="h-full w-full" />
 }

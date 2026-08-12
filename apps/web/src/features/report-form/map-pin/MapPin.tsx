@@ -22,11 +22,13 @@ interface MapPinProps {
   /** Имя пина для скринридера. Приходит снаружи: словарь живёт на стороне формы,
    *  а сюда MapLibre грузится отдельным чанком. */
   keyboardLabel: string
+  /** Имя самого полотна карты — по той же причине и тем же путём. */
+  mapLabel: string
 }
 
 /** Виджет выбора точки: тянет координаты внутрь, отдаёт координаты наружу. Ничего
  *  больше наружу не торчит — провайдера карты меняли уже дважды. */
-export default function MapPin({ archiveUrl, value, onChange, keyboardLabel }: MapPinProps) {
+export default function MapPin({ archiveUrl, value, onChange, keyboardLabel, mapLabel }: MapPinProps) {
   const container = useRef<HTMLDivElement>(null)
   const camera = useRef<MapLibreMap | null>(null)
   const marker = useRef<Marker | null>(null)
@@ -60,6 +62,9 @@ export default function MapPin({ archiveUrl, value, onChange, keyboardLabel }: M
         // Подпись OSM стоит в подвале страницы (`AppFooter`), а не поверх карты:
         // здесь каждый угол нужен под пин и подсказку.
         attributionControl: false,
+        // Иначе полотно карты подписано английским «Map» — на узбекской странице
+        // это единственное английское слово, которое читает скринридер.
+        locale: { 'Map.Title': mapLabel },
       })
     map.touchZoomRotate.disableRotation()
 
@@ -140,6 +145,11 @@ export default function MapPin({ archiveUrl, value, onChange, keyboardLabel }: M
       if (shift === undefined) return
       // Иначе стрелка прокручивает форму под картой вместо того, чтобы двигать пин.
       event.preventDefault()
+      // И останавливается здесь же: у MapLibre свой обработчик стрелок на контейнере
+      // карты, и всплывшее событие уводило камеру на полсотни пикселей за нажатие.
+      // Пин при этом сдвигался на свои пять метров — то есть на три пикселя, — и с виду
+      // стрелка не двигала метку, а увозила из-под неё карту (проверено с клавиатуры).
+      event.stopPropagation()
       const step = event.shiftKey ? NUDGE_FAST_M : NUDGE_STEP_M
       const from = entity.getLngLat()
       const moved = nudge({ latitude: from.lat, longitude: from.lng }, shift.east * step, shift.north * step)

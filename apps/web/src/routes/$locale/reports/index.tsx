@@ -17,6 +17,7 @@ import { useCampaignStats } from '../../../features/stats/useCampaignStats'
 import { apiErrorCode } from '../../../shared/api/client'
 import { formatNumber } from '../../../shared/format/number'
 import { useI18n } from '../../../shared/i18n/useI18n'
+import { usePageMeta } from '../../../shared/lib/usePageMeta'
 import { useDesktop } from '../../../shared/lib/useDesktop'
 import { ActionBar } from '../../../shared/ui/control/ActionBar'
 import { COMPACT, CTA, GUTTER, SECONDARY } from '../../../shared/ui/control/styles'
@@ -41,6 +42,7 @@ const LIST_STALE_TIME = 30_000
  *  «сколько всего» не требуется (SRS §4.3 — `total` в списке всегда `null`). */
 export function ReportListPage() {
   const { locale, t, tp } = useI18n()
+  usePageMeta(t('meta.list.title'), t('meta.list.description'))
   const openForm = useReportForm()
   // Таблица живёт только на ноутбуке, и карта на нём уступает ей место целиком
   // (Desktop C › экран 1b). Классом `lg:hidden` этого не сделать: спрятанная карта

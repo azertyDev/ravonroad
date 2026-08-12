@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react'
 import { ReportSummary } from '../../../entities/report/ReportSummary'
 import { apiErrorCode, apiFetch } from '../../../shared/api/client'
 import { useI18n } from '../../../shared/i18n/useI18n'
+import { usePageMeta } from '../../../shared/lib/usePageMeta'
 import { useOnline } from '../../../shared/lib/useOnline'
 import { ActionBar } from '../../../shared/ui/control/ActionBar'
 import { COMPACT, CTA, GUTTER, SECONDARY } from '../../../shared/ui/control/styles'
@@ -65,6 +66,11 @@ export function TrackPage() {
     // Гасится только эта страница, и ничего больше: контакты нигде не показывались.
     onSuccess: () => client.invalidateQueries({ queryKey: ['track', token] }),
   })
+
+  usePageMeta(
+    view.data === undefined ? t('meta.track.title') : `${view.data.displayNumber} · ${t('meta.track.title')}`,
+    t('meta.track.description'),
+  )
 
   useEffect(() => {
     if (!copied) return
