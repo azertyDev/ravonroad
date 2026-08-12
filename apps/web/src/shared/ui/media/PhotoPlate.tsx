@@ -13,14 +13,16 @@ interface PhotoPlateProps {
   caption: string
   /** `done` красит подпись бирюзовым: снимок «после» принадлежит закрытой заявке. */
   tone?: 'neutral' | 'done'
-  /** Полный размер по ссылке: превью здесь маленькое, а яму разглядывают. */
-  href?: string
+  /** Открыть снимок во весь экран. Раньше здесь была ссылка в новую вкладку — она
+   *  уводила со страницы заявки в файл на чужом домене, откуда возвращались кнопкой
+   *  «назад», а яму на телефоне разглядывают с увеличением. */
+  onOpen?: () => void
 }
 
 const CAPTION =
   't-label absolute bottom-[var(--s-3)] left-[var(--s-3)] rounded-[var(--r-1)] px-[var(--s-2)] py-[var(--s-1)] text-[var(--surface-page)]'
 
-export function PhotoPlate({ src, alt, caption, tone = 'neutral', href }: PhotoPlateProps) {
+export function PhotoPlate({ src, alt, caption, tone = 'neutral', onOpen }: PhotoPlateProps) {
   const image = (
     <>
       <img src={src} alt={alt} className="h-full w-full object-cover" loading="lazy" />
@@ -38,13 +40,14 @@ export function PhotoPlate({ src, alt, caption, tone = 'neutral', href }: PhotoP
     // пара занимает всю ширину карточки, и портрет уводил бы историю за нижний край
     // (Report C — 3/4, Desktop C — 4/3).
     <div className="relative aspect-[3/4] overflow-hidden bg-[image:var(--hatch-placeholder)] lg:aspect-[4/3]">
-      {href === undefined ? (
+      {onOpen === undefined ? (
         image
       ) : (
-        // Новая вкладка: житель пришёл смотреть заявку, а не уходить в файл.
-        <a href={href} target="_blank" rel="noreferrer" className="block h-full w-full">
+        // Кнопка, а не ссылка: снимок открывается поверх этой же страницы, никуда
+        // не уводя. Клавиатура получает то же действие бесплатно.
+        <button type="button" onClick={onOpen} className="block h-full w-full cursor-zoom-in">
           {image}
-        </a>
+        </button>
       )}
     </div>
   )

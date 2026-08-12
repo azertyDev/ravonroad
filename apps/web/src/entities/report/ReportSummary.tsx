@@ -11,6 +11,7 @@ import { useI18n } from '../../shared/i18n/useI18n'
 import type { UiKey } from '../../shared/i18n/messages'
 import { useDesktop } from '../../shared/lib/useDesktop'
 import { SECONDARY } from '../../shared/ui/control/styles'
+import { openLightbox, type LightboxPhoto } from '../../shared/ui/media/lightbox'
 import { PhotoPending, PhotoPlate } from '../../shared/ui/media/PhotoPlate'
 import { StatusField } from '../../shared/ui/status/StatusField'
 import { StatusMark } from '../../shared/ui/status/StatusMark'
@@ -64,6 +65,15 @@ export function ReportSummary({ report, note }: ReportSummaryProps) {
   const before = report.photos.filter((photo) => photo.kind === 'BEFORE')
   const after = report.photos.filter((photo) => photo.kind === 'AFTER')
   const noteKey = STATUS_NOTE[report.status]
+  // Один список на все плиты: просмотрщик листает «до» и «после» подряд, как они стоят
+  // на странице, а не открывает каждый снимок отдельной галереей из одного кадра.
+  const gallery: LightboxPhoto[] = [...before, ...after].map((photo) => ({
+    src: photo.url,
+    thumb: photo.previewUrl,
+    width: photo.width,
+    height: photo.height,
+    alt: photo.kind === 'AFTER' ? t('report.photoAfterAlt') : t('report.photoAlt'),
+  }))
   const hasMap = desktop && archiveUrl !== undefined && archiveUrl !== ''
 
   return (
@@ -107,20 +117,20 @@ export function ReportSummary({ report, note }: ReportSummaryProps) {
             Место снимка «после» названо словами, пока его нет: пустая клетка читается
             как поломка страницы. */}
         <div className="grid grid-cols-2 gap-[2px] bg-[var(--border-1)] lg:auto-cols-fr lg:grid-flow-col">
-          {before.map((photo) => (
+          {before.map((photo, index) => (
             <PhotoPlate
               key={photo.url}
               src={photo.previewUrl}
-              href={photo.url}
+              onOpen={() => void openLightbox(gallery, index)}
               alt={t('report.photoAlt')}
               caption={t('report.before')}
             />
           ))}
-          {after.map((photo) => (
+          {after.map((photo, index) => (
             <PhotoPlate
               key={photo.url}
               src={photo.previewUrl}
-              href={photo.url}
+              onOpen={() => void openLightbox(gallery, before.length + index)}
               alt={t('report.photoAfterAlt')}
               caption={t('report.after')}
               tone="done"

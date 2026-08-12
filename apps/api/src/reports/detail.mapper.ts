@@ -16,7 +16,12 @@ export const DETAIL_SELECT = {
   publicationUrl: true,
   createdAt: true,
   doneAt: true,
-  photos: { select: { kind: true, state: true, objectKey: true, previewKey: true, sortOrder: true } },
+  // Размеры полного кадра уходят в ответ: просмотрщику нужно знать место под снимок
+  // заранее, иначе он открывается рывком (`ReportPhotoView`). Считает их обработчик
+  // фотографий, в базе они уже лежат.
+  photos: {
+    select: { kind: true, state: true, objectKey: true, previewKey: true, sortOrder: true, width: true, height: true },
+  },
   history: { select: { toStatus: true, createdAt: true, undoneAt: true } },
 }
 
@@ -26,6 +31,9 @@ interface PhotoRow {
   objectKey: string | null
   previewKey: string | null
   sortOrder: number
+  /** Пусты, пока фотография не обработана; в ответ такие строки и не попадают. */
+  width: number | null
+  height: number | null
 }
 
 interface HistoryRow {
@@ -72,6 +80,10 @@ export function mapDetail(
       kind: photo.kind === 'AFTER' ? 'AFTER' : 'BEFORE',
       url: publicUrl(photo.objectKey as string),
       previewUrl: publicUrl(photo.previewKey as string),
+      // Ноль вместо `null`: у обработанной фотографии размеры есть всегда, а контракт
+      // числами и объявлен — просмотрщику незачем разбирать отсутствующее значение.
+      width: photo.width ?? 0,
+      height: photo.height ?? 0,
     }))
 
   // Публичная история — только статус, дата и признак отмены. `actor_*` и `moderator_id`

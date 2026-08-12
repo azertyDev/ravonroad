@@ -6,6 +6,8 @@ const photo = (kind: ReportPhotoView['kind']): ReportPhotoView => ({
   kind,
   url: `${kind}.jpg`,
   previewUrl: `${kind}-preview.jpg`,
+  width: 1600,
+  height: 1200,
 })
 
 describe('последний ремонт под плакатом', () => {
