@@ -101,7 +101,8 @@ export const uzUi = {
   // Пояснение к статусу пишется только там, где его написал дизайнер: выдумывать
   // обещания бригады на публичном сайте нельзя.
   'report.note.NEW': 'Ariza saytdan keldi va tekshirilmoqda. Brigada yangi arizalarni 1–2 kunda koʻrib chiqadi.',
-  'report.note.IN_PROGRESS': 'Brigada ishni boshladi. «Keyin» surati ish yopilganda paydo boʻladi.',
+  'report.note.IN_PROGRESS':
+    'Brigada ishni boshladi. Keyingi surat ish bajarilgandan soʻng paydo boʻladi.',
   'form.title': 'Chuqur haqida xabar berish',
   'form.point.myLocation': 'Mening joylashuvim',
   'form.point.locating': 'Joylashuv aniqlanmoqda…',
