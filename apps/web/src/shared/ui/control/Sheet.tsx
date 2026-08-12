@@ -35,9 +35,21 @@ interface SheetProps {
  *
  *  Высота 92%, без промежуточной. Половинчатый лист на 390 px заставляет тянуться
  *  к верху экрана, а карта под ним всё равно не читается (Mobile States C). */
+/** Клик мимо содержимого — это нажатие И отпускание на подложке, а не одно отпускание.
+ *
+ *  Событие `click` приходит на ближайшего общего предка нажатия и отпускания, а для
+ *  `<dialog>` подложка — часть самого элемента. Поэтому жест, начатый внутри окна
+ *  и законченный за его краем, приходил на диалог и читался как «клик мимо»: карту
+ *  тянули пальцем, курсор уезжал за модалку — и форма закрывалась вместе с набранным.
+ *  Нажатие внутри окна лишает жест права закрывать, чем бы он ни кончился. */
+export function dismissedByBackdrop(pressedBackdrop: boolean, clickTarget: EventTarget | null, dialog: Element | null): boolean {
+  return pressedBackdrop && clickTarget === dialog
+}
+
 export function Sheet({ title, subtitle, onClose, children, footer, fill = false }: SheetProps) {
   const { t } = useI18n()
   const dialog = useRef<HTMLDialogElement>(null)
+  const pressedBackdrop = useRef(false)
   // Обработчик читается из ref: слушатель вешается один раз на открытие, а замкнутый
   // в нём первый onClose держал бы устаревшее состояние.
   const closing = useRef(onClose)
@@ -66,10 +78,14 @@ export function Sheet({ title, subtitle, onClose, children, footer, fill = false
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
     <dialog
       ref={dialog}
-      // Клик мимо содержимого: у `<dialog>` подложка — часть самого элемента, поэтому
-      // попадание ровно в него и означает «мимо».
+      // Нажатие запоминается: закрывает только жест, целиком прошедший по подложке
+      // (см. `dismissedByBackdrop`).
+      onPointerDown={(event) => {
+        pressedBackdrop.current = event.target === dialog.current
+      }}
       onClick={(event) => {
-        if (event.target === dialog.current) onClose()
+        if (dismissedByBackdrop(pressedBackdrop.current, event.target, dialog.current)) onClose()
+        pressedBackdrop.current = false
       }}
       className={`fixed inset-x-0 bottom-0 top-auto m-0 grid max-h-none w-full max-w-none grid-rows-[auto_1fr_auto] overflow-hidden border-t border-[var(--border-1)] bg-[var(--surface-page)] p-0 text-[var(--text-1)] backdrop:bg-[rgba(18,22,28,.72)] md:inset-0 md:m-auto md:h-auto md:max-h-[85dvh] md:w-[min(900px,92vw)] md:rounded-[var(--r-4)] md:border ${
         fill ? 'inset-0 h-full' : 'h-[var(--sheet-full)] rounded-t-[16px]'
