@@ -31,9 +31,10 @@ export interface LightboxPhoto {
 export async function openLightbox(photos: readonly LightboxPhoto[], index: number): Promise<void> {
   if (photos.length === 0) return
 
+  const sized = await Promise.all(photos.map(measure))
   const { default: PhotoSwipeLightbox } = await import('photoswipe/lightbox')
   const lightbox = new PhotoSwipeLightbox({
-    dataSource: photos.map((photo) => ({
+    dataSource: sized.map((photo) => ({
       src: photo.src,
       msrc: photo.thumb,
       width: photo.width,
@@ -42,13 +43,14 @@ export async function openLightbox(photos: readonly LightboxPhoto[], index: numb
       caption: photo.caption,
     })),
     pswpModule: () => import('photoswipe'),
-    // Кадр открывается во всю ширину экрана, а не вписанным в него с полями по бокам:
-    // яму разглядывают, а не рассматривают композицию. Сверх натурального размера
-    // PhotoSwipe не растягивает ни при каком значении, поэтому мыла не будет.
-    initialZoomLevel: 'fill',
-    // Второй тап показывает кадр целиком: из «во всю ширину» иначе не выйти,
-    // а на портретном снимке видна только его середина.
-    secondaryZoomLevel: 'fit',
+    // Кадр открывается целиком и с полями, а не растянутым в экран: растянутый режет
+    // верх и низ, а на снимке ямы важен как раз край выбоины.
+    initialZoomLevel: 'fit',
+    // Второй тап приближает: разглядеть трещину на общем плане иначе нельзя.
+    secondaryZoomLevel: 'fill',
+    // Поля вокруг кадра. Сверху больше остальных: там лежит подпись «до / после»,
+    // и без запаса она встаёт прямо на снимок.
+    padding: { top: 72, bottom: 40, left: 40, right: 40 },
     maxZoomLevel: 2,
     // Затемнение почти непрозрачное: под ним тёмная страница, и полупрозрачный фон
     // оставлял бы на снимке проступающую разметку заявки.
@@ -79,4 +81,17 @@ export async function openLightbox(photos: readonly LightboxPhoto[], index: numb
 
   lightbox.init()
   lightbox.loadAndOpen(index)
+}
+
+/** Размеры без нуля. Ноль приходит от заявок, снятых до того, как API начал отдавать
+ *  размеры, и от снимков, у которых их не проставил воркер. Без размеров PhotoSwipe
+ *  считает масштаб «вписать» неверно и растягивает кадр на весь экран, поэтому такой
+ *  снимок замеряется браузером — по сети это тот же файл, который всё равно грузится. */
+async function measure(photo: LightboxPhoto): Promise<LightboxPhoto> {
+  if (photo.width > 0 && photo.height > 0) return photo
+  const image = new Image()
+  image.src = photo.src
+  await image.decode().catch(() => undefined)
+  if (image.naturalWidth === 0) return photo
+  return { ...photo, width: image.naturalWidth, height: image.naturalHeight }
 }
