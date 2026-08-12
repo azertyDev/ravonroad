@@ -20,10 +20,10 @@ export function StatusBreakdown() {
   const stats = useCampaignStats()
   if (stats.data === undefined) return null
 
-  // Поле держится и на ноутбуке: жёлтая плита счётчика идёт в край сама, а текстовые
-  // строки под ней, упёршись в ту же кромку, читаются как обрезанный текст, а не блок.
+  // На телефоне поле своё, на ноутбуке его держит колонка целиком: иначе оно
+  // складывалось бы с полем колонки вдвое, и список статусов стоял бы уже плиты.
   return (
-    <section className="flex flex-col gap-[var(--s-4)] px-[var(--gutter)]">
+    <section className="flex flex-col gap-[var(--s-4)] px-[var(--gutter)] lg:px-0">
       <h2 className="t-section text-[var(--text-2)]">{t('home.statuses')}</h2>
       <ul className="flex flex-col gap-[var(--s-3)]">
         {PUBLIC_STATUSES.map((status) => (
