@@ -95,7 +95,7 @@ export function Sheet({ title, subtitle, onClose, children, footer, fill = false
           разметки, а не всплывшая поверх неё панель (Form C). */}
       <div aria-hidden="true" className="h-[8px] shrink-0 bg-[image:var(--hazard-tape)]" />
 
-      <div className="flex flex-col gap-[var(--s-3)] px-[var(--gutter)] pt-[var(--s-4)] pb-[var(--s-4)]">
+      <div className="flex flex-col gap-[var(--s-3)] px-[var(--gutter)] pt-[var(--s-4)] pb-[var(--s-3)]">
         {/* Хват листа. Декоративный: тянуть его мы не умеем, но без него край листа
             читается как обрезанная страница, а не как поднятая панель. */}
         {!fill && (
@@ -119,8 +119,9 @@ export function Sheet({ title, subtitle, onClose, children, footer, fill = false
       </div>
 
       {/* Отступа снизу нет, когда окно занимает экран: содержимое там несёт собственную
-          панель действия, и она обязана прилипнуть к самому дну — иначе под ней остаётся
-          щель, в которой видно проезжающий текст. */}
+          панель действия на `sticky`, и она обязана прилипнуть к самому дну. Поле
+          у прокручиваемого контейнера подняло бы её на свою высоту, и под ней осталась
+          бы щель с проезжающим текстом. Воздух перед панелью даёт само содержимое. */}
       <div className={`min-h-0 overflow-auto px-[var(--gutter)] ${fill ? '' : 'pb-[var(--s-4)]'}`}>
         {children}
       </div>
