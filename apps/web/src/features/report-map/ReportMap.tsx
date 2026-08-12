@@ -128,7 +128,7 @@ export default function ReportMap({
   onBoundsChange,
   focus,
 }: ReportMapProps) {
-  const { t } = useI18n()
+  const { locale, t } = useI18n()
   const container = useRef<HTMLDivElement>(null)
   const map = useRef<MapLibreMap | null>(null)
   const held = useRef(new Map<string, HeldMarker>())
@@ -163,6 +163,9 @@ export default function ReportMap({
       // (`AppFooter`) — требование выполнено, а все четыре угла карты остаются рабочими:
       // переключатель «карта / список», кнопка геопозиции и пины ничем не закрыты.
       attributionControl: false,
+      // Иначе MapLibre подписывает полотно и маркеры по-английски: «Map», «Map marker».
+      // На узбекской странице это два английских слова, которые читает скринридер.
+      locale: { 'Map.Title': t('map.canvasLabel'), 'Marker.Title': t('map.marker.label') },
     })
     instance.touchZoomRotate.disableRotation()
     map.current = instance
@@ -286,6 +289,13 @@ export default function ReportMap({
       held.current.clear()
     }
   }, [archiveUrl])
+
+  // Карта переживает переключение языка: она создаётся один раз, а строки в неё попали
+  // при создании. Подпись полотна поэтому переставляется отдельно — иначе на /ru
+  // остаётся узбекская, и наоборот.
+  useEffect(() => {
+    map.current?.getCanvas().setAttribute('aria-label', t('map.canvasLabel'))
+  }, [locale, t])
 
   useEffect(() => {
     const source = map.current?.getSource(SOURCE)

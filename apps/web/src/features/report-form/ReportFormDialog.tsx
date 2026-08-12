@@ -10,7 +10,9 @@ const OpenReportForm = createContext<(() => void) | null>(null)
 /** Открыть форму заявки поверх текущей страницы. */
 export function useReportForm(): () => void {
   const open = use(OpenReportForm)
-  if (open === null) throw new Error('useReportForm вне ReportFormProvider')
+  // Сообщение разработчику, поэтому по-английски: жителю оно не показывается никогда,
+  // а в разметке экранов русских строк не остаётся вовсе (screens.test.ts).
+  if (open === null) throw new Error('useReportForm used outside ReportFormProvider')
   return open
 }
 

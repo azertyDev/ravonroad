@@ -215,7 +215,12 @@ export function ReportSummary({ report, note }: ReportSummaryProps) {
           <div className="overflow-hidden max-lg:hidden lg:rounded-[var(--r-4)] lg:border lg:border-[var(--border-1)]">
             <div className="relative h-[220px]">
               <Suspense fallback={null}>
-                <MiniMap archiveUrl={archiveUrl} latitude={report.latitude} longitude={report.longitude} />
+                <MiniMap
+                  archiveUrl={archiveUrl}
+                  latitude={report.latitude}
+                  longitude={report.longitude}
+                  mapLabel={t('map.canvasLabel')}
+                />
               </Suspense>
               {/* Пин стоит разметкой, а не маркером: карта отцентрована на заявке и
                   сдвинуться не может, поэтому середина контейнера и есть точка. */}
