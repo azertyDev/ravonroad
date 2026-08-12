@@ -44,9 +44,12 @@ export function ReportPopup({ number, onClose }: ReportPopupProps) {
   const preview = report?.photos.find((photo) => photo.kind === 'BEFORE')
 
   return (
+    // Карточка встаёт над нижними органами карты, а не поверх них: в левом нижнем углу
+    // лежит переключатель «карта / список», в правом — «моё местоположение», и с прежним
+    // `bottom` карточка ложилась на оба.
     <aside
       aria-label={`${t('map.marker.label')} ${number}`}
-      className="absolute inset-x-[var(--s-3)] bottom-[var(--s-3)] flex gap-[var(--s-3)] rounded-[var(--r-3)] border border-[var(--border-1)] bg-[var(--surface-card)] p-[var(--s-3)] shadow-[var(--e-2)]"
+      className="absolute inset-x-[var(--s-3)] bottom-[calc(var(--touch-min)+var(--s-3)*2)] flex gap-[var(--s-3)] rounded-[var(--r-3)] border border-[var(--border-1)] bg-[var(--surface-card)] p-[var(--s-3)] shadow-[var(--e-2)]"
     >
       {detail.isPending && <LoadingState />}
       {detail.isError && <ErrorState code={apiErrorCode(detail.error)} onRetry={() => void detail.refetch()} />}
