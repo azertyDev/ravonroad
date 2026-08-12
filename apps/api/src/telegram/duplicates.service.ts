@@ -3,6 +3,7 @@ import type { Prisma } from '../generated/prisma/client'
 import type { InlineKeyboardButton } from './bot-api.client'
 import { encodeCallbackData } from './callback-data'
 import { displayNumber } from './card.renderer'
+import { BUTTONS } from './labels'
 
 /** Кластеры дублей (SRS §6.14, §3.2).
  *
@@ -67,13 +68,13 @@ export class DuplicatesService {
     return [
       [
         {
-          text: `Все дубли ${displayNumber(rootNumber)} (${memberCount})`,
+          text: BUTTONS.allDuplicates(displayNumber(rootNumber), memberCount),
           callback_data: encodeCallbackData({ op: 'B', n: batchId, arg: 'D' }),
         },
       ],
       [
-        { text: 'Разные ямы', callback_data: encodeCallbackData({ op: 'B', n: batchId, arg: 'X' }) },
-        { text: 'Раскрыть', callback_data: encodeCallbackData({ op: 'b', n: batchId }) },
+        { text: BUTTONS.differentPotholes, callback_data: encodeCallbackData({ op: 'B', n: batchId, arg: 'X' }) },
+        { text: BUTTONS.expand, callback_data: encodeCallbackData({ op: 'b', n: batchId }) },
       ],
     ]
   }

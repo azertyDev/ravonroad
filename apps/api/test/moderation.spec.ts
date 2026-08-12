@@ -89,7 +89,7 @@ async function drain(): Promise<void> {
 
 describe('Одношаговые переходы (US-019, US-023)', () => {
   it('«Принять» меняет статус, пишет историю и перестраивает кнопки', async () => {
-    const report = await seedReport(prisma, { cardMessageId: CARD_MESSAGE_ID, withReadyPhoto: true })
+    const report = await seedReport(prisma, { cardMessageId: CARD_MESSAGE_ID, readyPhotos: 1 })
     await press(encodeCallbackData({ op: 's', n: report.publicNumber, arg: 'AC' }))
 
     const stored = await prisma.report.findUniqueOrThrow({ where: { id: report.id } })
@@ -105,7 +105,7 @@ describe('Одношаговые переходы (US-019, US-023)', () => {
 
     // Правка карточки ушла в очередь, а не прямым вызовом из транзакции.
     await drain()
-    expect(labels(lastKeyboard())).toEqual(['В работу', 'Отклонить', 'Дубль', 'Не по силам'])
+    expect(labels(lastKeyboard())).toEqual(['Ishga olish', 'Rad etish', 'Takroriy', 'Imkoniyatdan tashqari'])
   })
 
   it('«В работу» и «вернуть в очередь» — один и тот же callback, разные переходы', async () => {
@@ -128,7 +128,7 @@ describe('Одношаговые переходы (US-019, US-023)', () => {
 
     expect((await prisma.report.findUniqueOrThrow({ where: { id: report.id } })).status).toBe('IN_PROGRESS')
     const answer = telegram.of('answerCallbackQuery').at(-1)
-    expect(String(answer?.params['text'])).toContain('уже изменён')
+    expect(String(answer?.params['text'])).toContain('Holat allaqachon')
     expect(answer?.params['show_alert']).toBe(true)
   })
 
@@ -137,7 +137,7 @@ describe('Одношаговые переходы (US-019, US-023)', () => {
     await press(encodeCallbackData({ op: 'R', n: report.publicNumber, arg: 'spam' }))
     await drain()
 
-    expect(labels(lastKeyboard())).toEqual(['↩︎ Отменить'])
+    expect(labels(lastKeyboard())).toEqual(['↩︎ Bekor qilish'])
   })
 })
 
@@ -164,7 +164,7 @@ describe('Гонка двух модераторов (US-026, PRD 5.3.6)', () =>
 
     const refusals = telegram
       .of('answerCallbackQuery')
-      .filter((call) => String(call.params['text']).includes('уже изменён'))
+      .filter((call) => String(call.params['text']).includes('Holat allaqachon'))
     expect(refusals).toHaveLength(1)
   })
 
@@ -219,11 +219,11 @@ describe('Двухшаговые переходы с причиной (US-020, U
     expect(telegram.of('sendMessage')).toHaveLength(0)
     expect(telegram.of('editMessageText')).toHaveLength(1)
     expect(labels(lastKeyboard())).toEqual([
-      'Не дефект покрытия',
-      'Фото непригодно',
-      'Спам',
-      'Другое',
-      '← Назад',
+      'Yoʻl qoplamasi nuqsoni emas',
+      'Surat qaror qabul qilish uchun yaroqsiz',
+      'Spam yoki mazmunsiz yuborish',
+      'Boshqa',
+      '← Orqaga',
     ])
     // Статус не изменился: переход без причины не выполняется (PRD §5.2).
     expect((await prisma.report.findUniqueOrThrow({ where: { id: report.id } })).status).toBe('NEW')
@@ -234,7 +234,7 @@ describe('Двухшаговые переходы с причиной (US-020, U
     await press(encodeCallbackData({ op: 'r', n: report.publicNumber }))
     await press(encodeCallbackData({ op: 'z', n: report.publicNumber }))
 
-    expect(labels(lastKeyboard())).toEqual(['Принять', 'Отклонить', 'Дубль', 'Не по силам'])
+    expect(labels(lastKeyboard())).toEqual(['Qabul qilish', 'Rad etish', 'Takroriy', 'Imkoniyatdan tashqari'])
     expect((await prisma.report.findUniqueOrThrow({ where: { id: report.id } })).status).toBe('NEW')
   })
 
@@ -307,7 +307,7 @@ describe('Двухшаговые переходы с причиной (US-020, U
     expect((await prisma.report.findUniqueOrThrow({ where: { id: report.id } })).status).toBe('NEW')
     await drain()
     expect(telegram.of('sendMessage').map((call) => String(call.params['text'])).join(' ')).toContain(
-      'Время истекло',
+      'Vaqt tugadi',
     )
   })
 })
@@ -407,7 +407,7 @@ describe('Окно отмены (PRD §5.4, SRS §6.10)', () => {
 
     expect((await prisma.report.findUniqueOrThrow({ where: { id: report.id } })).status).toBe('REJECTED')
     const answer = telegram.of('answerCallbackQuery').at(-1)
-    expect(String(answer?.params['text'])).toContain('только тот, кто сделал переход')
+    expect(String(answer?.params['text'])).toContain('Faqat oʻzgartirishni qilgan odam')
     expect(secondModeratorId).toBeGreaterThan(0)
   })
 
@@ -426,7 +426,7 @@ describe('Окно отмены (PRD §5.4, SRS §6.10)', () => {
 
     await press(encodeCallbackData({ op: 'u', n: historyId }))
     expect((await prisma.report.findUniqueOrThrow({ where: { id: report.id } })).status).toBe('REJECTED')
-    expect(String(telegram.of('answerCallbackQuery').at(-1)?.params['text'])).toContain('Окно отмены истекло')
+    expect(String(telegram.of('answerCallbackQuery').at(-1)?.params['text'])).toContain('Bekor qilish oynasi tugadi')
   })
 
   it('второй раз один переход не отменяется', async () => {

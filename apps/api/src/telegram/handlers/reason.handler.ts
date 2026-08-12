@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common'
 import type { ReportStatus } from '@ravonroad/shared-types'
 import { OUT_OF_SCOPE_REASONS, REJECT_REASONS } from '../../reports/transitions'
 import { BotApiClient } from '../bot-api.client'
-import { CardRenderer } from '../card.renderer'
+import { CardRenderer, isCombined } from '../card.renderer'
+import { ANSWERS } from '../labels'
 import type { CallbackAnswer, IncomingCallbackQuery } from '../update'
 import type { ActiveModerator } from '../moderator.guard'
 import { PromptHandler } from './prompt.handler'
@@ -32,14 +33,14 @@ export class ReasonHandler {
     query: IncomingCallbackQuery,
   ): Promise<CallbackAnswer> {
     const edited = await this.replaceKeyboard(publicNumber, query, this.cards.reasonKeyboard(publicNumber, target))
-    return edited ? { text: 'Выберите причину' } : { text: 'Заявка не найдена', alert: true }
+    return edited ? { text: ANSWERS.chooseReason } : { text: ANSWERS.reportNotFound, alert: true }
   }
 
   /** «Назад»: причины исчезают, кнопки статусов возвращаются. Кнопка существует потому,
    *  что промахнуться по «Отклонить» так же легко, как по любой другой. */
   async back(publicNumber: number, query: IncomingCallbackQuery): Promise<CallbackAnswer> {
     const card = await this.cards.loadByNumber(publicNumber)
-    if (card === null) return { text: 'Заявка не найдена', alert: true }
+    if (card === null) return { text: ANSWERS.reportNotFound, alert: true }
     await this.replaceKeyboard(publicNumber, query, this.cards.keyboard(card))
     return { text: '' }
   }
@@ -55,14 +56,14 @@ export class ReasonHandler {
     query: IncomingCallbackQuery
   }): Promise<CallbackAnswer> {
     const codes: readonly string[] = input.target === 'REJECTED' ? REJECT_REASONS : OUT_OF_SCOPE_REASONS
-    if (!codes.includes(input.code)) return { text: 'Неизвестная причина', alert: true }
+    if (!codes.includes(input.code)) return { text: ANSWERS.unknownReason, alert: true }
 
     const card = await this.cards.loadByNumber(input.publicNumber)
-    if (card === null) return { text: 'Заявка не найдена', alert: true }
+    if (card === null) return { text: ANSWERS.reportNotFound, alert: true }
 
     if (input.code === 'other') {
       const chatId = input.query.message?.chat.id
-      if (chatId === undefined) return { text: 'Сообщение недоступно', alert: true }
+      if (chatId === undefined) return { text: ANSWERS.messageUnavailable, alert: true }
       await this.prompts.ask({
         chatId,
         reportId: card.id,
@@ -71,7 +72,7 @@ export class ReasonHandler {
         kind: 'REASON_TEXT',
         targetStatus: input.target,
       })
-      return { text: 'Ответьте на сообщение бота текстом причины' }
+      return { text: ANSWERS.answerWithReason }
     }
 
     return this.status.apply({
@@ -95,12 +96,12 @@ export class ReasonHandler {
     const message = query.message
     if (card === null || message === null) return false
 
-    await this.bot.editMessageText({
+    await this.bot.editCard({
       chat_id: String(message.chat.id),
       message_id: message.message_id,
-      text: this.cards.statusText(card),
-      parse_mode: 'HTML',
+      text: this.cards.cardText(card),
       reply_markup: { inline_keyboard: keyboard },
+      asCaption: isCombined(card),
     })
     return true
   }

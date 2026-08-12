@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { UndoService } from '../../reports/undo.service'
-import { STATUS_LABELS, displayNumber } from '../card.renderer'
+import { displayNumber } from '../card.renderer'
+import { ANSWERS, STATUS_LABELS } from '../labels'
 import { CardUpdater } from '../card.updater'
 import { applyOnce } from '../idempotency'
 import { logEvent } from '../../common/logger'
@@ -42,7 +43,7 @@ export class UndoHandler {
       return result
     })
 
-    if (outcome === null) return { text: 'Уже обработано' }
+    if (outcome === null) return { text: ANSWERS.alreadyHandled }
     if (outcome.ok) {
       logEvent('info', 'status_undone', {
         updateId: input.updateId,
@@ -51,20 +52,18 @@ export class UndoHandler {
         to: outcome.to,
         ...(input.moderator === null ? {} : { moderatorId: input.moderator.id }),
       })
-      return {
-        text: `${displayNumber(outcome.publicNumber)} → ${STATUS_LABELS[outcome.to]} (отменено)`,
-      }
+      return { text: ANSWERS.undone(displayNumber(outcome.publicNumber), STATUS_LABELS[outcome.to]) }
     }
 
     switch (outcome.code) {
       case 'NOT_AUTHOR':
-        return { text: 'Отменить может только тот, кто сделал переход', alert: true }
+        return { text: ANSWERS.undoNotAuthor, alert: true }
       case 'EXPIRED':
-        return { text: 'Окно отмены истекло', alert: true }
+        return { text: ANSWERS.undoExpired, alert: true }
       case 'NOT_LAST':
-        return { text: 'Этот переход уже отменён или после него были другие', alert: true }
+        return { text: ANSWERS.undoNotLast, alert: true }
       default:
-        return { text: 'Переход не найден', alert: true }
+        return { text: ANSWERS.undoNotFound, alert: true }
     }
   }
 }

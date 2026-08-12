@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import type { ReportStatus } from '@ravonroad/shared-types'
 import { S3Service } from '../media/s3.service'
 import { PrismaService } from '../prisma/prisma.service'
@@ -6,12 +7,16 @@ import { OUT_OF_SCOPE_REASONS, REJECT_REASONS, isTerminal, transitionsFrom } fro
 import { UndoService } from '../reports/undo.service'
 import type { InlineKeyboardButton } from './bot-api.client'
 import { encodeCallbackData } from './callback-data'
+import { ABUSE_LABELS, BUTTONS, CARD, REASON_LABELS, STATUS_LABELS, TRANSITION_LABELS } from './labels'
 
 /** Карточка заявки в группе (SRS §6.3, §6.4).
  *
- *  Два сообщения, а не одно: медиагруппа не может нести inline-клавиатуру. Два, а не три:
- *  ссылка на Яндекс Карты в подписи открывает приложение с тем же результатом, что
- *  `sendLocation`, и не добавляет группе третьего уведомления (US-027).
+ *  Одно сообщение или два — решает число фотографий: `sendMediaGroup` не принимает
+ *  `reply_markup`, а `sendPhoto` принимает и подпись, и клавиатуру. Поэтому заявка
+ *  с одной фотографией — одна карточка одним сообщением, с двумя и тремя — по-прежнему
+ *  альбом плюс сообщение с кнопками (`outbox.worker`). Два, а не три: ссылка на Яндекс
+ *  Карты в подписи открывает приложение с тем же результатом, что `sendLocation`,
+ *  и не добавляет группе третьего уведомления (US-027).
  *
  *  Ни телефона, ни ника заявителя в карточке нет и быть не может: её видит вся группа,
  *  а контакты не публикуются нигде (PRD §6.2, §9.2). Они здесь просто не выбираются
@@ -24,33 +29,6 @@ const CAPTION_LIMIT = 1024
  *  с телефона, а решение всё равно принимается по фотографиям (SRS §6.3). */
 const NEARBY_LIMIT = 3
 
-export const STATUS_LABELS: Record<ReportStatus, string> = {
-  NEW: 'Новая',
-  ACCEPTED: 'Принята',
-  IN_PROGRESS: 'В работе',
-  DONE: 'Отремонтирована',
-  REJECTED: 'Отклонена',
-  DUPLICATE: 'Дубликат',
-  OUT_OF_SCOPE: 'Не по силам',
-}
-
-export const REASON_LABELS: Record<string, string> = {
-  not_road_defect: 'Не дефект покрытия',
-  unreadable_photo: 'Фото непригодно',
-  spam: 'Спам',
-  ground_sinkhole: 'Провал грунта',
-  utilities: 'Коммуникации',
-  highway: 'Магистраль',
-  too_large: 'Объём выше сил',
-  other: 'Другое',
-}
-
-const ABUSE_LABELS: Record<string, string> = {
-  HONEYPOT: 'скрытое поле заполнено',
-  FAST_FILL: 'форма заполнена слишком быстро',
-  IP_RATE: 'много заявок с одного адреса',
-}
-
 /** Кнопки статусов несут целевой статус, а не действие: «Принять» из `NEW` и «Вернуть
  *  в очередь» из `IN_PROGRESS` ведут в один и тот же `ACCEPTED` (SRS §6.4). Какой это
  *  переход, сервер выясняет по текущему статусу — из таблицы, а не из кнопки. */
@@ -58,12 +36,6 @@ const STATUS_ARGS: Record<string, ReportStatus> = { AC: 'ACCEPTED', IP: 'IN_PROG
 
 export function statusFromArg(arg: string | undefined): ReportStatus | null {
   return (arg === undefined ? null : STATUS_ARGS[arg]) ?? null
-}
-
-const BUTTON_LABELS: Record<string, string> = {
-  'NEW:ACCEPTED': 'Принять',
-  'ACCEPTED:IN_PROGRESS': 'В работу',
-  'IN_PROGRESS:ACCEPTED': 'Вернуть в очередь',
 }
 
 export interface CardSnapshot {
@@ -101,6 +73,14 @@ export function displayNumber(publicNumber: number): string {
   return `RR-${publicNumber}`
 }
 
+/** Карточка из одного сообщения: подпись, фотография и кнопки живут в нём вместе,
+ *  поэтому оба `message_id` заявки указывают на него же (`outbox.worker`). Признак
+ *  нужен не для красоты: у такого сообщения нет текста, есть подпись, и правится оно
+ *  `editMessageCaption`, а не `editMessageText`. */
+export function isCombined(card: Pick<CardSnapshot, 'albumMessageId' | 'cardMessageId'>): boolean {
+  return card.albumMessageId !== null && card.albumMessageId === card.cardMessageId
+}
+
 /** Экранирование обязательно, а не желательно: `landmark` пишет житель, а `parse_mode`
  *  у нас HTML. Незакрытый `<b>` от жителя ломает всю карточку, а `<a href>` — превращает
  *  её в ссылку на что угодно. */
@@ -127,13 +107,27 @@ export function mapLink(latitude: string, longitude: string): string {
   return `https://yandex.uz/maps/?pt=${longitude},${latitude}&z=18&l=map`
 }
 
+/** Обрезается целиком, а не по строкам: терять хвост осмысленнее, чем отправить
+ *  сообщение, которое Telegram отвергнет, и уронить карточку в повторы. */
+function clamp(text: string): string {
+  return text.length <= CAPTION_LIMIT ? text : `${text.slice(0, CAPTION_LIMIT - 1)}…`
+}
+
 @Injectable()
 export class CardRenderer {
+  /** Адрес публичной страницы заявки. Номер в карточке — ссылка на неё: волонтёр
+   *  открывает фотографии, историю и карту одним нажатием, вместо того чтобы искать
+   *  заявку по номеру руками. */
+  private readonly siteUrl: string
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly s3: S3Service,
     private readonly undo: UndoService,
-  ) {}
+    config: ConfigService,
+  ) {
+    this.siteUrl = config.getOrThrow<string>('PUBLIC_SITE_URL').replace(/\/+$/, '')
+  }
 
   /** Всё, что нужно карточке, одним чтением. Читается в момент отправки, а не в момент
    *  постановки в очередь: схлопнутая правка обязана уйти с актуальным состоянием,
@@ -156,8 +150,8 @@ export class CardRenderer {
         telegramAlbumMessageId: true,
         telegramCardMessageId: true,
         duplicateOf: { select: { publicNumber: true } },
-        district: { select: { nameRu: true } },
-        category: { select: { nameRu: true } },
+        district: { select: { nameUz: true } },
+        category: { select: { nameUz: true } },
         photos: {
           where: { kind: 'BEFORE', state: 'READY' },
           orderBy: { sortOrder: 'asc' },
@@ -186,8 +180,8 @@ export class CardRenderer {
       latitude: report.latitude.toFixed(6),
       longitude: report.longitude.toFixed(6),
       createdAt: report.createdAt,
-      districtName: report.district.nameRu,
-      categoryName: report.category.nameRu,
+      districtName: report.district.nameUz,
+      categoryName: report.category.nameUz,
       photoUrls: report.photos.flatMap((photo) => (photo.objectKey === null ? [] : [this.s3.publicUrl(photo.objectKey)])),
       abuseRules: report.abuseSignals.map((signal) => signal.rule),
       nearbyNumbers: report.duplicateCandidates.map((candidate) => candidate.publicNumber),
@@ -217,49 +211,87 @@ export class CardRenderer {
     return report === null ? null : this.load(report.id)
   }
 
-  /** Подпись на первом фото альбома (SRS §6.3). */
-  caption(card: CardSnapshot): string {
+  /** Номер заявки ссылкой на её публичную страницу. Ссылка, а не `<code>`: номер
+   *  в группе всё равно служит адресом заявки, и открыть его нажатием быстрее, чем
+   *  копировать в строку браузера. */
+  private numberLink(publicNumber: number): string {
+    return `<a href="${this.siteUrl}/uz/reports/${publicNumber}">${displayNumber(publicNumber)}</a>`
+  }
+
+  /** Подпись к фотографиям: что за яма, где и когда (SRS §6.3). */
+  private captionLines(card: CardSnapshot): string[] {
     const lines = [
-      `<b><code>${displayNumber(card.publicNumber)}</code></b> · ${escapeHtml(card.districtName)}`,
+      `<b>${this.numberLink(card.publicNumber)}</b> · ${escapeHtml(card.districtName)}`,
       escapeHtml(card.categoryName),
     ]
     if (card.landmark !== null) lines.push(`«${escapeHtml(card.landmark)}»`)
     lines.push(formatMoment(card.createdAt))
-    lines.push(`<a href="${mapLink(card.latitude, card.longitude)}">Открыть на карте</a>`)
+    lines.push(`<a href="${mapLink(card.latitude, card.longitude)}">${CARD.openMap}</a>`)
     if (card.abuseRules.length > 0) {
       const rules = card.abuseRules.map((rule) => ABUSE_LABELS[rule] ?? rule).join(', ')
-      lines.push(`⚠️ проверить: ${rules}`)
+      lines.push(`${CARD.checkPrefix}: ${rules}`)
     }
     if (card.nearbyNumbers.length > 0) {
-      lines.push(`рядом: ${card.nearbyNumbers.slice(0, NEARBY_LIMIT).map(displayNumber).join(', ')}`)
+      lines.push(`${CARD.nearbyPrefix}: ${card.nearbyNumbers.slice(0, NEARBY_LIMIT).map(displayNumber).join(', ')}`)
     }
-
-    const caption = lines.join('\n')
-    // Обрезается целиком, а не по строкам: терять хвост осмысленнее, чем отправить
-    // сообщение, которое Telegram отвергнет, и уронить карточку в повторы.
-    return caption.length <= CAPTION_LIMIT ? caption : `${caption.slice(0, CAPTION_LIMIT - 1)}…`
+    return lines
   }
 
-  /** Текст сообщения с кнопками — то самое, что редактируется при каждом переходе. */
-  statusText(card: CardSnapshot): string {
-    const lines = [`<b><code>${displayNumber(card.publicNumber)}</code></b> — ${STATUS_LABELS[card.status]}`]
-
+  /** Состояние заявки без строки с номером: причина, оригинал, публикация, что делать
+   *  дальше и кто сделал предыдущий шаг. */
+  private statusLines(card: CardSnapshot): string[] {
+    const lines: string[] = []
     if (card.statusReason !== null) {
       const label = REASON_LABELS[card.statusReason] ?? card.statusReason
-      lines.push(
-        card.statusReasonText === null ? label : `${label}: ${escapeHtml(card.statusReasonText)}`,
-      )
+      lines.push(card.statusReasonText === null ? label : `${label}: ${escapeHtml(card.statusReasonText)}`)
     }
-    if (card.duplicateOfNumber !== null) lines.push(`оригинал: ${displayNumber(card.duplicateOfNumber)}`)
-    if (card.publicationUrl !== null) lines.push(`публикация: ${escapeHtml(card.publicationUrl)}`)
+    if (card.duplicateOfNumber !== null) {
+      lines.push(`${CARD.originalPrefix}: ${displayNumber(card.duplicateOfNumber)}`)
+    }
+    if (card.publicationUrl !== null) lines.push(`${CARD.publicationPrefix}: ${escapeHtml(card.publicationUrl)}`)
+
+    // Заявку закрывает не кнопка, а фотография «после» ответом на карточку (BR-006),
+    // и ссылку на публикацию принимает тот же ответ (SRS §6.9). Волонтёру это негде
+    // прочитать, кроме самой карточки, поэтому строка стоит ровно там, где нужна,
+    // и ровно в том статусе, в котором действие возможно.
+    if (card.status === 'IN_PROGRESS') lines.push(CARD.inProgressHint)
+    if (card.status === 'DONE' && card.publicationUrl === null) lines.push(CARD.doneHint)
 
     const last = card.lastHistory
     if (last !== null && card.status !== 'NEW') {
       // Имя внутри группы не тайна; публично оно не показывается никогда (PRD §6.2).
-      const who = last.moderatorName ?? 'волонтёр'
+      const who = last.moderatorName ?? CARD.volunteer
       lines.push(`${who}, ${formatMoment(last.createdAt)}`)
     }
-    return lines.join('\n')
+    return lines
+  }
+
+  /** Подпись на первом фото альбома (SRS §6.3). */
+  caption(card: CardSnapshot): string {
+    return clamp(this.captionLines(card).join('\n'))
+  }
+
+  /** Подпись объединённой карточки: сообщение одно, значит и подпись, и состояние
+   *  живут в нём вместе. */
+  photoCaption(card: CardSnapshot): string {
+    return clamp(
+      [...this.captionLines(card), '', `<b>${STATUS_LABELS[card.status]}</b>`, ...this.statusLines(card)].join('\n'),
+    )
+  }
+
+  /** Текст сообщения с кнопками — то самое, что редактируется при каждом переходе. */
+  statusText(card: CardSnapshot): string {
+    return clamp(
+      [`<b>${this.numberLink(card.publicNumber)}</b> — ${STATUS_LABELS[card.status]}`, ...this.statusLines(card)].join(
+        '\n',
+      ),
+    )
+  }
+
+  /** Что перерисовывать в сообщении с кнопками. У объединённой карточки это подпись
+   *  к фотографии со всем содержимым, у раздельной — только состояние. */
+  cardText(card: CardSnapshot): string {
+    return isCombined(card) ? this.photoCaption(card) : this.statusText(card)
   }
 
   /** Клавиатура строится из таблицы переходов, а не из собственного списка условий:
@@ -271,7 +303,7 @@ export class CardRenderer {
     if (isTerminal(card.status)) {
       const last = card.lastHistory
       if (last === null || !this.undo.canUndo(last, now)) return []
-      return [[{ text: '↩︎ Отменить', callback_data: encodeCallbackData({ op: 'u', n: last.id }) }]]
+      return [[{ text: BUTTONS.undo, callback_data: encodeCallbackData({ op: 'u', n: last.id }) }]]
     }
 
     const rows: InlineKeyboardButton[][] = []
@@ -280,21 +312,21 @@ export class CardRenderer {
       if (transition.actor === 'VOLUNTEER') continue
       const arg = Object.keys(STATUS_ARGS).find((key) => STATUS_ARGS[key] === transition.to)
       if (transition.to === 'REJECTED') {
-        first.push({ text: 'Отклонить', callback_data: encodeCallbackData({ op: 'r', n: card.publicNumber }) })
+        first.push({ text: BUTTONS.reject, callback_data: encodeCallbackData({ op: 'r', n: card.publicNumber }) })
         continue
       }
       if (transition.to === 'DUPLICATE') {
-        first.push({ text: 'Дубль', callback_data: encodeCallbackData({ op: 'd', n: card.publicNumber }) })
+        first.push({ text: BUTTONS.duplicate, callback_data: encodeCallbackData({ op: 'd', n: card.publicNumber }) })
         continue
       }
       if (transition.to === 'OUT_OF_SCOPE') {
-        first.push({ text: 'Не по силам', callback_data: encodeCallbackData({ op: 'o', n: card.publicNumber }) })
+        first.push({ text: BUTTONS.outOfScope, callback_data: encodeCallbackData({ op: 'o', n: card.publicNumber }) })
         continue
       }
       if (arg === undefined) continue
       rows.push([
         {
-          text: BUTTON_LABELS[`${transition.from}:${transition.to}`] ?? STATUS_LABELS[transition.to],
+          text: TRANSITION_LABELS[`${transition.from}:${transition.to}`] ?? STATUS_LABELS[transition.to],
           callback_data: encodeCallbackData({ op: 's', n: card.publicNumber, arg }),
         },
       ])
@@ -313,7 +345,7 @@ export class CardRenderer {
     const rows: InlineKeyboardButton[][] = codes.map((code) => [
       { text: REASON_LABELS[code] ?? code, callback_data: encodeCallbackData({ op, n: publicNumber, arg: code }) },
     ])
-    rows.push([{ text: '← Назад', callback_data: encodeCallbackData({ op: 'z', n: publicNumber }) }])
+    rows.push([{ text: BUTTONS.back, callback_data: encodeCallbackData({ op: 'z', n: publicNumber }) }])
     return rows
   }
 }

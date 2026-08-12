@@ -150,6 +150,9 @@ function resultFor(method: string, state: { messageId: number; webhookUrl: strin
     case 'sendMediaGroup':
       state.messageId += 1
       return [{ message_id: state.messageId }]
+    case 'sendPhoto':
+      state.messageId += 1
+      return { message_id: state.messageId }
     case 'getFile':
       return { file_path: 'photos/file_1.jpg' }
     case 'getWebhookInfo':
@@ -186,7 +189,7 @@ export async function resetTelegramTables(prisma: PrismaService): Promise<void> 
  *  тот же приём, что в `photo-worker.spec.ts`. */
 export function buildOutboxWorker(prisma: PrismaService): OutboxWorker {
   const config = new ConfigService()
-  const cards = new CardRenderer(prisma, new S3Service(config), new UndoService())
+  const cards = new CardRenderer(prisma, new S3Service(config), new UndoService(), config)
   return new OutboxWorker(prisma, new BotApiClient(config), cards, new DigestService(config), new DuplicatesService())
 }
 
@@ -208,7 +211,9 @@ export async function seedReport(
     latitude?: string
     longitude?: string
     duplicateCandidateOfId?: number
-    withReadyPhoto?: boolean
+    /** Обработанных фотографий «до». Их число решает форму карточки: одна — одно
+     *  сообщение, две и три — альбом плюс сообщение с кнопками. */
+    readyPhotos?: number
     withAfterPhoto?: boolean
   } = {},
 ): Promise<SeededReport> {
@@ -233,16 +238,18 @@ export async function seedReport(
     select: { id: true, publicNumber: true },
   })
 
-  if (options.withReadyPhoto === true) {
+  for (let index = 0; index < (options.readyPhotos ?? 0); index += 1) {
+    // sha256 разный: у пары «заявка + вид» он уникален (`photo_dedup_idx`).
+    const hash = `${index}`.repeat(2).padEnd(64, 'a')
     await prisma.reportPhoto.create({
       data: {
         reportId: report.id,
         kind: 'BEFORE',
-        sortOrder: 0,
+        sortOrder: index,
         state: 'READY',
-        objectKey: `photos/aa/${'a'.repeat(64)}.jpg`,
-        previewKey: `photos/aa/${'a'.repeat(64)}_400.jpg`,
-        sha256: 'a'.repeat(64),
+        objectKey: `photos/aa/${hash}.jpg`,
+        previewKey: `photos/aa/${hash}_400.jpg`,
+        sha256: hash,
       },
     })
   }

@@ -4,6 +4,7 @@ import { PrismaService } from '../../prisma/prisma.service'
 import { applyTransition, isTerminal } from '../../reports/transitions'
 import { BotApiClient } from '../bot-api.client'
 import { displayNumber } from '../card.renderer'
+import { ANSWERS, REPLIES } from '../labels'
 import { CardUpdater } from '../card.updater'
 import { applyOnce } from '../idempotency'
 import { logEvent } from '../../common/logger'
@@ -44,8 +45,8 @@ export class PromptHandler {
   }): Promise<void> {
     const question =
       input.kind === 'DUPLICATE_NUMBER'
-        ? `${displayNumber(input.publicNumber)}: ответьте номером оригинала, например ${displayNumber(3471)}`
-        : `${displayNumber(input.publicNumber)}: ответьте текстом причины`
+        ? REPLIES.askOriginal(displayNumber(input.publicNumber), displayNumber(3471))
+        : REPLIES.askReasonText(displayNumber(input.publicNumber))
 
     const message = await this.bot.sendMessage({
       chat_id: String(input.chatId),
@@ -90,11 +91,11 @@ export class PromptHandler {
     if (prompt === null) return null
 
     if (Number(prompt.moderator.telegramUserId) !== from.id || !prompt.moderator.isActive) {
-      return 'Отвечать может только тот модератор, который начал переход'
+      return REPLIES.promptNotYours
     }
     if (prompt.expiresAt.getTime() <= Date.now()) {
       await this.forget(message.chat.id, replyTo.message_id)
-      return 'Время истекло, начните заново'
+      return REPLIES.promptExpired
     }
 
     const answer =
@@ -127,8 +128,8 @@ export class PromptHandler {
     actor: { moderatorId: number; telegramUserId: number },
   ): Promise<{ text: string; applied: boolean }> {
     const reasonText = text.trim()
-    if (reasonText === '') return { text: 'Причина не может быть пустой', applied: false }
-    if (targetStatus === null) return { text: 'Переход утерян, начните заново', applied: true }
+    if (reasonText === '') return { text: REPLIES.reasonRequired, applied: false }
+    if (targetStatus === null) return { text: REPLIES.promptLost, applied: true }
 
     return this.transition(updateId, publicNumber, targetStatus, actor, {
       reason: 'other',
@@ -147,26 +148,23 @@ export class PromptHandler {
     actor: { moderatorId: number; telegramUserId: number },
   ): Promise<{ text: string; applied: boolean }> {
     const match = /^\s*(?:RR-)?(\d{1,9})\s*$/i.exec(text)
-    if (match?.[1] === undefined) return { text: 'Нужен номер заявки, например RR-3471', applied: false }
+    if (match?.[1] === undefined) return { text: REPLIES.needReportNumber(displayNumber(3471)), applied: false }
 
     const originalNumber = Number(match[1])
     if (originalNumber === publicNumber) {
-      return { text: 'Заявка не может быть дубликатом самой себя', applied: false }
+      return { text: REPLIES.duplicateOfItself, applied: false }
     }
 
     const original = await this.prisma.report.findUnique({
       where: { publicNumber: originalNumber },
       select: { id: true, status: true },
     })
-    if (original === null) return { text: `Заявки ${displayNumber(originalNumber)} не существует`, applied: false }
+    if (original === null) return { text: REPLIES.originalMissing(displayNumber(originalNumber)), applied: false }
     if (original.id === reportId) {
-      return { text: 'Заявка не может быть дубликатом самой себя', applied: false }
+      return { text: REPLIES.duplicateOfItself, applied: false }
     }
     if (original.status === 'DUPLICATE') {
-      return {
-        text: `${displayNumber(originalNumber)} сама помечена дубликатом — укажите оригинал`,
-        applied: false,
-      }
+      return { text: REPLIES.originalIsDuplicate(displayNumber(originalNumber)), applied: false }
     }
 
     return this.transition(updateId, publicNumber, 'DUPLICATE', actor, { duplicateOfId: original.id })
@@ -196,11 +194,11 @@ export class PromptHandler {
       return result
     })
 
-    if (outcome === null) return { text: 'Уже обработано', applied: true }
+    if (outcome === null) return { text: ANSWERS.alreadyHandled, applied: true }
     if (!outcome.ok) {
       return outcome.code === 'NOT_FOUND'
-        ? { text: 'Заявка не найдена', applied: true }
-        : { text: 'Статус уже изменён другим модератором', applied: true }
+        ? { text: ANSWERS.reportNotFound, applied: true }
+        : { text: REPLIES.statusChangedByOther, applied: true }
     }
 
     logEvent('info', 'status_changed', {
@@ -210,6 +208,6 @@ export class PromptHandler {
       from: outcome.from,
       to: outcome.to,
     })
-    return { text: `${displayNumber(publicNumber)} — готово`, applied: true }
+    return { text: REPLIES.done(displayNumber(publicNumber)), applied: true }
   }
 }

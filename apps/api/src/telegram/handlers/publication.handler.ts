@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { BotApiClient } from '../bot-api.client'
-import { STATUS_LABELS, displayNumber } from '../card.renderer'
+import { displayNumber } from '../card.renderer'
+import { REPLIES, STATUS_LABELS } from '../labels'
 import { CardUpdater } from '../card.updater'
 import { applyOnce } from '../idempotency'
 import type { IncomingMessage } from '../update'
@@ -60,9 +61,7 @@ export class PublicationHandler {
         this.prisma,
         {
           chat_id: String(message.chat.id),
-          text:
-            `${displayNumber(report.publicNumber)} — «${STATUS_LABELS[report.status]}». ` +
-            'Ссылку на публикацию можно приложить после закрытия заявки',
+          text: REPLIES.publicationTooEarly(displayNumber(report.publicNumber), STATUS_LABELS[report.status]),
         },
         report.id,
       )
@@ -78,7 +77,7 @@ export class PublicationHandler {
 
     await this.cards.enqueueReply(
       this.prisma,
-      { chat_id: String(message.chat.id), text: `${displayNumber(report.publicNumber)}: ссылка сохранена` },
+      { chat_id: String(message.chat.id), text: REPLIES.publicationSaved(displayNumber(report.publicNumber)) },
       report.id,
     )
     return true

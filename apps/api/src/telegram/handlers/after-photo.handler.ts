@@ -6,7 +6,8 @@ import { S3Service } from '../../media/s3.service'
 import { PrismaService } from '../../prisma/prisma.service'
 import { applyTransition } from '../../reports/transitions'
 import { BotApiClient } from '../bot-api.client'
-import { STATUS_LABELS, displayNumber } from '../card.renderer'
+import { displayNumber } from '../card.renderer'
+import { REPLIES, STATUS_LABELS } from '../labels'
 import { CardUpdater } from '../card.updater'
 import { applyOnce, claimUpdate } from '../idempotency'
 import { logEvent } from '../../common/logger'
@@ -59,7 +60,7 @@ export class AfterPhotoHandler implements OnModuleDestroy {
     if (message.photo === null) return false
 
     if (message.reply_to_message === null) {
-      await this.reply(message.chat.id, 'Отправьте фотографии ответом на карточку конкретной заявки')
+      await this.reply(message.chat.id, REPLIES.replyToCard)
       return true
     }
 
@@ -117,15 +118,14 @@ export class AfterPhotoHandler implements OnModuleDestroy {
 
     const report = await this.findByMessage(message.chat.id, replyToId)
     if (report === null) {
-      await this.reply(message.chat.id, 'Отправьте фотографии ответом на карточку конкретной заявки')
+      await this.reply(message.chat.id, REPLIES.replyToCard)
       return
     }
 
     if (report.status !== 'ACCEPTED' && report.status !== 'IN_PROGRESS' && report.status !== 'DONE') {
       await this.reply(
         message.chat.id,
-        `${displayNumber(report.publicNumber)} — «${STATUS_LABELS[report.status]}». ` +
-          'Фотографии «после» принимаются только у принятых заявок и заявок в работе',
+        REPLIES.wrongStatusForPhotos(displayNumber(report.publicNumber), STATUS_LABELS[report.status]),
         report.id,
       )
       return
@@ -135,7 +135,7 @@ export class AfterPhotoHandler implements OnModuleDestroy {
     if (free <= 0) {
       await this.reply(
         message.chat.id,
-        `${displayNumber(report.publicNumber)}: уже есть ${MAX_PHOTOS_PER_REPORT} фотографии «после»`,
+        REPLIES.photoLimitReached(displayNumber(report.publicNumber), MAX_PHOTOS_PER_REPORT),
         report.id,
       )
       return
@@ -146,7 +146,7 @@ export class AfterPhotoHandler implements OnModuleDestroy {
     // а транзакция не должна держаться открытой на время сетевых вызовов (SRS §6.8 п.6).
     const rawKeys = await this.download(accepted)
     if (rawKeys.length === 0) {
-      await this.reply(message.chat.id, 'Не удалось забрать фотографии из Telegram, попробуйте ещё раз', report.id)
+      await this.reply(message.chat.id, REPLIES.photoDownloadFailed, report.id)
       return
     }
 
@@ -154,24 +154,19 @@ export class AfterPhotoHandler implements OnModuleDestroy {
     const outcome = await this.store(updateId, report, rawKeys, sender)
 
     const skipped = photos.length - accepted.length
-    const tail =
-      skipped > 0 ? ` Приняты первые ${accepted.length}: больше ${MAX_PHOTOS_PER_REPORT} фотографий не бывает.` : ''
+    const tail = skipped > 0 ? REPLIES.photosSkipped(accepted.length, MAX_PHOTOS_PER_REPORT) : ''
 
     // Повторная доставка того же апдейта: эффект уже был, второго ответа не нужно.
     if (outcome === 'REPLAY') return
     if (outcome === 'ALREADY_DONE') {
-      await this.reply(
-        message.chat.id,
-        `${displayNumber(report.publicNumber)}: фотографии добавлены.${tail}`,
-        report.id,
-      )
+      await this.reply(message.chat.id, REPLIES.photosAdded(displayNumber(report.publicNumber), tail), report.id)
       return
     }
     if (outcome === 'CHANGED') {
-      await this.reply(message.chat.id, `${displayNumber(report.publicNumber)}: статус изменился, фотографии не приняты`, report.id)
+      await this.reply(message.chat.id, REPLIES.photosStatusChanged(displayNumber(report.publicNumber)), report.id)
       return
     }
-    await this.reply(message.chat.id, `Заявка ${displayNumber(report.publicNumber)} закрыта, спасибо!${tail}`, report.id)
+    await this.reply(message.chat.id, REPLIES.reportClosed(displayNumber(report.publicNumber), tail), report.id)
   }
 
   /** Заявка ищется по обоим `message_id` карточки: волонтёр отвечает и на альбом,
