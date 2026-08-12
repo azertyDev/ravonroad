@@ -11,9 +11,13 @@ interface SheetProps {
   children: ReactNode
   /** Строка действий на дне листа — она не прокручивается вместе с содержимым. */
   footer?: ReactNode
-  /** Во весь экран на телефоне вместо листа на 92%. Форма заявки — не выбор из
+  /** Во весь экран **на телефоне** вместо листа на 92%. Форма заявки — не выбор из
    *  короткого набора, а работа на пять шагов: полоска карты над ней ничего не даёт,
-   *  а высоту отнимает (Form C — это экран целиком, а не лист). */
+   *  а высоту отнимает (Form C — это экран целиком, а не лист).
+   *
+   *  Только до `md`: на ноутбуке окно остаётся по содержимому. `inset-0` без границы
+   *  ширины задавал `top` и `bottom` разом, и высота определялась ими, а не `h-auto` —
+   *  под кнопками зияла пустая полоса до края экрана. */
   fill?: boolean
 }
 
@@ -91,7 +95,7 @@ export function Sheet({ title, subtitle, onClose, children, footer, fill = false
       // С тремя лента занимала первую `auto`, шапка получала `1fr` и растягивалась
       // на всю свободную высоту окна — под заголовком зияла пустота в треть экрана.
       className={`fixed inset-x-0 bottom-0 top-auto m-0 grid max-h-none w-full max-w-none grid-rows-[auto_auto_1fr_auto] overflow-hidden border-t border-[var(--border-1)] bg-[var(--surface-page)] p-0 text-[var(--text-1)] backdrop:bg-[rgba(18,22,28,.72)] md:inset-0 md:m-auto md:h-auto md:max-h-[85dvh] md:w-[min(900px,92vw)] md:rounded-[var(--r-4)] md:border ${
-        fill ? 'inset-0 h-full' : 'h-[var(--sheet-full)] rounded-t-[16px]'
+        fill ? 'max-md:inset-0 max-md:h-full' : 'h-[var(--sheet-full)] rounded-t-[16px]'
       }`}
     >
       {/* Та же лента, что по кромке страницы: окно — продолжение той же дорожной
