@@ -26,4 +26,9 @@ add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" alway
 # браузер не исполняет содержимое картинки на origin сайта (SRS §9.6). Пусто — карточка
 # заявки показывает битую картинку, а в консоли одна строка про CSP: ровно так это
 # и было найдено на стенде.
-add_header Content-Security-Policy "default-src 'self'; img-src 'self' data: ${PHOTO_ORIGIN}; script-src 'self'; worker-src 'self' blob:; connect-src 'self' ${MAP_PMTILES_URL}; frame-ancestors 'none'; base-uri 'none'" always;
+#
+# blob: в img-src — предпросмотр в форме. Выбранную фотографию форма сжимает на устройстве
+# и показывает через `URL.createObjectURL`, то есть ссылкой `blob:` на данные самой
+# страницы; чужого содержимого такой источник впустить не может. Без него житель видел
+# битую плитку вместо своего снимка и не понимал, взяли файл или нет.
+add_header Content-Security-Policy "default-src 'self'; img-src 'self' data: blob: ${PHOTO_ORIGIN}; script-src 'self'; worker-src 'self' blob:; connect-src 'self' ${MAP_PMTILES_URL}; frame-ancestors 'none'; base-uri 'none'" always;

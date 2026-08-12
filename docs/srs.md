@@ -1874,12 +1874,15 @@ per-instance — тогда либо sticky-балансировка, либо �
 - **CSRF неприменим:** cookie и сессий не существует, авторизации нет; менять состояние
   без токена/allowlist невозможно.
 - **CSP** (заголовок nginx, шаблон `docker/edge/security-headers.conf.template`):
-  `default-src 'self'; img-src 'self' data: <s3-host>; script-src 'self';
+  `default-src 'self'; img-src 'self' data: blob: <s3-host>; script-src 'self';
   worker-src 'self' blob:; connect-src 'self' ${MAP_PMTILES_URL};
   frame-ancestors 'none'; base-uri 'none'`.
   Стороннего скрипта в `script-src` нет ни одного: подложка своя (ADR-0008).
   `worker-src 'self' blob:` обязателен — MapLibre поднимает воркер через
   `URL.createObjectURL`, и без разрешения карта не стартует вовсе, молча.
+  `blob:` в `img-src` — предпросмотр в форме: снимок сжимается на устройстве и
+  показывается ссылкой на данные самой страницы. Без него житель видит битую плитку
+  вместо своего фото и не понимает, взяли файл или нет.
   В `connect-src` идёт полный URL архива, а не хост: путь в CSP сверяется целиком,
   и разрешение получает ровно один файл, а не весь бакет. Значение подставляется
   из переменной среды, потому что на dev это GCS, а на проде Cloupard.
