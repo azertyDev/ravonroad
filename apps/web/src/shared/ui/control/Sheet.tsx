@@ -119,11 +119,12 @@ export function Sheet({ title, subtitle, onClose, children, footer, fill = false
       </div>
 
       {/* Отступа снизу нет, когда окно занимает экран: содержимое там несёт собственную
-          панель действия, и она обязана прилипнуть к самому дну — иначе под ней остаётся
-          щель, в которой видно проезжающий текст. */}
-      {/* Поле снизу есть всегда: без него последний блок формы упирался в линию
-          над кнопками, и «Отправить» читалось как продолжение поля, а не как итог. */}
-      <div className="min-h-0 overflow-auto px-[var(--gutter)] pb-[var(--s-4)]">{children}</div>
+          панель действия на `sticky`, и она обязана прилипнуть к самому дну. Поле
+          у прокручиваемого контейнера подняло бы её на свою высоту, и под ней осталась
+          бы щель с проезжающим текстом. Воздух перед панелью даёт само содержимое. */}
+      <div className={`min-h-0 overflow-auto px-[var(--gutter)] ${fill ? '' : 'pb-[var(--s-4)]'}`}>
+        {children}
+      </div>
 
       {footer !== undefined && (
         <div className="flex flex-col gap-[var(--s-2)] border-t border-[var(--border-1)] px-[var(--gutter)] pt-[var(--s-4)] pb-[calc(var(--screen-bottom)+var(--safe-bottom))]">

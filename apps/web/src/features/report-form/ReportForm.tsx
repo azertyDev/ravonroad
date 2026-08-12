@@ -182,7 +182,9 @@ export function ReportForm({ onCreated, onCancel }: ReportFormProps) {
           заданы двумя обёртками, а не автопотоком сетки: автопоток разложил бы шаги
           через один — 01 слева, 02 справа. На телефоне обёртки просто складываются
           в одну колонку, и порядок шагов остаётся 01…05. */}
-      <div className="flex flex-col gap-[var(--field-gap)] lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-[var(--s-8)]">
+      {/* Поле снизу несёт сама сетка полей, а не окно: панель действия прилипает
+          к низу окна, и отступ у прокручиваемого контейнера оставил бы под ней щель. */}
+      <div className="flex flex-col gap-[var(--field-gap)] pb-[var(--s-5)] lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-[var(--s-8)]">
         {restored && (
           <div className="flex flex-wrap items-center gap-[var(--s-3)] rounded-[var(--r-4)] bg-[var(--surface-sunken)] p-[var(--s-4)] lg:col-span-2">
             <p className="t-caption flex-1 text-[var(--text-2)]">{t('form.draft.restored')}</p>
