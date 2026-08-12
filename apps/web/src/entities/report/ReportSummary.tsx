@@ -21,6 +21,14 @@ import { STATUS_SLUG } from '../../shared/ui/status/statusShape'
  *  и только там, где её решили показать. */
 const MiniMap = lazy(() => import('../../features/report-map/MiniMap'))
 
+/** Заявка, закрытая без ремонта: снимка «после» у неё не будет никогда, и место под него
+ *  обещало бы работу, которой не случится. */
+const NO_REPAIR: readonly ReportStatus[] = ['REJECTED', 'DUPLICATE', 'OUT_OF_SCOPE']
+
+function repairAhead(status: ReportStatus): boolean {
+  return !NO_REPAIR.includes(status)
+}
+
 /** Пояснение к статусу написано только там, где его написал дизайнер. Остальные
  *  статусы обходятся без него: обещания бригады — продуктовый текст, и выдумывать
  *  их на публичном сайте нельзя. */
@@ -65,6 +73,11 @@ export function ReportSummary({ report, note }: ReportSummaryProps) {
   const before = report.photos.filter((photo) => photo.kind === 'BEFORE')
   const after = report.photos.filter((photo) => photo.kind === 'AFTER')
   const noteKey = STATUS_NOTE[report.status]
+  // Сколько плит встанет в ряд: снимки плюс места под недостающие. У отказа плита одна,
+  // и в сетке из двух колонок она занимала половину ряда, а рядом зияла пустая клетка.
+  const plates =
+    (before.length === 0 ? 1 : before.length) +
+    (after.length === 0 ? (repairAhead(report.status) ? 1 : 0) : after.length)
   // Один список на все плиты: просмотрщик листает «до» и «после» подряд, как они стоят
   // на странице, а не открывает каждый снимок отдельной галереей из одного кадра.
   const gallery: LightboxPhoto[] = [...before, ...after].map((photo) => ({
@@ -117,7 +130,11 @@ export function ReportSummary({ report, note }: ReportSummaryProps) {
             помещаться в экран, и заявка из трёх абзацев требовала прокрутки.
             Место снимка «после» названо словами, пока его нет: пустая клетка читается
             как поломка страницы. */}
-        <div className="grid grid-cols-2 gap-[2px] bg-[var(--border-1)] lg:auto-cols-fr lg:grid-flow-col">
+        <div
+          className={`grid gap-[2px] bg-[var(--border-1)] lg:auto-cols-fr lg:grid-flow-col ${
+            plates === 1 ? 'grid-cols-1' : 'grid-cols-2'
+          }`}
+        >
           {before.map((photo, index) => (
             <PhotoPlate
               key={photo.url}
@@ -138,7 +155,9 @@ export function ReportSummary({ report, note }: ReportSummaryProps) {
             />
           ))}
           {before.length === 0 && <PhotoPending caption={t('report.photosPending')} />}
-          {after.length === 0 && <PhotoPending caption={t('report.photoAfterPending')} />}
+          {after.length === 0 && repairAhead(report.status) && (
+            <PhotoPending caption={t('report.photoAfterPending')} />
+          )}
         </div>
 
         <div className="flex flex-col gap-[var(--block-gap)] px-[var(--gutter)] py-[var(--s-5)]">

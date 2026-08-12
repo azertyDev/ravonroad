@@ -58,7 +58,10 @@ export function PhotoPlate({ src, alt, caption, tone = 'neutral', onOpen }: Phot
  *  плита серая с пунктиром, а не красная (Report C). */
 export function PhotoPending({ caption }: { caption: string }) {
   return (
-    <p className="t-chip grid aspect-[3/4] place-items-center border-2 border-dashed border-[var(--border-2)] bg-[var(--surface-sunken)] p-[var(--s-4)] text-center text-[var(--text-3-sunken)] lg:aspect-[4/3]">
+    // Высота у места снимка своя, а не пропорция кадра: рядом со снимками сетка всё равно
+    // растянет его на высоту ряда, а в одиночку — у заявки без фотографий — пропорция
+    // 4/3 во всю ширину карточки давала полосу пустоты в пол-экрана.
+    <p className="t-chip grid min-h-[160px] place-items-center border-2 border-dashed border-[var(--border-2)] bg-[var(--surface-sunken)] p-[var(--s-4)] text-center text-[var(--text-3-sunken)]">
       {caption}
     </p>
   )
