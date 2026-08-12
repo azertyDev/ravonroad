@@ -3,19 +3,30 @@ import { useEffect, useRef, useState } from 'react'
 import { basemapStyle, MAX_ZOOM, MIN_ZOOM } from '../../../shared/map/basemap'
 import { coverZoom, TASHKENT_BOUNDS } from '../../../shared/map/tashkent'
 import { LoadingState } from '../../../shared/ui/state/LoadingState'
-import { roundCoordinate, TASHKENT_CENTER, type Point } from './coordinates'
+import { nudge, NUDGE_FAST_M, NUDGE_STEP_M, roundCoordinate, TASHKENT_CENTER, type Point } from './coordinates'
 
 const ZOOM = 16
+
+/** Стрелки по сторонам света: восток вправо, север вверх. */
+const ARROWS: Record<string, { east: number; north: number } | undefined> = {
+  ArrowUp: { east: 0, north: 1 },
+  ArrowDown: { east: 0, north: -1 },
+  ArrowLeft: { east: -1, north: 0 },
+  ArrowRight: { east: 1, north: 0 },
+}
 
 interface MapPinProps {
   archiveUrl: string
   value: Point | null
   onChange: (point: Point) => void
+  /** Имя пина для скринридера. Приходит снаружи: словарь живёт на стороне формы,
+   *  а сюда MapLibre грузится отдельным чанком. */
+  keyboardLabel: string
 }
 
 /** Виджет выбора точки: тянет координаты внутрь, отдаёт координаты наружу. Ничего
  *  больше наружу не торчит — провайдера карты меняли уже дважды. */
-export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
+export default function MapPin({ archiveUrl, value, onChange, keyboardLabel }: MapPinProps) {
   const container = useRef<HTMLDivElement>(null)
   const camera = useRef<MapLibreMap | null>(null)
   const marker = useRef<Marker | null>(null)
@@ -116,6 +127,25 @@ export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
 
     // Тап ставит пин туда, куда попал палец: перетаскивание требует прицелиться дважды.
     map.on('click', (event) => report(event.lngLat))
+
+    // Клавиатура. Перетаскивание пина недоступно ни человеку за клавиатурой, ни при
+    // треморе, а точка обязательна для отправки — без этих строк заявку просто не подать.
+    // «Моё местоположение» заменой не служит: оно требует защищённого контекста
+    // и разрешения, которых может не быть.
+    pin.tabIndex = 0
+    pin.setAttribute('role', 'application')
+    pin.setAttribute('aria-label', keyboardLabel)
+    pin.addEventListener('keydown', (event) => {
+      const shift = ARROWS[event.key]
+      if (shift === undefined) return
+      // Иначе стрелка прокручивает форму под картой вместо того, чтобы двигать пин.
+      event.preventDefault()
+      const step = event.shiftKey ? NUDGE_FAST_M : NUDGE_STEP_M
+      const from = entity.getLngLat()
+      const moved = nudge({ latitude: from.lat, longitude: from.lng }, shift.east * step, shift.north * step)
+      entity.setLngLat([moved.longitude, moved.latitude])
+      latest.current(moved)
+    })
 
     return () => {
       sizes.disconnect()

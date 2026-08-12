@@ -109,6 +109,8 @@ export const ruUi: Record<UiKey, string> = {
   'form.point.latitude': 'Широта',
   'form.point.longitude': 'Долгота',
   'form.point.required': 'Укажите место ямы',
+  'form.point.pin': 'Метка ямы. Двигается стрелками',
+  'form.point.keyboardHint': 'Метку можно двигать и стрелками, с Shift — быстрее.',
   'form.photos.legend': 'Фотографии',
   'form.photos.hint': 'От одной до трёх фотографий. Каждая до 10 МБ.',
   'form.photos.add': 'Добавить фото',

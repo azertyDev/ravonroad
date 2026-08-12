@@ -119,6 +119,9 @@ export const uzUi = {
   'form.point.latitude': 'Kenglik',
   'form.point.longitude': 'Uzunlik',
   'form.point.required': 'Chuqur joyini koʻrsating',
+  // Пин двигают не только пальцем: он получает фокус и ходит стрелками.
+  'form.point.pin': 'Chuqur belgisi. Strelkalar bilan suring',
+  'form.point.keyboardHint': 'Belgini strelkalar bilan ham surish mumkin, Shift bilan tezroq.',
   'form.photos.legend': 'Suratlar',
   'form.photos.hint': 'Kamida bitta, koʻpi bilan uchta surat. Har biri 10 MB gacha.',
   'form.photos.add': 'Surat qoʻshish',

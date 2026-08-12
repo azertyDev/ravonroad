@@ -186,7 +186,10 @@ export function PhotoPicker({ photos, onChange, error }: PhotoPickerProps) {
         accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
         multiple
         disabled={full || busy}
-        className="sr-only absolute h-px w-px overflow-hidden opacity-0"
+        // Только `sr-only`: нулевую непрозрачность часть браузеров считает основанием
+        // выкинуть элемент из порядка обхода, а это единственная остановка фокуса
+        // на шаге 01 — выбрать файл с клавиатуры стало бы нечем.
+        className="sr-only"
         aria-describedby={error === undefined ? undefined : errorId}
         onChange={(event) => {
           void accept(event.target.files)
