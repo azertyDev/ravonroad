@@ -1,6 +1,5 @@
 import { createRootRoute, createRoute, createRouter, Navigate, Outlet, redirect } from '@tanstack/react-router'
 import { HomePage } from './routes/$locale/index'
-import { NewReportPage } from './routes/$locale/new'
 import { ReportDetailPage } from './routes/$locale/reports/$number'
 import { ReportListPage } from './routes/$locale/reports/index'
 import { TrackPage } from './routes/$locale/z/$token'
@@ -37,32 +36,19 @@ const localeRoute = createRoute({
   component: LocaleLayout,
 })
 
-/** Экран карты — он же главная, он же подложка формы. Форма открывается модальным окном
- *  поверх него (Desktop C), поэтому её маршрут — ребёнок этого макета, а не сосед:
- *  так карта остаётся смонтированной, не грузит тайлы заново на каждое открытие формы,
- *  и отмена возвращает ровно на то место, которое человек уже нашёл.
+/** Экран карты — он же главная.
  *
- *  Фильтры объявлены здесь же: набор один на карту и на список, переход между ними
+ *  Формы среди маршрутов нет: она открывается окном поверх той страницы, где человек
+ *  стоит (`ReportFormProvider`). Маршрутом `/new` она была ребёнком карты, и нажатие
+ *  «сообщить о яме» со страницы заявки уносило человека с заявки на главную.
+ *
+ *  Фильтры объявлены здесь: набор один на карту и на список, переход между ними
  *  обязан его сохранять, а ссылкой на срез — делиться (SRS §7.3). */
-const mapRoute = createRoute({
+const homeRoute = createRoute({
   getParentRoute: () => localeRoute,
-  id: 'map',
+  path: '/',
   validateSearch: validateReportSearch,
   component: HomePage,
-})
-
-const homeRoute = createRoute({
-  getParentRoute: () => mapRoute,
-  path: '/',
-  // Пустой лист: экран целиком рисует макет, а этот маршрут только говорит, что формы
-  // поверх него сейчас нет.
-  component: () => null,
-})
-
-const newReportRoute = createRoute({
-  getParentRoute: () => mapRoute,
-  path: 'new',
-  component: NewReportPage,
 })
 
 /** Карточка заявки по публичному номеру (US-004). Номер публичен по замыслу и доступа
@@ -93,7 +79,7 @@ const trackRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   rootRedirectRoute,
   localeRoute.addChildren([
-    mapRoute.addChildren([homeRoute, newReportRoute]),
+    homeRoute,
     reportListRoute,
     reportDetailRoute,
     trackRoute,
