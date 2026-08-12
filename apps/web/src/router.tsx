@@ -37,14 +37,30 @@ const localeRoute = createRoute({
   component: LocaleLayout,
 })
 
-const homeRoute = createRoute({
+/** Экран карты — он же главная, он же подложка формы. Форма открывается модальным окном
+ *  поверх него (Desktop C), поэтому её маршрут — ребёнок этого макета, а не сосед:
+ *  так карта остаётся смонтированной, не грузит тайлы заново на каждое открытие формы,
+ *  и отмена возвращает ровно на то место, которое человек уже нашёл.
+ *
+ *  Фильтры объявлены здесь же: набор один на карту и на список, переход между ними
+ *  обязан его сохранять, а ссылкой на срез — делиться (SRS §7.3). */
+const mapRoute = createRoute({
   getParentRoute: () => localeRoute,
-  path: '/',
+  id: 'map',
+  validateSearch: validateReportSearch,
   component: HomePage,
 })
 
+const homeRoute = createRoute({
+  getParentRoute: () => mapRoute,
+  path: '/',
+  // Пустой лист: экран целиком рисует макет, а этот маршрут только говорит, что формы
+  // поверх него сейчас нет.
+  component: () => null,
+})
+
 const newReportRoute = createRoute({
-  getParentRoute: () => localeRoute,
+  getParentRoute: () => mapRoute,
   path: 'new',
   component: NewReportPage,
 })
@@ -76,7 +92,12 @@ const trackRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   rootRedirectRoute,
-  localeRoute.addChildren([homeRoute, newReportRoute, reportListRoute, reportDetailRoute, trackRoute]),
+  localeRoute.addChildren([
+    mapRoute.addChildren([homeRoute, newReportRoute]),
+    reportListRoute,
+    reportDetailRoute,
+    trackRoute,
+  ]),
 ])
 
 export const router = createRouter({

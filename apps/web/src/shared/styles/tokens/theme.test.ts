@@ -36,3 +36,21 @@ describe('тёмная тема', () => {
     expect(declarations(read('effects.css'), ':root {')).toContain('--edge-highlight: 1px solid transparent')
   })
 })
+
+/** var() без запасного значения, указывающая на несуществующий токен, делает всё
+ *  объявление невалидным на этапе вычисления: свойство молча выпадает целиком.
+ *  Смена гарнитуры уже унесла так `.t-counter` — главный числовой блок сайта
+ *  рисовался кеглем body, потому что --font-mono удалили только из fonts.css. */
+describe('ссылочная целостность токенов', () => {
+  const TOKEN_FILES = ['fonts.css', 'colors.css', 'typography.css', 'spacing.css', 'effects.css'] as const
+
+  it('каждая var() ссылается на объявленный токен', () => {
+    const css = TOKEN_FILES.map(read).join('\n')
+    const declared = new Set(Array.from(css.matchAll(/^\s*(--[\w-]+)\s*:/gm), (match) => match[1]))
+    // var(--x, fallback) переживает отсутствие --x, поэтому проверяются только
+    // обращения без запасного значения.
+    const referenced = new Set(Array.from(css.matchAll(/var\(\s*(--[\w-]+)\s*\)/g), (match) => match[1]))
+
+    expect([...referenced].filter((name) => !declared.has(name))).toEqual([])
+  })
+})

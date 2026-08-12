@@ -1,0 +1,28 @@
+/* RavonRoad — типографика. Mobile-first, базовый кегль 16.
+   Плакатный ключ: заголовки 800 с отрицательным трекингом, лейблы капслоком.
+   14 px — нижняя граница осмысленного текста (экран читают под солнцем).
+   12 px разрешён только для капслок-лейблов. */
+:root {
+  --t-counter: 800 54px/0.9 var(--font-sans);
+  --t-counter-tracking: -.04em;
+  --t-display: 800 34px/0.98 var(--font-sans);
+  --t-display-tracking: -.035em;
+  --t-h1: 800 27px/1.08 var(--font-sans);
+  --t-h2: 800 20px/1.1 var(--font-sans);
+  --t-h3: 700 17px/1.25 var(--font-sans);
+  --t-body-l: 400 17px/1.5 var(--font-sans);
+  --t-body: 400 16px/1.5 var(--font-sans);
+  --t-caption: 400 14px/1.45 var(--font-sans);
+  --t-label: 800 12px/1.2 var(--font-sans);
+  --t-label-tracking: .16em;
+  --t-chip: 700 13px/1.2 var(--font-sans);
+  --t-chip-tracking: .06em;
+
+  --t-min-body: 14px;   /* абсолютный минимум для текста */
+  --t-min-input: 16px;  /* ниже iOS зумит поле при фокусе */
+  --numeric: tabular-nums; /* счётчик, номера заявок, координаты, даты */
+  --uz-length-factor: 1.2; /* uz-Latn длиннее ru на 15–20%: проектировать по uz */
+
+  /* Капслок только на лейблах, статусах и кнопках. Адреса, описания и подписи
+     фотографий — обычным регистром: капслок на длинной узбекской строке не читается. */
+}

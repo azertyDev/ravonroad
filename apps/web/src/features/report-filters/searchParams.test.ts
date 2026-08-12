@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isEmptyFilters, toFilters, toSearch, validateReportSearch } from './searchParams'
+import { countFilters, isEmptyFilters, toFilters, toSearch, validateReportSearch } from './searchParams'
 
 describe('фильтры в адресе', () => {
   it('переживает круг «URL → фильтры → URL»', () => {
@@ -26,5 +26,22 @@ describe('фильтры в адресе', () => {
   it('узнаёт пустой набор — по нему список решает, показывать ли кнопку сброса', () => {
     expect(isEmptyFilters(toFilters(validateReportSearch({})))).toBe(true)
     expect(isEmptyFilters(toFilters(validateReportSearch({ district: 'yunusobod' })))).toBe(false)
+  })
+
+  it('берёт прицел карты только парой координат', () => {
+    expect(validateReportSearch({ lat: '41.31', lon: '69.28' })).toEqual({ lat: 41.31, lon: 69.28 })
+    expect(validateReportSearch({ lat: '41.31' })).toEqual({})
+    expect(validateReportSearch({ lat: 'сюда', lon: '69.28' })).toEqual({})
+    // Прицел — не фильтр: в набор заявок он не входит и на кнопке «Фильтры» не считается.
+    expect(countFilters(toFilters(validateReportSearch({ lat: 41.31, lon: 69.28 })))).toBe(0)
+  })
+
+  it('считает каждый статус отдельно — их и снимают по одному', () => {
+    expect(countFilters(toFilters(validateReportSearch({})))).toBe(0)
+    // Поле даты в счёт не идёт: без самих дат оно ничего не отбирает.
+    expect(countFilters(toFilters(validateReportSearch({ dateField: 'done' })))).toBe(0)
+    expect(
+      countFilters(toFilters(validateReportSearch({ status: 'NEW,DONE', district: 'chilonzor', from: '2026-08-01' }))),
+    ).toBe(4)
   })
 })

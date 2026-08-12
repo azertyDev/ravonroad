@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400;75..100,500;75..100,600;75..100,700;75..100,800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #F2F3F7; color: #1D222A; font-family: 'Archivo', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  p { text-wrap: pretty; }
+  a { color: #1D222A; text-decoration-color: #FFDD00; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  a:hover { color: #2B313C; text-decoration-color: #B89C00; }
+  ::selection { background: #FFDD00; color: #12161C; }
+  @keyframes rr-spin { to { transform: rotate(360deg); } }
+</style>
+</helmet>
+
+<header style="background:#12161C;color:#FBFBFD">
+  <div style="height:14px;background:repeating-linear-gradient(115deg,#FFDD00 0 22px,#12161C 22px 44px)"></div>
+  <div style="max-width:1160px;margin:0 auto;padding:36px 24px 32px">
+    <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#FFDD00">RavonRoad · Components</div>
+    <h1 style="margin:12px 0 0;font:800 40px/1.05 'Archivo',sans-serif;letter-spacing:-.03em">Одиннадцать деталей</h1>
+    <p style="margin:12px 0 0;max-width:64ch;font:400 16px/1.55 'Archivo',sans-serif;color:#B4BAC7">Порядок — по весу в продукте. Каждая карточка показывает варианты и состояния, обе темы и обе локали. Экраны здесь не рисуются: они собираются из этих деталей.</p>
+  </div>
+</header>
+
+<nav style="position:sticky;top:0;z-index:20;background:rgba(242,243,247,.92);backdrop-filter:blur(10px);border-bottom:1px solid #D2D6DF">
+  <div style="max-width:1160px;margin:0 auto;padding:0 24px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;min-height:52px;font:600 13px/1 'Archivo',sans-serif">
+    <a href="RavonRoad%20Design%20System.dc.html" style="text-decoration:none;color:#3E4553">← Foundations</a>
+    <a href="#c1" style="text-decoration:none;color:#3E4553">Пин</a>
+    <a href="#c2" style="text-decoration:none;color:#3E4553">Плашка</a>
+    <a href="#c3" style="text-decoration:none;color:#3E4553">Карточка</a>
+    <a href="#c4" style="text-decoration:none;color:#3E4553">Фото</a>
+    <a href="#c5" style="text-decoration:none;color:#3E4553">Поля</a>
+    <a href="#c6" style="text-decoration:none;color:#3E4553">Кнопки</a>
+    <a href="#c7" style="text-decoration:none;color:#3E4553">Фильтры</a>
+    <a href="#c8" style="text-decoration:none;color:#3E4553">Счётчик</a>
+    <a href="#c9" style="text-decoration:none;color:#3E4553">Лист</a>
+    <a href="#c10" style="text-decoration:none;color:#3E4553">Состояния</a>
+    <a href="#c11" style="text-decoration:none;color:#3E4553">Язык</a>
+  </div>
+</nav>
+
+<main style="max-width:1160px;margin:0 auto;padding:40px 24px 96px;display:grid;gap:40px">
+
+  <section id="c1" style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(18,22,28,.06);display:grid;gap:20px">
+    <div style="display:grid;gap:6px">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6E768A">01 — Map pin</div>
+      <h2 style="margin:0;font:700 22px/1.2 'Archivo',sans-serif">Пин заявки</h2>
+      <p style="margin:0;max-width:74ch;font:400 15px/1.55 'Archivo',sans-serif;color:#545C6E">30 px кегль пина, 44 px зона нажатия, белая обводка 2 px на всех подложках. Форма внутри уникальна для статуса, поэтому пин остаётся однозначным среди двадцати других и без цвета.</p>
+    </div>
+
+    <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px;display:grid;gap:12px;justify-items:center">
+        <div style="display:flex;align-items:flex-end;gap:14px">
+          <div style="width:30px;height:30px;background:#D8368F;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><div style="width:11px;height:11px;border:2.5px solid #FFFFFF;border-radius:50%"></div></div>
+          <div style="width:44px;height:44px;background:#D8368F;border:3px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 0 3px rgba(216,54,143,.3),0 6px 14px rgba(18,22,28,.35);display:grid;place-items:center"><div style="width:16px;height:16px;border:3px solid #FFFFFF;border-radius:50%"></div></div>
+        </div>
+        <div style="text-align:center"><div style="font:600 12px/1.3 'Archivo',sans-serif;color:#12161C">NEW</div><div style="font:400 12px/1.4 'Archivo',sans-serif;color:#6E768A">кольцо · 30 / 44 выбран</div></div>
+      </div>
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px;display:grid;gap:12px;justify-items:center">
+        <div style="display:flex;align-items:flex-end;gap:14px">
+          <div style="width:30px;height:30px;background:#EE6A21;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><div style="width:10px;height:10px;background:#FFFFFF"></div></div>
+          <div style="width:44px;height:44px;background:#EE6A21;border:3px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 0 3px rgba(238,106,33,.3),0 6px 14px rgba(18,22,28,.35);display:grid;place-items:center"><div style="width:15px;height:15px;background:#FFFFFF"></div></div>
+        </div>
+        <div style="text-align:center"><div style="font:600 12px/1.3 'Archivo',sans-serif;color:#12161C">ACCEPTED</div><div style="font:400 12px/1.4 'Archivo',sans-serif;color:#6E768A">ромб</div></div>
+      </div>
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px;display:grid;gap:12px;justify-items:center">
+        <div style="display:flex;align-items:flex-end;gap:14px">
+          <div style="width:30px;height:30px;background:#2F5FD0;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><div style="display:flex;gap:3px"><span style="width:2.5px;height:12px;background:#FFFFFF"></span><span style="width:2.5px;height:12px;background:#FFFFFF"></span></div></div>
+          <div style="width:44px;height:44px;background:#2F5FD0;border:3px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 0 3px rgba(47,95,208,.3),0 6px 14px rgba(18,22,28,.35);display:grid;place-items:center"><div style="display:flex;gap:4px"><span style="width:3px;height:17px;background:#FFFFFF"></span><span style="width:3px;height:17px;background:#FFFFFF"></span></div></div>
+        </div>
+        <div style="text-align:center"><div style="font:600 12px/1.3 'Archivo',sans-serif;color:#12161C">IN_PROGRESS</div><div style="font:400 12px/1.4 'Archivo',sans-serif;color:#6E768A">штриховка</div></div>
+      </div>
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px;display:grid;gap:12px;justify-items:center">
+        <div style="display:flex;align-items:flex-end;gap:14px">
+          <div style="width:30px;height:30px;background:#0F9FA6;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><div style="width:12px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;margin-bottom:2px"></div></div>
+          <div style="width:44px;height:44px;background:#0F9FA6;border:3px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 0 3px rgba(15,159,166,.3),0 6px 14px rgba(18,22,28,.35);display:grid;place-items:center"><div style="width:17px;height:10px;border-left:3px solid #FFFFFF;border-bottom:3px solid #FFFFFF;margin-bottom:3px"></div></div>
+        </div>
+        <div style="text-align:center"><div style="font:600 12px/1.3 'Archivo',sans-serif;color:#12161C">DONE</div><div style="font:400 12px/1.4 'Archivo',sans-serif;color:#6E768A">галочка</div></div>
+      </div>
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px;display:grid;gap:12px;justify-items:center">
+        <div style="display:flex;align-items:flex-end;gap:12px">
+          <div style="width:34px;height:34px;border-radius:50%;background:#12161C;border:2px solid #FFFFFF;box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center;font:600 13px/1 'Archivo',sans-serif;color:#FFFFFF">14</div>
+          <div style="width:44px;height:44px;border-radius:50%;background:#12161C;border:2px solid #FFFFFF;box-shadow:0 2px 6px rgba(18,22,28,.35);display:grid;place-items:center;font:600 15px/1 'Archivo',sans-serif;color:#FFFFFF">128</div>
+          <div style="width:52px;height:52px;border-radius:50%;background:#12161C;border:2px solid #FFFFFF;box-shadow:0 2px 6px rgba(18,22,28,.35);display:grid;place-items:center;font:600 14px/1 'Archivo',sans-serif;color:#FFFFFF">1.2k</div>
+        </div>
+        <div style="text-align:center"><div style="font:600 12px/1.3 'Archivo',sans-serif;color:#12161C">CLUSTER</div><div style="font:400 12px/1.4 'Archivo',sans-serif;color:#6E768A">34 / 44 / 52 по числу</div></div>
+      </div>
+    </div>
+
+    <sc-if value="{{ showInternalStatuses }}" hint-placeholder-val="{{ true }}">
+      <div style="border:1px dashed #C0C5D1;border-radius:12px;padding:16px;background:repeating-linear-gradient(115deg,rgba(180,186,199,.12) 0 6px,transparent 6px 12px)">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#545C6E">Внутренние · только в панели волонтёра, на публичной карте отсутствуют</div>
+        <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:24px;align-items:center">
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:30px;height:30px;background:#B33344;border:2px dashed #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center"><div style="position:relative;width:12px;height:12px"><span style="position:absolute;top:5px;left:0;width:12px;height:2.5px;background:#FFFFFF"></span><span style="position:absolute;left:5px;top:0;width:2.5px;height:12px;background:#FFFFFF"></span></div></div><span style="font:600 12px 'Archivo',sans-serif;color:#3E4553">REJECTED</span></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:30px;height:30px;background:#6E768A;border:2px dashed #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center"><div style="position:relative;width:13px;height:13px"><span style="position:absolute;top:0;left:0;width:8px;height:8px;border:2px solid #FFFFFF"></span><span style="position:absolute;bottom:0;right:0;width:8px;height:8px;border:2px solid rgba(255,255,255,.55)"></span></div></div><span style="font:600 12px 'Archivo',sans-serif;color:#3E4553">DUPLICATE</span></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:30px;height:30px;background:#6C5CBF;border:2px dashed #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center"><div style="width:14px;height:2.5px;background:#FFFFFF"></div></div><span style="font:600 12px 'Archivo',sans-serif;color:#3E4553">OUT_OF_SCOPE</span></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+      <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553">Выделенный пин — 44 px, обводка 3 px, цветной ореол 3 px и подъём тени. Масштаб, а не смена цвета: цвет занят статусом.</div>
+      <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553">Кластер — круг, а не капля, и всегда нейтральный асфальт. Круг против капли различает «много» и «одна» на периферии зрения.</div>
+      <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553">Своя точка пользователя — синяя точка с пульсацией, никогда не капля: она не заявка.</div>
+    </div>
+  </section>
+
+  <section id="c2" style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(18,22,28,.06);display:grid;gap:20px">
+    <div style="display:grid;gap:6px">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6E768A">02 — Status badge</div>
+      <h2 style="margin:0;font:700 22px/1.2 'Archivo',sans-serif">Плашка статуса</h2>
+      <p style="margin:0;max-width:74ch;font:400 15px/1.55 'Archivo',sans-serif;color:#545C6E">Тон + иконка + подпись. Иконка повторяет форму пина, поэтому связь «плашка ↔ пин на карте» опознаётся без чтения. Ширина по контенту, перенос в две строки разрешён.</p>
+    </div>
+
+    <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Светлая тема · uz-Latn · размер md</div>
+        <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px">
+          <span style="display:inline-flex;align-items:center;gap:7px;background:#FBE9F3;border:1px solid #F3C8DF;border-radius:999px;padding:7px 12px;font:600 14px/1.25 'Archivo',sans-serif;color:#8E1A5C"><span style="width:10px;height:10px;border:2px solid #8E1A5C;border-radius:50%;flex:none"></span>Yangi</span>
+          <span style="display:inline-flex;align-items:center;gap:7px;background:#FDEDE1;border:1px solid #F6D2B4;border-radius:999px;padding:7px 12px;font:600 14px/1.25 'Archivo',sans-serif;color:#8E3308"><span style="width:10px;height:10px;background:#8E3308;transform:rotate(45deg);flex:none"></span>Qabul qilindi</span>
+          <span style="display:inline-flex;align-items:center;gap:7px;background:#E9EFFC;border:1px solid #C3D3F6;border-radius:999px;padding:7px 12px;font:600 14px/1.25 'Archivo',sans-serif;color:#1B4093"><span style="display:flex;gap:2px;transform:rotate(-45deg);flex:none"><span style="width:2px;height:10px;background:#1B4093"></span><span style="width:2px;height:10px;background:#1B4093"></span></span>Ish jarayonida</span>
+          <span style="display:inline-flex;align-items:center;gap:7px;background:#E2F5F6;border:1px solid #B7E1E3;border-radius:999px;padding:7px 12px;font:600 14px/1.25 'Archivo',sans-serif;color:#0A5D62"><span style="width:11px;height:6px;border-left:2px solid #0A5D62;border-bottom:2px solid #0A5D62;transform:rotate(-45deg);margin-bottom:2px;flex:none"></span>Taʼmirlandi</span>
+        </div>
+        <sc-if value="{{ showInternalStatuses }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
+            <span style="display:inline-flex;align-items:center;gap:7px;background:#FBEAEC;border:1px dashed #E0A5AD;border-radius:999px;padding:7px 12px;font:600 14px/1.25 'Archivo',sans-serif;color:#8A1F2D"><span style="position:relative;width:10px;height:10px;flex:none"><span style="position:absolute;top:4px;left:0;width:10px;height:2px;background:#8A1F2D;transform:rotate(45deg)"></span><span style="position:absolute;top:4px;left:0;width:10px;height:2px;background:#8A1F2D;transform:rotate(-45deg)"></span></span>Rad etildi</span>
+            <span style="display:inline-flex;align-items:center;gap:7px;background:#EFF0F4;border:1px dashed #C0C5D1;border-radius:999px;padding:7px 12px;font:600 14px/1.25 'Archivo',sans-serif;color:#454C5C"><span style="position:relative;width:11px;height:11px;flex:none"><span style="position:absolute;top:0;left:0;width:8px;height:8px;border:1.5px solid #454C5C"></span><span style="position:absolute;bottom:0;right:0;width:8px;height:8px;border:1.5px solid #8F97A8"></span></span>Takroriy</span>
+            <span style="display:inline-flex;align-items:center;gap:7px;background:#EEEBFA;border:1px dashed #C6BDEC;border-radius:999px;padding:7px 12px;font:600 14px/1.25 'Archivo',sans-serif;color:#3F3487"><span style="width:11px;height:2px;background:#3F3487;transform:rotate(-45deg);flex:none"></span>Imkoniyatdan tashqari</span>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px;background:#12161C">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8F97A8">Тёмная тема · русский · размер md</div>
+        <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px">
+          <span style="display:inline-flex;align-items:center;gap:7px;background:#3A1128;border:1px solid #6B2249;border-radius:999px;padding:7px 12px;font:600 14px/1.25 'Archivo',sans-serif;color:#F7A9CF"><span style="width:10px;height:10px;border:2px solid #F7A9CF;border-radius:50%;flex:none"></span>Новая</span>
+          <span style="display:inline-flex;align-items:center;gap:7px;background:#3A1D0A;border:1px solid #6E3A16;border-radius:999px;padding:7px 12px;font:600 14px/1.25 'Archivo',sans-serif;color:#FFBE93"><span style="width:10px;height:10px;background:#FFBE93;transform:rotate(45deg);flex:none"></span>Принята</span>
+          <span style="display:inline-flex;align-items:center;gap:7px;background:#101F42;border:1px solid #24427F;border-radius:999px;padding:7px 12px;font:600 14px/1.25 'Archivo',sans-serif;color:#A9C2F7"><span style="display:flex;gap:2px;transform:rotate(-45deg);flex:none"><span style="width:2px;height:10px;background:#A9C2F7"></span><span style="width:2px;height:10px;background:#A9C2F7"></span></span>В работе</span>
+          <span style="display:inline-flex;align-items:center;gap:7px;background:#06282B;border:1px solid #12565B;border-radius:999px;padding:7px 12px;font:600 14px/1.25 'Archivo',sans-serif;color:#8FDDE1"><span style="width:11px;height:6px;border-left:2px solid #8FDDE1;border-bottom:2px solid #8FDDE1;transform:rotate(-45deg);margin-bottom:2px;flex:none"></span>Отремонтирована</span>
+        </div>
+        <sc-if value="{{ showInternalStatuses }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
+            <span style="display:inline-flex;align-items:center;gap:7px;background:#341216;border:1px dashed #6B2A33;border-radius:999px;padding:7px 12px;font:600 14px/1.25 'Archivo',sans-serif;color:#F4A8B1"><span style="position:relative;width:10px;height:10px;flex:none"><span style="position:absolute;top:4px;left:0;width:10px;height:2px;background:#F4A8B1;transform:rotate(45deg)"></span><span style="position:absolute;top:4px;left:0;width:10px;height:2px;background:#F4A8B1;transform:rotate(-45deg)"></span></span>Отклонена</span>
+            <span style="display:inline-flex;align-items:center;gap:7px;background:#23272F;border:1px dashed #454C5C;border-radius:999px;padding:7px 12px;font:600 14px/1.25 'Archivo',sans-serif;color:#C1C7D4"><span style="position:relative;width:11px;height:11px;flex:none"><span style="position:absolute;top:0;left:0;width:8px;height:8px;border:1.5px solid #C1C7D4"></span><span style="position:absolute;bottom:0;right:0;width:8px;height:8px;border:1.5px solid #6E768A"></span></span>Дубликат</span>
+            <span style="display:inline-flex;align-items:center;gap:7px;background:#1E1A38;border:1px dashed #3F3775;border-radius:999px;padding:7px 12px;font:600 14px/1.25 'Archivo',sans-serif;color:#C0B6F0"><span style="width:11px;height:2px;background:#C0B6F0;transform:rotate(-45deg);flex:none"></span>Не по силам</span>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Размеры sm / md / lg</div>
+        <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+          <span style="display:inline-flex;align-items:center;gap:5px;background:#E2F5F6;border:1px solid #B7E1E3;border-radius:999px;padding:4px 9px;font:600 12px/1.2 'Archivo',sans-serif;color:#0A5D62"><span style="width:9px;height:5px;border-left:1.5px solid #0A5D62;border-bottom:1.5px solid #0A5D62;transform:rotate(-45deg);margin-bottom:2px;flex:none"></span>Taʼmirlandi</span>
+          <span style="display:inline-flex;align-items:center;gap:7px;background:#E2F5F6;border:1px solid #B7E1E3;border-radius:999px;padding:7px 12px;font:600 14px/1.25 'Archivo',sans-serif;color:#0A5D62"><span style="width:11px;height:6px;border-left:2px solid #0A5D62;border-bottom:2px solid #0A5D62;transform:rotate(-45deg);margin-bottom:2px;flex:none"></span>Taʼmirlandi</span>
+          <span style="display:inline-flex;align-items:center;gap:9px;background:#0A6E73;border-radius:999px;padding:11px 16px;font:700 16px/1.25 'Archivo',sans-serif;color:#FFFFFF"><span style="width:14px;height:8px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;transform:rotate(-45deg);margin-bottom:3px;flex:none"></span>Taʼmirlandi</span>
+        </div>
+        <div style="margin-top:12px;font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E">sm — внутри карточки на карте. md — везде. lg (solid, белый текст 5.4:1) — заголовок страницы заявки.</div>
+      </div>
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Длинная подпись · 220 px контейнер</div>
+        <div style="margin-top:14px;width:220px;border:1px dashed #B4BAC7;border-radius:10px;padding:10px;display:grid;gap:8px;justify-items:start">
+          <span style="display:inline-flex;align-items:flex-start;gap:7px;background:#EEEBFA;border:1px dashed #C6BDEC;border-radius:14px;padding:7px 12px;font:600 14px/1.3 'Archivo',sans-serif;color:#3F3487;text-align:left"><span style="width:11px;height:2px;background:#3F3487;transform:rotate(-45deg);flex:none;margin-top:8px"></span>Imkoniyatdan tashqari</span>
+          <span style="display:inline-flex;align-items:flex-start;gap:7px;background:#E9EFFC;border:1px solid #C3D3F6;border-radius:14px;padding:7px 12px;font:600 14px/1.3 'Archivo',sans-serif;color:#1B4093"><span style="display:flex;gap:2px;transform:rotate(-45deg);flex:none;margin-top:6px"><span style="width:2px;height:10px;background:#1B4093"></span><span style="width:2px;height:10px;background:#1B4093"></span></span>Ish jarayonida — brigada yoʻlda</span>
+        </div>
+        <div style="margin-top:12px;font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E">При переносе радиус падает с pill до 14: капсула на двух строках выглядит сломанной. Иконка прижата к первой строке.</div>
+      </div>
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Только иконка · легенда карты</div>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <span style="width:32px;height:32px;border-radius:8px;background:#FBE9F3;border:1px solid #F3C8DF;display:grid;place-items:center" title="Yangi"><span style="width:11px;height:11px;border:2px solid #8E1A5C;border-radius:50%"></span></span>
+          <span style="width:32px;height:32px;border-radius:8px;background:#FDEDE1;border:1px solid #F6D2B4;display:grid;place-items:center" title="Qabul qilindi"><span style="width:10px;height:10px;background:#8E3308;transform:rotate(45deg)"></span></span>
+          <span style="width:32px;height:32px;border-radius:8px;background:#E9EFFC;border:1px solid #C3D3F6;display:grid;place-items:center" title="Ish jarayonida"><span style="display:flex;gap:2px;transform:rotate(-45deg)"><span style="width:2px;height:11px;background:#1B4093"></span><span style="width:2px;height:11px;background:#1B4093"></span></span></span>
+          <span style="width:32px;height:32px;border-radius:8px;background:#E2F5F6;border:1px solid #B7E1E3;display:grid;place-items:center" title="Taʼmirlandi"><span style="width:12px;height:7px;border-left:2px solid #0A5D62;border-bottom:2px solid #0A5D62;transform:rotate(-45deg);margin-bottom:2px"></span></span>
+        </div>
+        <div style="margin-top:12px;font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E">Разрешено только там, где подпись есть рядом в строке легенды. Иконка без текста никогда не единственный носитель статуса.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="c3" style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(18,22,28,.06);display:grid;gap:20px">
+    <div style="display:grid;gap:6px">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6E768A">03 — Report card</div>
+      <h2 style="margin:0;font:700 22px/1.2 'Archivo',sans-serif">Карточка заявки</h2>
+      <p style="margin:0;max-width:74ch;font:400 15px/1.55 'Archivo',sans-serif;color:#545C6E">Компактная живёт в нижнем листе карты, полная — на странице заявки и на странице «моя заявка по ссылке». Один и тот же порядок чтения: статус → место → фото → время.</p>
+    </div>
+
+    <div style="display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+      <div>
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A;margin-bottom:12px">Компактная · 328 px · светлая</div>
+        <div style="width:328px;max-width:100%;background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:12px;box-shadow:0 2px 8px rgba(18,22,28,.10);display:grid;grid-template-columns:84px 1fr;gap:12px">
+          <div style="height:84px;border-radius:10px;background:repeating-linear-gradient(115deg,#E6E8EE 0 6px,#D2D6DF 6px 12px);display:grid;place-items:center;font:500 9px/1.2 'Archivo',sans-serif;color:#545C6E;text-align:center">photo<br>before</div>
+          <div style="display:grid;gap:6px;align-content:start;min-width:0">
+            <span style="justify-self:start;display:inline-flex;align-items:center;gap:5px;background:#E9EFFC;border:1px solid #C3D3F6;border-radius:999px;padding:4px 9px;font:600 12px/1.2 'Archivo',sans-serif;color:#1B4093"><span style="display:flex;gap:2px;transform:rotate(-45deg);flex:none"><span style="width:2px;height:9px;background:#1B4093"></span><span style="width:2px;height:9px;background:#1B4093"></span></span>Ish jarayonida</span>
+            <div style="font:600 15px/1.35 'Archivo',sans-serif;color:#12161C">Buyuk Ipak Yoʻli 12A</div>
+            <div style="font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Mirzo Ulugʻbek tumani · avtobus bekati yonida</div>
+            <div style="display:flex;gap:10px;align-items:center;font:500 12px/1.2 'Archivo',sans-serif;color:#6E768A"><span>RR-3471</span><span>·</span><span>3 kun</span></div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E;max-width:328px">Вся карточка — одна цель нажатия высотой 108 px. Обрезается только вторая строка адреса, статус и дом — никогда.</div>
+      </div>
+
+      <div>
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A;margin-bottom:12px">Компактная · тёмная · DONE</div>
+        <div style="width:328px;max-width:100%;background:#1D222A;border:1px solid #2B313C;border-top-color:rgba(255,255,255,.07);border-radius:14px;padding:12px;display:grid;grid-template-columns:84px 1fr;gap:12px">
+          <div style="height:84px;border-radius:10px;background:repeating-linear-gradient(115deg,#2B313C 0 6px,#232833 6px 12px);display:grid;place-items:center;font:500 9px/1.2 'Archivo',sans-serif;color:#8F97A8;text-align:center">photo<br>after</div>
+          <div style="display:grid;gap:6px;align-content:start;min-width:0">
+            <span style="justify-self:start;display:inline-flex;align-items:center;gap:5px;background:#06282B;border:1px solid #12565B;border-radius:999px;padding:4px 9px;font:600 12px/1.2 'Archivo',sans-serif;color:#8FDDE1"><span style="width:10px;height:5px;border-left:2px solid #8FDDE1;border-bottom:2px solid #8FDDE1;transform:rotate(-45deg);margin-bottom:2px;flex:none"></span>Taʼmirlandi</span>
+            <div style="font:600 15px/1.35 'Archivo',sans-serif;color:#FBFBFD">Amir Temur shoh koʻchasi 88</div>
+            <div style="font:400 13px/1.4 'Archivo',sans-serif;color:#B4BAC7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Yunusobod tumani · maktab roʻparasida</div>
+            <div style="display:flex;gap:10px;align-items:center;font:500 12px/1.2 'Archivo',sans-serif;color:#8F97A8"><span>RR-3402</span><span>·</span><span>12 avgust</span></div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E;max-width:328px">В DONE превью показывает фото «после» — это результат кампании, а не проблема.</div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A;margin-bottom:12px">Полная · страница заявки и отслеживание по ссылке</div>
+      <div style="max-width:392px;background:#FFFFFF;border:1px solid #E6E8EE;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(18,22,28,.10)">
+        <div style="padding:16px;display:grid;gap:12px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+            <span style="display:inline-flex;align-items:center;gap:8px;background:#0A6E73;border-radius:999px;padding:9px 14px;font:700 15px/1.2 'Archivo',sans-serif;color:#FFFFFF"><span style="width:13px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;transform:rotate(-45deg);margin-bottom:3px;flex:none"></span>Taʼmirlandi</span>
+            <span style="font:500 12px/1.4 'Archivo',sans-serif;color:#6E768A;text-align:right">RR-3402<br>12.08.2026</span>
+          </div>
+          <div>
+            <div style="font:700 20px/1.25 'Archivo',sans-serif;color:#12161C">Amir Temur shoh koʻchasi 88</div>
+            <div style="margin-top:4px;font:400 15px/1.45 'Archivo',sans-serif;color:#545C6E">Yunusobod tumani · 12-maktab roʻparasida, oʻng qatorda</div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <span style="font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;background:#F2F3F7;border:1px solid #E6E8EE;border-radius:6px;padding:6px 8px;color:#3E4553">Chuqurlik</span>
+            <span style="font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;background:#F2F3F7;border:1px solid #E6E8EE;border-radius:6px;padding:6px 8px;color:#3E4553">~0,8 m</span>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;background:#E6E8EE">
+          <div>
+            <div style="aspect-ratio:4/3;background:repeating-linear-gradient(115deg,#E6E8EE 0 8px,#D8DCE4 8px 16px);display:grid;place-items:center;font:500 10px/1.3 'Archivo',sans-serif;color:#545C6E;text-align:center">photo · before<br>4:3</div>
+            <div style="padding:8px 10px;background:#FFFFFF;font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#6E768A">Oldin · до</div>
+          </div>
+          <div>
+            <div style="aspect-ratio:4/3;background:repeating-linear-gradient(115deg,#DCEFF0 0 8px,#CDE7E9 8px 16px);display:grid;place-items:center;font:500 10px/1.3 'Archivo',sans-serif;color:#0A5D62;text-align:center">photo · after<br>4:3</div>
+            <div style="padding:8px 10px;background:#FFFFFF;font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#0A5D62">Keyin · после</div>
+          </div>
+        </div>
+        <div style="padding:16px;display:grid;gap:14px">
+          <div style="font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#6E768A">Holat tarixi</div>
+          <div style="display:grid;gap:0">
+            <div style="display:grid;grid-template-columns:26px 1fr;gap:12px">
+              <div style="display:grid;justify-items:center;gap:2px"><span style="width:14px;height:14px;border-radius:50%;background:#0F9FA6;border:3px solid #FFFFFF;box-shadow:0 0 0 1.5px #0F9FA6"></span><span style="width:2px;flex:1;min-height:22px;background:#D2D6DF"></span></div>
+              <div style="padding-bottom:14px"><div style="font:600 15px/1.3 'Archivo',sans-serif;color:#12161C">Taʼmirlandi</div><div style="font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A">12 avgust, 17:20 · brigada 4</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:26px 1fr;gap:12px">
+              <div style="display:grid;justify-items:center;gap:2px"><span style="width:10px;height:10px;border-radius:50%;background:#B4BAC7;margin-top:2px"></span><span style="width:2px;flex:1;min-height:22px;background:#D2D6DF"></span></div>
+              <div style="padding-bottom:14px"><div style="font:500 15px/1.3 'Archivo',sans-serif;color:#3E4553">Ish jarayonida</div><div style="font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A">12 avgust, 08:05</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:26px 1fr;gap:12px">
+              <div style="display:grid;justify-items:center;gap:2px"><span style="width:10px;height:10px;border-radius:50%;background:#B4BAC7;margin-top:2px"></span><span style="width:2px;flex:1;min-height:22px;background:#D2D6DF"></span></div>
+              <div style="padding-bottom:14px"><div style="font:500 15px/1.3 'Archivo',sans-serif;color:#3E4553">Qabul qilindi</div><div style="font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A">9 avgust, 14:41</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:26px 1fr;gap:12px">
+              <div style="display:grid;justify-items:center"><span style="width:10px;height:10px;border-radius:50%;background:#B4BAC7;margin-top:2px"></span></div>
+              <div><div style="font:500 15px/1.3 'Archivo',sans-serif;color:#3E4553">Yangi</div><div style="font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A">8 avgust, 09:41 · saytdan</div></div>
+            </div>
+          </div>
+          <div style="display:grid;gap:8px">
+            <button type="button" style="min-height:48px;border:1px solid #D2D6DF;background:#FFFFFF;border-radius:12px;font:600 15px 'Archivo',sans-serif;color:#12161C;padding:12px 16px">Havolani ulashish</button>
+            <div style="font:400 13px/1.5 'Archivo',sans-serif;color:#6E768A">Ссылку на заявку можно открыть без входа — аккаунтов в сервисе нет.</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+        <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553">Пара «до/после» показывается только в DONE. До этого — одна колонка на всю ширину и подпись <code style="font:500 12px 'Archivo',sans-serif">Oldin</code>.</div>
+        <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553">Текущий шаг истории — цветная точка с кольцом; прошедшие — нейтральные. Свернуть историю нельзя: это доказательство работы.</div>
+        <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553">Отслеживание по ссылке — та же карточка без карты и без соседних заявок.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="c4" style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(18,22,28,.06);display:grid;gap:20px">
+    <div style="display:grid;gap:6px">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6E768A">04 — Photo upload</div>
+      <h2 style="margin:0;font:700 22px/1.2 'Archivo',sans-serif">Загрузка фотографий · до 3</h2>
+      <p style="margin:0;max-width:74ch;font:400 15px/1.55 'Archivo',sans-serif;color:#545C6E">Съёмка одной рукой на мобильном интернете: камера открывается сразу, загрузка идёт в фоне, ошибка не уничтожает файл — только предлагает повтор.</p>
+    </div>
+    <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Пусто</div>
+        <button type="button" style="margin-top:14px;width:100%;min-height:132px;border:2px dashed #B4BAC7;background:#F8F9FB;border-radius:14px;display:grid;gap:8px;place-items:center;padding:16px;cursor:pointer">
+          <span style="width:44px;height:44px;border-radius:12px;background:#FFDD00;display:grid;place-items:center"><span style="position:relative;width:18px;height:18px"><span style="position:absolute;top:8px;left:0;width:18px;height:2.5px;background:#12161C"></span><span style="position:absolute;left:8px;top:0;width:2.5px;height:18px;background:#12161C"></span></span></span>
+          <span style="font:600 16px/1.3 'Archivo',sans-serif;color:#12161C">Suratga olish</span>
+          <span style="font:400 13px/1.4 'Archivo',sans-serif;color:#545C6E;text-align:center">3 tagacha · JPG, HEIC · 10 MB gacha</span>
+        </button>
+        <div style="margin-top:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E">Ограничения написаны до нажатия, а не в ошибке после.</div>
+      </div>
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Превью + прогресс + добавить</div>
+        <div style="margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <div style="position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;background:repeating-linear-gradient(115deg,#E6E8EE 0 6px,#D8DCE4 6px 12px)">
+            <span style="position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;background:rgba(18,22,28,.75);display:grid;place-items:center"><span style="position:relative;width:10px;height:10px"><span style="position:absolute;top:4px;left:0;width:10px;height:2px;background:#FFFFFF;transform:rotate(45deg)"></span><span style="position:absolute;top:4px;left:0;width:10px;height:2px;background:#FFFFFF;transform:rotate(-45deg)"></span></span></span>
+            <span style="position:absolute;bottom:4px;left:4px;font:600 10px/1 'Archivo',sans-serif;color:#12161C;background:#FFDD00;border-radius:4px;padding:3px 5px">1</span>
+          </div>
+          <div style="position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;background:repeating-linear-gradient(115deg,#E6E8EE 0 6px,#D8DCE4 6px 12px)">
+            <span style="position:absolute;inset:0;background:rgba(18,22,28,.55);display:grid;place-items:center"><span style="width:22px;height:22px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#FFDD00;border-radius:50%;animation:rr-spin .8s linear infinite"></span></span>
+            <span style="position:absolute;bottom:0;left:0;right:0;height:4px;background:rgba(255,255,255,.3)"><span style="display:block;width:68%;height:4px;background:#FFDD00"></span></span>
+          </div>
+          <button type="button" style="aspect-ratio:3/4;border:2px dashed #B4BAC7;background:#F8F9FB;border-radius:10px;display:grid;place-items:center;cursor:pointer"><span style="position:relative;width:18px;height:18px"><span style="position:absolute;top:8px;left:0;width:18px;height:2.5px;background:#545C6E"></span><span style="position:absolute;left:8px;top:0;width:2.5px;height:18px;background:#545C6E"></span></span></button>
+        </div>
+        <div style="margin-top:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E">Прогресс — на самой миниатюре, не в отдельной строке. Номер кадра остаётся видимым.</div>
+      </div>
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Ошибка одного файла</div>
+        <div style="margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <div style="position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;background:repeating-linear-gradient(115deg,#E6E8EE 0 6px,#D8DCE4 6px 12px)"></div>
+          <div style="position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;background:repeating-linear-gradient(115deg,#F3DEE1 0 6px,#EBD2D6 6px 12px);border:2px solid #B33344">
+            <span style="position:absolute;inset:0;display:grid;place-items:center;background:rgba(139,31,45,.15)"><span style="position:relative;width:16px;height:16px"><span style="position:absolute;top:7px;left:0;width:16px;height:2.5px;background:#8A1F2D;transform:rotate(45deg)"></span><span style="position:absolute;top:7px;left:0;width:16px;height:2.5px;background:#8A1F2D;transform:rotate(-45deg)"></span></span></span>
+          </div>
+          <button type="button" style="aspect-ratio:3/4;border:2px dashed #B4BAC7;background:#F8F9FB;border-radius:10px;display:grid;place-items:center;cursor:pointer"><span style="position:relative;width:18px;height:18px"><span style="position:absolute;top:8px;left:0;width:18px;height:2.5px;background:#545C6E"></span><span style="position:absolute;left:8px;top:0;width:2.5px;height:18px;background:#545C6E"></span></span></button>
+        </div>
+        <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#FBEAEC;border:1px solid #F0C9CE;border-radius:10px;padding:10px 12px">
+          <span style="font:500 13px/1.4 'Archivo',sans-serif;color:#8A1F2D;flex:1;min-width:140px">2-surat yuklanmadi — internet uzildi</span>
+          <button type="button" style="min-height:36px;border:1px solid #8A1F2D;background:transparent;border-radius:8px;font:600 13px 'Archivo',sans-serif;color:#8A1F2D;padding:8px 12px">Qayta urinish</button>
+        </div>
+        <div style="margin-top:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E">Файл остаётся в очереди. Отправить заявку можно и без него — фото не блокирует форму.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="c5" style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(18,22,28,.06);display:grid;gap:20px">
+    <div style="display:grid;gap:6px">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6E768A">05 — Form fields</div>
+      <h2 style="margin:0;font:700 22px/1.2 'Archivo',sans-serif">Поля формы</h2>
+      <p style="margin:0;max-width:74ch;font:400 15px/1.55 'Archivo',sans-serif;color:#545C6E">Высота 52, кегль ввода 16 (иначе iOS зумит), лейбл сверху и всегда виден. Ошибка — текстом, иконкой и рамкой одновременно.</p>
+    </div>
+    <div style="display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+      <div style="display:grid;gap:16px;align-content:start">
+        <div>
+          <label style="display:block;font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#545C6E">Moʻljal <span style="color:#6E768A;text-transform:none;letter-spacing:0">· ориентир</span></label>
+          <input type="text" placeholder="12-maktab roʻparasida" style="margin-top:8px;width:100%;min-height:52px;padding:14px;border:1.5px solid #D2D6DF;border-radius:12px;background:#FFFFFF;font:400 16px/1.4 'Archivo',sans-serif;color:#12161C">
+          <div style="margin-top:6px;font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A">Как найти яму, если карта соврала на 20 метров</div>
+        </div>
+        <div>
+          <label style="display:block;font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#545C6E">Focus</label>
+          <div style="margin-top:8px;width:100%;min-height:52px;padding:14px;border:2px solid #12161C;border-radius:12px;background:#FFFFFF;font:400 16px/1.4 'Archivo',sans-serif;color:#12161C;box-shadow:0 0 0 4px rgba(255,221,0,.5)">Buyuk Ipak Yoʻli 12A<span style="display:inline-block;width:2px;height:18px;background:#12161C;vertical-align:-3px;margin-left:1px"></span></div>
+        </div>
+        <div>
+          <label style="display:block;font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8A1F2D">Telegram <span style="color:#B33344;text-transform:none;letter-spacing:0">· ошибка</span></label>
+          <div style="margin-top:8px;display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:14px;border:2px solid #B33344;border-radius:12px;background:#FFFDFD">
+            <span style="font:400 16px/1.4 'Archivo',sans-serif;color:#12161C;flex:1">@ravon road</span>
+            <span style="position:relative;width:16px;height:16px;flex:none"><span style="position:absolute;top:7px;left:0;width:16px;height:2.5px;background:#B33344;transform:rotate(45deg)"></span><span style="position:absolute;top:7px;left:0;width:16px;height:2.5px;background:#B33344;transform:rotate(-45deg)"></span></span>
+          </div>
+          <div style="margin-top:6px;display:flex;gap:6px;align-items:flex-start;font:500 13px/1.4 'Archivo',sans-serif;color:#8A1F2D"><span style="flex:none;margin-top:1px">✕</span><span>Nikda boʻsh joy boʻlmaydi. Masalan: @ravonroad</span></div>
+        </div>
+        <div>
+          <label style="display:block;font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#6E768A">Telefon · disabled</label>
+          <input type="text" value="+998" disabled="{{ true }}" aria-disabled="true" style="margin-top:8px;width:100%;min-height:52px;padding:14px;border:1.5px solid #E6E8EE;border-radius:12px;background:#F2F3F7;font:400 16px/1.4 'Archivo',sans-serif;color:#545C6E">
+        </div>
+      </div>
+      <div style="display:grid;gap:16px;align-content:start">
+        <div>
+          <label style="display:block;font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#545C6E">Tavsif <span style="color:#6E768A;text-transform:none;letter-spacing:0">· описание</span></label>
+          <textarea rows="3" placeholder="Chuqurlik chuqur, avtobus har kuni oʻtadi" style="margin-top:8px;width:100%;min-height:96px;padding:14px;border:1.5px solid #D2D6DF;border-radius:12px;background:#FFFFFF;font:400 16px/1.5 'Archivo',sans-serif;color:#12161C;resize:vertical"></textarea>
+          <div style="margin-top:6px;display:flex;justify-content:space-between;font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A"><span>Необязательно</span><span style="font:500 12px 'Archivo',sans-serif;font-variant-numeric:tabular-nums">0 / 400</span></div>
+        </div>
+        <div>
+          <label style="display:block;font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#545C6E">Toifa <span style="color:#6E768A;text-transform:none;letter-spacing:0">· категория</span></label>
+          <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px">
+            <button type="button" style="min-height:44px;padding:11px 14px;border:2px solid #12161C;background:#FFDD00;border-radius:10px;font:700 15px/1.2 'Archivo',sans-serif;color:#12161C">Chuqurlik</button>
+            <button type="button" style="min-height:44px;padding:11px 14px;border:1.5px solid #D2D6DF;background:#FFFFFF;border-radius:10px;font:500 15px/1.2 'Archivo',sans-serif;color:#2B313C">Yoriq</button>
+            <button type="button" style="min-height:44px;padding:11px 14px;border:1.5px solid #D2D6DF;background:#FFFFFF;border-radius:10px;font:500 15px/1.2 'Archivo',sans-serif;color:#2B313C">Choʻkma</button>
+            <button type="button" style="min-height:44px;padding:11px 14px;border:1.5px solid #D2D6DF;background:#FFFFFF;border-radius:10px;font:500 15px/1.2 'Archivo',sans-serif;color:#2B313C">Quduq qopqogʻi</button>
+            <button type="button" style="min-height:44px;padding:11px 14px;border:1.5px solid #D2D6DF;background:#FFFFFF;border-radius:10px;font:500 15px/1.2 'Archivo',sans-serif;color:#2B313C">Boshqa</button>
+          </div>
+          <div style="margin-top:6px;font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A">Пять категорий — плитки, не список: одно касание вместо трёх. Выбор помечен жёлтым и чёрной рамкой, не только цветом.</div>
+        </div>
+        <div style="background:#12161C;border-radius:12px;padding:16px;display:grid;gap:12px">
+          <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8F97A8">Тёмная тема · русский</div>
+          <div>
+            <label style="display:block;font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#B4BAC7">Ориентир</label>
+            <input type="text" value="Напротив школы №12" style="margin-top:8px;width:100%;min-height:52px;padding:14px;border:1.5px solid #3E4553;border-radius:12px;background:#1D222A;font:400 16px/1.4 'Archivo',sans-serif;color:#FBFBFD">
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <button type="button" style="min-height:44px;padding:11px 14px;border:2px solid #FFDD00;background:#FFDD00;border-radius:10px;font:700 15px/1.2 'Archivo',sans-serif;color:#12161C">Яма</button>
+            <button type="button" style="min-height:44px;padding:11px 14px;border:1.5px solid #3E4553;background:#1D222A;border-radius:10px;font:500 15px/1.2 'Archivo',sans-serif;color:#E6E8EE">Трещина</button>
+            <button type="button" style="min-height:44px;padding:11px 14px;border:1.5px solid #3E4553;background:#1D222A;border-radius:10px;font:500 15px/1.2 'Archivo',sans-serif;color:#E6E8EE">Просадка</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="c6" style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(18,22,28,.06);display:grid;gap:20px">
+    <div style="display:grid;gap:6px">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6E768A">06 — Buttons</div>
+      <h2 style="margin:0;font:700 22px/1.2 'Archivo',sans-serif">Кнопки</h2>
+      <p style="margin:0;max-width:74ch;font:400 15px/1.55 'Archivo',sans-serif;color:#545C6E">Основная — сигнальный жёлтый с текстом asphalt-950 (13.5:1). Вторичная — контур. Тихая — только текст. Загрузка не меняет ширину: подпись остаётся, спиннер встаёт слева.</p>
+    </div>
+    <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px;display:grid;gap:12px;align-content:start">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Основная · lg / md / sm</div>
+        <button type="button" style="min-height:52px;padding:15px 20px;border:none;border-radius:12px;background:#FFDD00;font:700 16px/1.2 'Archivo',sans-serif;color:#12161C;cursor:pointer" style-hover="background:#FFE84D" style-active="background:#E6C400;transform:translateY(1px)">Chuqurni yuborish</button>
+        <button type="button" style="min-height:44px;padding:12px 16px;border:none;border-radius:10px;background:#FFDD00;font:700 15px/1.2 'Archivo',sans-serif;color:#12161C;cursor:pointer" style-hover="background:#FFE84D">Saqlash</button>
+        <button type="button" style="min-height:36px;padding:9px 12px;border:none;border-radius:8px;background:#FFDD00;font:700 13px/1.2 'Archivo',sans-serif;color:#12161C;cursor:pointer" style-hover="background:#FFE84D">Qoʻshish</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button type="button" disabled="{{ true }}" aria-disabled="true" style="min-height:44px;padding:12px 16px;border:none;border-radius:10px;background:#E6E8EE;font:700 15px/1.2 'Archivo',sans-serif;color:#545C6E">Yuborish</button>
+          <button type="button" style="min-height:44px;padding:12px 16px;border:none;border-radius:10px;background:#E6C400;font:700 15px/1.2 'Archivo',sans-serif;color:#12161C;display:inline-flex;align-items:center;gap:8px"><span style="width:16px;height:16px;border:2.5px solid rgba(18,22,28,.25);border-top-color:#12161C;border-radius:50%;animation:rr-spin .8s linear infinite;flex:none"></span>Yuborilmoqda</button>
+        </div>
+      </div>
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px;display:grid;gap:12px;align-content:start">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Вторичная и тихая</div>
+        <button type="button" style="min-height:52px;padding:15px 20px;border:1.5px solid #12161C;border-radius:12px;background:#FFFFFF;font:600 16px/1.2 'Archivo',sans-serif;color:#12161C;cursor:pointer" style-hover="background:#F2F3F7">Xaritada koʻrsatish</button>
+        <button type="button" style="min-height:44px;padding:12px 16px;border:1.5px solid #D2D6DF;border-radius:10px;background:#FFFFFF;font:600 15px/1.2 'Archivo',sans-serif;color:#2B313C;cursor:pointer" style-hover="background:#F2F3F7">Bekor qilish</button>
+        <button type="button" style="min-height:44px;padding:12px 8px;border:none;background:transparent;font:600 15px/1.2 'Archivo',sans-serif;color:#3E4553;cursor:pointer;justify-self:start" style-hover="color:#12161C;background:#F2F3F7;border-radius:8px">Filtrlarni tozalash</button>
+        <button type="button" style="min-height:44px;padding:12px 16px;border:1.5px solid #B33344;border-radius:10px;background:#FFFFFF;font:600 15px/1.2 'Archivo',sans-serif;color:#8A1F2D;cursor:pointer;justify-self:start" style-hover="background:#FBEAEC">Suratni oʻchirish</button>
+      </div>
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px;background:#12161C;display:grid;gap:12px;align-content:start">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8F97A8">Тёмная тема · русский</div>
+        <button type="button" style="min-height:52px;padding:15px 20px;border:none;border-radius:12px;background:#FFDD00;font:700 16px/1.2 'Archivo',sans-serif;color:#12161C;cursor:pointer">Отправить заявку</button>
+        <button type="button" style="min-height:44px;padding:12px 16px;border:1.5px solid #545C6E;border-radius:10px;background:transparent;font:600 15px/1.2 'Archivo',sans-serif;color:#FBFBFD;cursor:pointer" style-hover="background:#2B313C">Показать на карте</button>
+        <button type="button" style="min-height:44px;padding:12px 8px;border:none;background:transparent;font:600 15px/1.2 'Archivo',sans-serif;color:#B4BAC7;cursor:pointer;justify-self:start" style-hover="color:#FBFBFD">Сбросить фильтры</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <button type="button" style="min-height:56px;padding:16px 20px;border:none;border-radius:14px;background:#FFDD00;font:700 17px/1.2 'Archivo',sans-serif;color:#12161C;width:100%;outline:3px solid #FBFBFD;outline-offset:2px">Фокус на тёмном</button>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+      <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553">Ширина — по контенту, но не меньше 120 px; на дне экрана основная кнопка растягивается на всю ширину минус 16+16.</div>
+      <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553">Красная кнопка существует только в контуре: заливка красным на карте прочиталась бы как статус.</div>
+      <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553">Нажатие — сдвиг на 1 px и затемнение до signal-600. Никаких масштабирований: палец и без этого закрывает кнопку.</div>
+    </div>
+  </section>
+
+  <section id="c7" style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(18,22,28,.06);display:grid;gap:20px">
+    <div style="display:grid;gap:6px">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6E768A">07 — Filters</div>
+      <h2 style="margin:0;font:700 22px/1.2 'Archivo',sans-serif">Панель фильтров</h2>
+      <p style="margin:0;max-width:74ch;font:400 15px/1.55 'Archivo',sans-serif;color:#545C6E">На карте — одна кнопка с числом активных фильтров. Панель открывается листом снизу и применяется одной кнопкой, чтобы не перерисовывать карту на каждое касание.</p>
+    </div>
+    <div style="display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+      <div>
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A;margin-bottom:12px">Триггер · чисто / 3 активных</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button type="button" style="min-height:44px;padding:12px 14px;border:1.5px solid #D2D6DF;border-radius:10px;background:#FFFFFF;font:600 15px/1.2 'Archivo',sans-serif;color:#2B313C;display:inline-flex;align-items:center;gap:8px"><span style="display:grid;gap:2.5px;flex:none"><span style="width:14px;height:2px;background:#2B313C"></span><span style="width:10px;height:2px;background:#2B313C"></span><span style="width:6px;height:2px;background:#2B313C"></span></span>Filtrlar</button>
+          <button type="button" style="min-height:44px;padding:12px 14px;border:2px solid #12161C;border-radius:10px;background:#FFDD00;font:700 15px/1.2 'Archivo',sans-serif;color:#12161C;display:inline-flex;align-items:center;gap:8px"><span style="display:grid;gap:2.5px;flex:none"><span style="width:14px;height:2px;background:#12161C"></span><span style="width:10px;height:2px;background:#12161C"></span><span style="width:6px;height:2px;background:#12161C"></span></span>Filtrlar<span style="min-width:22px;height:22px;border-radius:999px;background:#12161C;color:#FFDD00;font:600 12px/22px 'Archivo',sans-serif;text-align:center;padding:0 6px">3</span></button>
+        </div>
+        <div style="margin-top:12px;font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E">Активное состояние несёт и жёлтую заливку, и чёрную рамку, и число — три носителя вместо одного цвета.</div>
+      </div>
+      <div style="width:360px;max-width:100%;background:#FFFFFF;border:1px solid #E6E8EE;border-radius:16px 16px 0 0;box-shadow:0 -6px 28px rgba(18,22,28,.18);overflow:hidden">
+        <div style="padding:10px 0;display:grid;place-items:center"><span style="width:40px;height:4px;border-radius:2px;background:#D2D6DF"></span></div>
+        <div style="padding:0 16px 16px;display:grid;gap:18px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="font:700 18px/1.2 'Archivo',sans-serif;color:#12161C">Filtrlar</span><button type="button" style="min-height:36px;border:none;background:transparent;font:600 14px 'Archivo',sans-serif;color:#3E4553;padding:8px">Tozalash</button></div>
+          <div>
+            <div style="font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#545C6E">Holat</div>
+            <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
+              <button type="button" style="min-height:44px;padding:10px 12px;border:2px solid #8E1A5C;border-radius:10px;background:#FBE9F3;font:600 14px/1.2 'Archivo',sans-serif;color:#8E1A5C;display:inline-flex;align-items:center;gap:7px"><span style="width:10px;height:10px;border:2px solid #8E1A5C;border-radius:50%;flex:none"></span>Yangi</button>
+              <button type="button" style="min-height:44px;padding:10px 12px;border:1.5px solid #D2D6DF;border-radius:10px;background:#FFFFFF;font:500 14px/1.2 'Archivo',sans-serif;color:#3E4553;display:inline-flex;align-items:center;gap:7px"><span style="width:10px;height:10px;background:#B4BAC7;transform:rotate(45deg);flex:none"></span>Qabul qilindi</button>
+              <button type="button" style="min-height:44px;padding:10px 12px;border:2px solid #1B4093;border-radius:10px;background:#E9EFFC;font:600 14px/1.2 'Archivo',sans-serif;color:#1B4093;display:inline-flex;align-items:center;gap:7px"><span style="display:flex;gap:2px;transform:rotate(-45deg);flex:none"><span style="width:2px;height:10px;background:#1B4093"></span><span style="width:2px;height:10px;background:#1B4093"></span></span>Ish jarayonida</button>
+              <button type="button" style="min-height:44px;padding:10px 12px;border:1.5px solid #D2D6DF;border-radius:10px;background:#FFFFFF;font:500 14px/1.2 'Archivo',sans-serif;color:#3E4553;display:inline-flex;align-items:center;gap:7px"><span style="width:11px;height:6px;border-left:2px solid #B4BAC7;border-bottom:2px solid #B4BAC7;transform:rotate(-45deg);margin-bottom:2px;flex:none"></span>Taʼmirlandi</button>
+            </div>
+          </div>
+          <div>
+            <div style="font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#545C6E">Toifa</div>
+            <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
+              <button type="button" style="min-height:44px;padding:10px 12px;border:2px solid #12161C;border-radius:10px;background:#FFDD00;font:700 14px/1.2 'Archivo',sans-serif;color:#12161C">Chuqurlik</button>
+              <button type="button" style="min-height:44px;padding:10px 12px;border:1.5px solid #D2D6DF;border-radius:10px;background:#FFFFFF;font:500 14px/1.2 'Archivo',sans-serif;color:#3E4553">Yoriq</button>
+              <button type="button" style="min-height:44px;padding:10px 12px;border:1.5px solid #D2D6DF;border-radius:10px;background:#FFFFFF;font:500 14px/1.2 'Archivo',sans-serif;color:#3E4553">Choʻkma</button>
+              <button type="button" style="min-height:44px;padding:10px 12px;border:1.5px solid #D2D6DF;border-radius:10px;background:#FFFFFF;font:500 14px/1.2 'Archivo',sans-serif;color:#3E4553">Quduq qopqogʻi</button>
+            </div>
+          </div>
+          <div>
+            <div style="font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#545C6E">Tuman</div>
+            <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:14px;border:1.5px solid #D2D6DF;border-radius:12px;background:#FFFFFF"><span style="font:400 16px/1.3 'Archivo',sans-serif;color:#12161C">Mirzo Ulugʻbek tumani</span><span style="width:9px;height:9px;border-right:2px solid #545C6E;border-bottom:2px solid #545C6E;transform:rotate(45deg);flex:none;margin-top:-4px"></span></div>
+          </div>
+          <div>
+            <div style="font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#545C6E">Sana</div>
+            <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div style="min-height:52px;padding:14px;border:1.5px solid #D2D6DF;border-radius:12px;font:500 15px/1.3 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#12161C">01.08.2026</div>
+              <div style="min-height:52px;padding:14px;border:1.5px solid #D2D6DF;border-radius:12px;font:500 15px/1.3 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#6E768A">bugun</div>
+            </div>
+          </div>
+          <div style="display:grid;gap:8px;padding-top:4px;border-top:1px solid #E6E8EE">
+            <button type="button" style="min-height:52px;border:none;border-radius:12px;background:#FFDD00;font:700 16px/1.2 'Archivo',sans-serif;color:#12161C">412 ta chuqurni koʻrsatish</button>
+            <div style="font:400 13px/1.4 'Archivo',sans-serif;color:#6E768A;text-align:center">Число в кнопке пересчитывается до применения фильтра</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="c8" style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(18,22,28,.06);display:grid;gap:20px">
+    <div style="display:grid;gap:6px">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6E768A">08 — Campaign counter</div>
+      <h2 style="margin:0;font:700 22px/1.2 'Archivo',sans-serif">Счётчик кампании</h2>
+      <p style="margin:0;max-width:74ch;font:400 15px/1.55 'Archivo',sans-serif;color:#545C6E">Главный числовой блок. Решение — одометр: каждая цифра в своей ячейке асфальтового цвета, шкала — дорога с прерывистой разметкой. Цель 10 000 присутствует физически, как остаток дороги.</p>
+    </div>
+    <div style="background:#12161C;border-radius:16px;padding:24px;display:grid;gap:20px">
+      <div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-end">
+        <div>
+          <div style="font:600 12px/1.2 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#FFDD00">Taʼmirlangan chuqurlar</div>
+          <div style="margin-top:12px;display:flex;gap:6px;align-items:flex-end">
+            <span style="min-width:52px;padding:10px 6px;background:#1D222A;border:1px solid #2B313C;border-radius:8px;font:600 52px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#FBFBFD;text-align:center">3</span>
+            <span style="min-width:52px;padding:10px 6px;background:#1D222A;border:1px solid #2B313C;border-radius:8px;font:600 52px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#FBFBFD;text-align:center">4</span>
+            <span style="min-width:52px;padding:10px 6px;background:#1D222A;border:1px solid #2B313C;border-radius:8px;font:600 52px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#FBFBFD;text-align:center">7</span>
+            <span style="min-width:52px;padding:10px 6px;background:#FFDD00;border:1px solid #FFDD00;border-radius:8px;font:600 52px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#12161C;text-align:center">1</span>
+            <span style="padding-bottom:14px;font:500 20px/1 'Archivo',sans-serif;color:#8F97A8">/ 10 000</span>
+          </div>
+        </div>
+        <div style="display:grid;gap:4px;justify-items:end">
+          <div style="font:600 15px/1.2 'Archivo',sans-serif;color:#8FDDE1">+128 shu hafta</div>
+          <div style="font:400 13px/1.4 'Archivo',sans-serif;color:#8F97A8">oʻrtacha 4 kunda bitta chuqur</div>
+        </div>
+      </div>
+      <div>
+        <div style="height:20px;border-radius:4px;background:#2B313C;position:relative;overflow:hidden">
+          <div style="position:absolute;inset:0 65.3% 0 0;background:#FFDD00"></div>
+          <div style="position:absolute;left:0;right:0;top:9px;height:2px;background:repeating-linear-gradient(90deg,rgba(18,22,28,.5) 0 12px,transparent 12px 24px)"></div>
+        </div>
+        <div style="margin-top:8px;display:flex;justify-content:space-between;font:500 12px/1.2 'Archivo',sans-serif;color:#8F97A8"><span>34,7%</span><span>maqsad · 10 000</span></div>
+      </div>
+      <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));padding-top:16px;border-top:1px solid #2B313C">
+        <div><div style="font:600 24px/1.1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#FBFBFD">412</div><div style="margin-top:4px;font:400 13px/1.4 'Archivo',sans-serif;color:#8F97A8">navbatda</div></div>
+        <div><div style="font:600 24px/1.1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#FBFBFD">27</div><div style="margin-top:4px;font:400 13px/1.4 'Archivo',sans-serif;color:#8F97A8">brigada</div></div>
+        <div><div style="font:600 24px/1.1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#FBFBFD">11</div><div style="margin-top:4px;font:400 13px/1.4 'Archivo',sans-serif;color:#8F97A8">tuman</div></div>
+      </div>
+    </div>
+    <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Компактный · шапка карты, светлая тема</div>
+        <div style="margin-top:14px;display:flex;align-items:center;gap:12px;background:#FFFFFF;border:1px solid #E6E8EE;border-radius:12px;padding:10px 12px;box-shadow:0 2px 8px rgba(18,22,28,.10)">
+          <div style="display:flex;gap:2px">
+            <span style="min-width:24px;padding:4px 2px;background:#F2F3F7;border-radius:4px;font:600 20px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#12161C;text-align:center">3</span>
+            <span style="min-width:24px;padding:4px 2px;background:#F2F3F7;border-radius:4px;font:600 20px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#12161C;text-align:center">4</span>
+            <span style="min-width:24px;padding:4px 2px;background:#F2F3F7;border-radius:4px;font:600 20px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#12161C;text-align:center">7</span>
+            <span style="min-width:24px;padding:4px 2px;background:#FFDD00;border-radius:4px;font:600 20px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:#12161C;text-align:center">1</span>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font:600 13px/1.3 'Archivo',sans-serif;color:#12161C">10 000 gacha</div>
+            <div style="margin-top:5px;height:6px;border-radius:3px;background:#E6E8EE;position:relative;overflow:hidden"><span style="position:absolute;inset:0 65.3% 0 0;background:#12161C"></span></div>
+          </div>
+        </div>
+        <div style="margin-top:12px;font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E">В компактном виде разрядность не сокращается до «3,5k»: обещание кампании — точное число.</div>
+      </div>
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Правила</div>
+        <div style="margin-top:14px;display:grid;gap:8px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553">
+          <div style="padding:10px 12px;background:#F2F3F7;border-radius:8px">Меняющаяся цифра подсвечивается жёлтым на 600 мс, остальные стоят: движение видно без анимации всего блока.</div>
+          <div style="padding:10px 12px;background:#F2F3F7;border-radius:8px">Инкремент анонсируется <code style="font:500 12px 'Archivo',sans-serif">aria-live="polite"</code>, но не чаще раза в 10 с.</div>
+          <div style="padding:10px 12px;background:#F2F3F7;border-radius:8px">Заливка шкалы — жёлтая только на тёмном фоне. На светлом фоне шкала асфальтовая: жёлтый на белом даёт 1.3:1.</div>
+          <div style="padding:10px 12px;background:#F2F3F7;border-radius:8px">Uzbek подпись длиннее — блок «+128 shu hafta» никогда не в одну строку с числом на 360 px.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="c9" style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(18,22,28,.06);display:grid;gap:20px">
+    <div style="display:grid;gap:6px">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6E768A">09 — Bottom sheet</div>
+      <h2 style="margin:0;font:700 22px/1.2 'Archivo',sans-serif">Нижний лист для карты</h2>
+      <p style="margin:0;max-width:74ch;font:400 15px/1.55 'Archivo',sans-serif;color:#545C6E">Три положения: 96 · 50% · 92%. Карта остаётся видимой в первых двух. Ручка — цель нажатия 44 px, а не 4 px полоска.</p>
+    </div>
+    <div style="display:flex;gap:20px;flex-wrap:wrap">
+      <div>
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A;margin-bottom:10px">Peek · 96 px</div>
+        <div style="width:300px;height:420px;border-radius:20px;overflow:hidden;border:1px solid #D2D6DF;position:relative;background:#EDEEF1;background-image:linear-gradient(#FFFFFF,#FFFFFF),linear-gradient(#FFFFFF,#FFFFFF),linear-gradient(#DFE2E8,#DFE2E8);background-size:100% 11px,9px 100%,100% 1px;background-position:0 46%,32% 0,0 22%;background-repeat:no-repeat">
+          <div style="position:absolute;top:16px;left:16px;right:16px;display:flex;gap:8px;justify-content:space-between">
+            <span style="background:#FFFFFF;border-radius:8px;padding:6px 10px;font:600 12px/1.2 'Archivo',sans-serif;color:#12161C;box-shadow:0 2px 8px rgba(18,22,28,.12)">3 471 / 10 000</span>
+            <span style="background:#FFDD00;border:2px solid #12161C;border-radius:8px;padding:6px 10px;font:700 12px/1.2 'Archivo',sans-serif;color:#12161C">Filtrlar 3</span>
+          </div>
+          <div style="position:absolute;left:64px;top:150px;width:30px;height:30px;background:#D8368F;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><span style="width:11px;height:11px;border:2.5px solid #FFFFFF;border-radius:50%"></span></div>
+          <div style="position:absolute;left:170px;top:120px;width:30px;height:30px;background:#0F9FA6;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><span style="width:12px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;margin-bottom:2px"></span></div>
+          <div style="position:absolute;left:120px;top:210px;width:34px;height:34px;border-radius:50%;background:#12161C;border:2px solid #FFFFFF;display:grid;place-items:center;font:600 13px/1 'Archivo',sans-serif;color:#FFFFFF">14</div>
+          <div style="position:absolute;right:14px;bottom:112px;width:52px;height:52px;border-radius:16px;background:#FFDD00;box-shadow:0 4px 14px rgba(18,22,28,.25);display:grid;place-items:center"><span style="position:relative;width:20px;height:20px"><span style="position:absolute;top:9px;left:0;width:20px;height:2.5px;background:#12161C"></span><span style="position:absolute;left:9px;top:0;width:2.5px;height:20px;background:#12161C"></span></span></div>
+          <div style="position:absolute;left:0;right:0;bottom:0;height:96px;background:#FFFFFF;border-radius:16px 16px 0 0;box-shadow:0 -6px 28px rgba(18,22,28,.18)">
+            <div style="height:24px;display:grid;place-items:center"><span style="width:40px;height:4px;border-radius:2px;background:#D2D6DF"></span></div>
+            <div style="padding:0 16px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+              <div><div style="font:700 16px/1.2 'Archivo',sans-serif;color:#12161C">412 ta chuqur</div><div style="margin-top:3px;font:400 13px/1.3 'Archivo',sans-serif;color:#6E768A">Mirzo Ulugʻbek tumani</div></div>
+              <button type="button" style="min-height:44px;padding:12px 14px;border:none;border-radius:10px;background:#FFDD00;font:700 14px/1.2 'Archivo',sans-serif;color:#12161C">Roʻyxat</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A;margin-bottom:10px">Half · 50% · список</div>
+        <div style="width:300px;height:420px;border-radius:20px;overflow:hidden;border:1px solid #D2D6DF;position:relative;background:#EDEEF1;background-image:linear-gradient(#FFFFFF,#FFFFFF),linear-gradient(#DFE2E8,#DFE2E8);background-size:100% 11px,100% 1px;background-position:0 20%,0 34%;background-repeat:no-repeat">
+          <div style="position:absolute;left:40px;top:60px;width:30px;height:30px;background:#EE6A21;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><span style="width:10px;height:10px;background:#FFFFFF"></span></div>
+          <div style="position:absolute;left:180px;top:90px;width:44px;height:44px;background:#2F5FD0;border:3px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 0 3px rgba(47,95,208,.3),0 6px 14px rgba(18,22,28,.35);display:grid;place-items:center"><span style="display:flex;gap:4px"><span style="width:3px;height:17px;background:#FFFFFF"></span><span style="width:3px;height:17px;background:#FFFFFF"></span></span></div>
+          <div style="position:absolute;left:0;right:0;bottom:0;height:210px;background:#FFFFFF;border-radius:16px 16px 0 0;box-shadow:0 -6px 28px rgba(18,22,28,.18);display:grid;grid-template-rows:24px auto 1fr">
+            <div style="display:grid;place-items:center"><span style="width:40px;height:4px;border-radius:2px;background:#D2D6DF"></span></div>
+            <div style="padding:4px 16px 10px;display:flex;justify-content:space-between;align-items:baseline"><span style="font:700 16px/1.2 'Archivo',sans-serif;color:#12161C">Yaqin atrofda</span><span style="font:500 12px 'Archivo',sans-serif;color:#6E768A">412</span></div>
+            <div style="overflow:hidden;padding:0 12px;display:grid;gap:8px;align-content:start">
+              <div style="display:grid;grid-template-columns:56px 1fr;gap:10px;padding:8px;border-radius:10px;background:#F8F9FB">
+                <div style="height:56px;border-radius:8px;background:repeating-linear-gradient(115deg,#E6E8EE 0 5px,#D8DCE4 5px 10px)"></div>
+                <div style="min-width:0;display:grid;gap:4px;align-content:center">
+                  <span style="justify-self:start;display:inline-flex;align-items:center;gap:5px;background:#FDEDE1;border:1px solid #F6D2B4;border-radius:999px;padding:3px 8px;font:600 11px/1.2 'Archivo',sans-serif;color:#8E3308"><span style="width:8px;height:8px;background:#8E3308;transform:rotate(45deg);flex:none"></span>Qabul qilindi</span>
+                  <span style="font:600 14px/1.25 'Archivo',sans-serif;color:#12161C;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Buyuk Ipak Yoʻli 12A</span>
+                  <span style="font:400 12px/1.2 'Archivo',sans-serif;color:#545C6E">180 m · RR-3471</span>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:56px 1fr;gap:10px;padding:8px;border-radius:10px;background:#F8F9FB">
+                <div style="height:56px;border-radius:8px;background:repeating-linear-gradient(115deg,#E6E8EE 0 5px,#D8DCE4 5px 10px)"></div>
+                <div style="min-width:0;display:grid;gap:4px;align-content:center">
+                  <span style="justify-self:start;display:inline-flex;align-items:center;gap:5px;background:#E9EFFC;border:1px solid #C3D3F6;border-radius:999px;padding:3px 8px;font:600 11px/1.2 'Archivo',sans-serif;color:#1B4093"><span style="display:flex;gap:2px;transform:rotate(-45deg);flex:none"><span style="width:2px;height:8px;background:#1B4093"></span><span style="width:2px;height:8px;background:#1B4093"></span></span>Ish jarayonida</span>
+                  <span style="font:600 14px/1.25 'Archivo',sans-serif;color:#12161C;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Feruza koʻchasi 4</span>
+                  <span style="font:400 12px/1.2 'Archivo',sans-serif;color:#545C6E">340 m · RR-3468</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A;margin-bottom:10px">Full · 92% · тёмная тема</div>
+        <div style="width:300px;height:420px;border-radius:20px;overflow:hidden;border:1px solid #2B313C;position:relative;background:#171B22">
+          <div style="position:absolute;left:0;right:0;bottom:0;top:34px;background:#1D222A;border-radius:16px 16px 0 0;border-top:1px solid rgba(255,255,255,.07);display:grid;grid-template-rows:24px auto 1fr">
+            <div style="display:grid;place-items:center"><span style="width:40px;height:4px;border-radius:2px;background:#545C6E"></span></div>
+            <div style="padding:4px 16px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px">
+              <span style="font:700 17px/1.2 'Archivo',sans-serif;color:#FBFBFD">Yaqin atrofda</span>
+              <button type="button" style="width:44px;height:44px;border:none;border-radius:12px;background:#2B313C;display:grid;place-items:center"><span style="position:relative;width:14px;height:14px"><span style="position:absolute;top:6px;left:0;width:14px;height:2px;background:#FBFBFD;transform:rotate(45deg)"></span><span style="position:absolute;top:6px;left:0;width:14px;height:2px;background:#FBFBFD;transform:rotate(-45deg)"></span></span></button>
+            </div>
+            <div style="overflow:hidden;padding:0 12px;display:grid;gap:8px;align-content:start">
+              <div style="display:grid;grid-template-columns:56px 1fr;gap:10px;padding:8px;border-radius:10px;background:#232833">
+                <div style="height:56px;border-radius:8px;background:repeating-linear-gradient(115deg,#2B313C 0 5px,#232833 5px 10px)"></div>
+                <div style="min-width:0;display:grid;gap:4px;align-content:center">
+                  <span style="justify-self:start;display:inline-flex;align-items:center;gap:5px;background:#3A1128;border:1px solid #6B2249;border-radius:999px;padding:3px 8px;font:600 11px/1.2 'Archivo',sans-serif;color:#F7A9CF"><span style="width:8px;height:8px;border:2px solid #F7A9CF;border-radius:50%;flex:none"></span>Yangi</span>
+                  <span style="font:600 14px/1.25 'Archivo',sans-serif;color:#FBFBFD;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Chilonzor 19-kvartal</span>
+                  <span style="font:400 12px/1.2 'Archivo',sans-serif;color:#8F97A8">1,2 km · RR-3502</span>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:56px 1fr;gap:10px;padding:8px;border-radius:10px;background:#232833">
+                <div style="height:56px;border-radius:8px;background:repeating-linear-gradient(115deg,#1E4A4D 0 5px,#18393C 5px 10px)"></div>
+                <div style="min-width:0;display:grid;gap:4px;align-content:center">
+                  <span style="justify-self:start;display:inline-flex;align-items:center;gap:5px;background:#06282B;border:1px solid #12565B;border-radius:999px;padding:3px 8px;font:600 11px/1.2 'Archivo',sans-serif;color:#8FDDE1"><span style="width:9px;height:5px;border-left:2px solid #8FDDE1;border-bottom:2px solid #8FDDE1;transform:rotate(-45deg);margin-bottom:2px;flex:none"></span>Taʼmirlandi</span>
+                  <span style="font:600 14px/1.25 'Archivo',sans-serif;color:#FBFBFD;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Amir Temur 88</span>
+                  <span style="font:400 12px/1.2 'Archivo',sans-serif;color:#8F97A8">1,6 km · RR-3402</span>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:56px 1fr;gap:10px;padding:8px;border-radius:10px;background:#232833">
+                <div style="height:56px;border-radius:8px;background:repeating-linear-gradient(115deg,#2B313C 0 5px,#232833 5px 10px)"></div>
+                <div style="min-width:0;display:grid;gap:4px;align-content:center">
+                  <span style="justify-self:start;display:inline-flex;align-items:center;gap:5px;background:#101F42;border:1px solid #24427F;border-radius:999px;padding:3px 8px;font:600 11px/1.2 'Archivo',sans-serif;color:#A9C2F7"><span style="display:flex;gap:2px;transform:rotate(-45deg);flex:none"><span style="width:2px;height:8px;background:#A9C2F7"></span><span style="width:2px;height:8px;background:#A9C2F7"></span></span>Ish jarayonida</span>
+                  <span style="font:600 14px/1.25 'Archivo',sans-serif;color:#FBFBFD;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Yunusobod 8-mavze</span>
+                  <span style="font:400 12px/1.2 'Archivo',sans-serif;color:#8F97A8">2,4 km · RR-3488</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+      <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553">Лист никогда не перекрывает выбранный пин: карта сдвигается на высоту листа.</div>
+      <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553">В full-положении появляется явный крестик — свайп вниз не единственный выход.</div>
+      <div style="padding:12px;background:#F2F3F7;border-radius:10px;font:400 13px/1.5 'Archivo',sans-serif;color:#3E4553">Дно листа держит <code style="font:500 12px 'Archivo',sans-serif">padding-bottom: env(safe-area-inset-bottom)</code> + 16.</div>
+    </div>
+  </section>
+
+  <section id="c10" style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(18,22,28,.06);display:grid;gap:20px">
+    <div style="display:grid;gap:6px">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6E768A">10 — States</div>
+      <h2 style="margin:0;font:700 22px/1.2 'Archivo',sans-serif">Пустые состояния, ошибки, нет сети, отправлено</h2>
+      <p style="margin:0;max-width:74ch;font:400 15px/1.55 'Archivo',sans-serif;color:#545C6E">Каждое состояние — заголовок, одна строка причины и одно действие. Иллюстраций нет: под солнцем на 3G работает текст и кнопка.</p>
+    </div>
+    <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:20px;display:grid;gap:12px;align-content:start;min-height:236px">
+        <span style="width:44px;height:44px;border-radius:12px;background:#F2F3F7;border:1px dashed #B4BAC7;display:grid;place-items:center"><span style="width:16px;height:16px;border:2px dashed #8F97A8;border-radius:50%"></span></span>
+        <div style="font:700 18px/1.25 'Archivo',sans-serif;color:#12161C">Bu hududda chuqur yoʻq</div>
+        <div style="font:400 14px/1.5 'Archivo',sans-serif;color:#545C6E">Filtrlarni oʻzgartiring yoki xaritani suring.</div>
+        <button type="button" style="justify-self:start;min-height:44px;padding:12px 16px;border:1.5px solid #D2D6DF;border-radius:10px;background:#FFFFFF;font:600 15px/1.2 'Archivo',sans-serif;color:#2B313C">Filtrlarni tozalash</button>
+        <div style="font:500 11px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#545C6E">Empty · фильтры</div>
+      </div>
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:20px;display:grid;gap:12px;align-content:start;min-height:236px">
+        <span style="width:44px;height:44px;border-radius:12px;background:#FBEAEC;border:1px solid #F0C9CE;display:grid;place-items:center"><span style="position:relative;width:18px;height:18px"><span style="position:absolute;top:8px;left:0;width:18px;height:2.5px;background:#8A1F2D;transform:rotate(45deg)"></span><span style="position:absolute;top:8px;left:0;width:18px;height:2.5px;background:#8A1F2D;transform:rotate(-45deg)"></span></span></span>
+        <div style="font:700 18px/1.25 'Archivo',sans-serif;color:#12161C">Не удалось загрузить карту</div>
+        <div style="font:400 14px/1.5 'Archivo',sans-serif;color:#545C6E">Сервер ответил ошибкой. Мы уже видим это в Telegram бригады.</div>
+        <button type="button" style="justify-self:start;min-height:44px;padding:12px 16px;border:none;border-radius:10px;background:#FFDD00;font:700 15px/1.2 'Archivo',sans-serif;color:#12161C">Обновить</button>
+        <div style="font:500 11px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#545C6E">Error · ru</div>
+      </div>
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:20px;display:grid;gap:12px;align-content:start;min-height:236px;background:#F8F9FB">
+        <span style="width:44px;height:44px;border-radius:12px;background:#FFF6D6;border:1px solid #F0DE9A;display:grid;place-items:center"><span style="width:18px;height:2.5px;background:#8A7400;transform:rotate(-45deg)"></span></span>
+        <div style="font:700 18px/1.25 'Archivo',sans-serif;color:#12161C">Internet yoʻq</div>
+        <div style="font:400 14px/1.5 'Archivo',sans-serif;color:#545C6E">Ariza qurilmada saqlandi. Aloqa paydo boʻlishi bilan oʻzi yuboriladi.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" style="min-height:44px;padding:12px 16px;border:1.5px solid #12161C;border-radius:10px;background:#FFFFFF;font:600 15px/1.2 'Archivo',sans-serif;color:#12161C">Hozir urinish</button></div>
+        <div style="font:500 11px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#545C6E">Offline · очередь</div>
+      </div>
+      <div style="border:1px solid #B7E1E3;border-radius:12px;padding:20px;display:grid;gap:12px;align-content:start;min-height:236px;background:#F4FBFB">
+        <span style="width:44px;height:44px;border-radius:12px;background:#0A6E73;display:grid;place-items:center"><span style="width:18px;height:10px;border-left:3px solid #FFFFFF;border-bottom:3px solid #FFFFFF;transform:rotate(-45deg);margin-bottom:4px"></span></span>
+        <div style="font:700 18px/1.25 'Archivo',sans-serif;color:#12161C">Ariza yuborildi</div>
+        <div style="font:400 14px/1.5 'Archivo',sans-serif;color:#3E4553">Raqami <strong style="font:600 14px 'Archivo',sans-serif">RR-3502</strong>. Havolani saqlang — kuzatish uchun kirish shart emas.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" style="min-height:44px;padding:12px 16px;border:none;border-radius:10px;background:#FFDD00;font:700 15px/1.2 'Archivo',sans-serif;color:#12161C">Havolani nusxalash</button>
+          <button type="button" style="min-height:44px;padding:12px 16px;border:1.5px solid #D2D6DF;border-radius:10px;background:#FFFFFF;font:600 15px/1.2 'Archivo',sans-serif;color:#2B313C">Xaritaga</button>
+        </div>
+        <div style="font:500 11px/1.2 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#545C6E">Submitted</div>
+      </div>
+    </div>
+    <sc-if value="{{ showRussian }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#12161C;border-radius:12px;padding:20px;display:grid;gap:16px">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8F97A8">Тёмная тема · русский · те же три состояния</div>
+        <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+          <div style="border:1px solid #2B313C;border-radius:12px;padding:16px;display:grid;gap:10px;align-content:start">
+            <div style="font:700 17px/1.25 'Archivo',sans-serif;color:#FBFBFD">В этом районе ям нет</div>
+            <div style="font:400 14px/1.5 'Archivo',sans-serif;color:#B4BAC7">Измените фильтры или подвиньте карту.</div>
+            <button type="button" style="justify-self:start;min-height:44px;padding:12px 16px;border:1.5px solid #545C6E;border-radius:10px;background:transparent;font:600 15px/1.2 'Archivo',sans-serif;color:#FBFBFD">Сбросить фильтры</button>
+          </div>
+          <div style="border:1px solid #2B313C;border-radius:12px;padding:16px;display:grid;gap:10px;align-content:start">
+            <div style="font:700 17px/1.25 'Archivo',sans-serif;color:#FBFBFD">Нет интернета</div>
+            <div style="font:400 14px/1.5 'Archivo',sans-serif;color:#B4BAC7">Заявка сохранена на устройстве и отправится сама.</div>
+            <button type="button" style="justify-self:start;min-height:44px;padding:12px 16px;border:none;border-radius:10px;background:#FFDD00;font:700 15px/1.2 'Archivo',sans-serif;color:#12161C">Попробовать сейчас</button>
+          </div>
+          <div style="border:1px solid #12565B;border-radius:12px;padding:16px;display:grid;gap:10px;align-content:start;background:#06282B">
+            <div style="font:700 17px/1.25 'Archivo',sans-serif;color:#FBFBFD">Заявка отправлена</div>
+            <div style="font:400 14px/1.5 'Archivo',sans-serif;color:#B7E1E3">Номер <strong style="font:600 14px 'Archivo',sans-serif">RR-3502</strong>. Сохраните ссылку.</div>
+            <button type="button" style="justify-self:start;min-height:44px;padding:12px 16px;border:none;border-radius:10px;background:#FFDD00;font:700 15px/1.2 'Archivo',sans-serif;color:#12161C">Скопировать ссылку</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </section>
+
+  <section id="c11" style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgba(18,22,28,.06);display:grid;gap:20px">
+    <div style="display:grid;gap:6px">
+      <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6E768A">11 — Language switch</div>
+      <h2 style="margin:0;font:700 22px/1.2 'Archivo',sans-serif">Переключатель языка</h2>
+      <p style="margin:0;max-width:74ch;font:400 15px/1.55 'Archivo',sans-serif;color:#545C6E">Переключатель — флаги. Флаг обозначает страну, а не язык, поэтому подпись не исчезает совсем: она уходит в <code style="font:500 14px 'Archivo',sans-serif">aria-label</code> и <code style="font:500 14px 'Archivo',sans-serif">title</code>, а выбранный язык помечается ещё и заливкой. Узбекская латиница — по умолчанию и всегда первой.</p>
+      <p style="margin:0;max-width:74ch;font:400 14px/1.5 'Archivo',sans-serif;color:#545C6E;background:#FFF6D6;border:1px solid #F0DE9A;border-radius:10px;padding:12px">Флаги здесь нарисованы CSS-градиентами и сознательно упрощены: двенадцать звёзд узбекского флага на 26 px превращаются в грязное пятно, поэтому оставлен только полумесяц, а пропорции приведены к общей рамке 26×18. Это макет, а не государственная символика — для боевой сборки положите в <code style="font:500 13px 'Archivo',sans-serif">assets/flags/</code> корректные SVG (uz 1:2, ru 2:3) и подключите их вместо этих заглушек.</p>
+    </div>
+    <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px;display:grid;gap:12px;align-content:start">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Сегмент · шапка</div>
+        <div style="display:inline-flex;gap:2px;background:#F2F3F7;border:1px solid #E6E8EE;border-radius:12px;padding:3px;justify-self:start">
+          <button type="button" lang="uz" title="Oʻzbekcha" aria-label="Oʻzbekcha" aria-pressed="true" style="min-height:44px;min-width:52px;padding:12px;border:none;border-radius:9px;background:#12161C;display:grid;place-items:center;cursor:pointer"><span aria-hidden="true" style="width:26px;height:18px;border-radius:3px;overflow:hidden;position:relative;flex:none;background:linear-gradient(#0099B5 0 32%,#CE1126 32% 34.5%,#FFFFFF 34.5% 65.5%,#CE1126 65.5% 68%,#1EB53A 68% 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)"><span style="position:absolute;left:3px;top:2px;width:7px;height:7px;border-radius:50%;background:#FFFFFF"></span><span style="position:absolute;left:5px;top:2px;width:7px;height:7px;border-radius:50%;background:#0099B5"></span></span></button>
+          <button type="button" lang="ru" title="Русский" aria-label="Русский" aria-pressed="false" style="min-height:44px;min-width:52px;padding:12px;border:none;border-radius:9px;background:transparent;display:grid;place-items:center;cursor:pointer" style-hover="background:#E6E8EE"><span aria-hidden="true" style="width:26px;height:18px;border-radius:3px;flex:none;background:linear-gradient(#FFFFFF 0 33.33%,#0039A6 33.33% 66.66%,#D52B1E 66.66% 100%);box-shadow:inset 0 0 0 1px rgba(18,22,28,.25);filter:grayscale(.75);opacity:.6"></span></button>
+        </div>
+        <div style="font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E">Активный флаг стоит на заливке asphalt-950 и в полном цвете; неактивный обесцвечен на 75%. Состояние несут заливка и насыщенность, а не один цвет.</div>
+      </div>
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px;display:grid;gap:12px;align-content:start">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E768A">Компактный · поверх карты</div>
+        <button type="button" title="Oʻzbekcha · Русский" aria-label="Tilni tanlash · Выбрать язык" style="justify-self:start;min-height:44px;min-width:44px;padding:11px 12px;border:1px solid #E6E8EE;border-radius:12px;background:#FFFFFF;box-shadow:0 2px 8px rgba(18,22,28,.12);display:inline-flex;align-items:center;gap:8px;cursor:pointer"><span aria-hidden="true" style="width:26px;height:18px;border-radius:3px;overflow:hidden;position:relative;flex:none;background:linear-gradient(#0099B5 0 32%,#CE1126 32% 34.5%,#FFFFFF 34.5% 65.5%,#CE1126 65.5% 68%,#1EB53A 68% 100%);box-shadow:inset 0 0 0 1px rgba(18,22,28,.25)"><span style="position:absolute;left:3px;top:2px;width:7px;height:7px;border-radius:50%;background:#FFFFFF"></span><span style="position:absolute;left:5px;top:2px;width:7px;height:7px;border-radius:50%;background:#0099B5"></span></span><span aria-hidden="true" style="width:8px;height:8px;border-right:2px solid #545C6E;border-bottom:2px solid #545C6E;transform:rotate(45deg);flex:none;margin-top:-4px"></span></button>
+        <div style="font:400 13px/1.5 'Archivo',sans-serif;color:#545C6E">Над картой места нет: показывается только текущий флаг и шеврон. Второй язык открывается списком — там флаг стоит рядом с названием.</div>
+      </div>
+      <div style="border:1px solid #E6E8EE;border-radius:12px;padding:16px;background:#12161C;display:grid;gap:12px;align-content:start">
+        <div style="font:600 11px/1.2 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8F97A8">Список · в нижнем листе</div>
+        <div style="display:grid;gap:2px">
+          <button type="button" lang="uz" title="Oʻzbekcha (lotin)" aria-label="Oʻzbekcha (lotin)" aria-pressed="true" style="min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:none;border-radius:10px;background:#232833;text-align:left;cursor:pointer"><span aria-hidden="true" style="width:30px;height:21px;border-radius:3px;overflow:hidden;position:relative;flex:none;background:linear-gradient(#0099B5 0 32%,#CE1126 32% 34.5%,#FFFFFF 34.5% 65.5%,#CE1126 65.5% 68%,#1EB53A 68% 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)"><span style="position:absolute;left:3.5px;top:2.5px;width:8px;height:8px;border-radius:50%;background:#FFFFFF"></span><span style="position:absolute;left:6px;top:2.5px;width:8px;height:8px;border-radius:50%;background:#0099B5"></span></span><span style="flex:1;min-width:0;font:600 16px/1.2 'Archivo',sans-serif;color:#FBFBFD">Oʻzbekcha (lotin)</span><span aria-hidden="true" style="width:16px;height:9px;border-left:2.5px solid #FFDD00;border-bottom:2.5px solid #FFDD00;transform:rotate(-45deg);margin-bottom:4px;flex:none"></span></button>
+          <button type="button" lang="ru" title="Русский" aria-label="Русский" aria-pressed="false" style="min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:none;border-radius:10px;background:transparent;text-align:left;cursor:pointer" style-hover="background:#232833"><span aria-hidden="true" style="width:30px;height:21px;border-radius:3px;flex:none;background:linear-gradient(#FFFFFF 0 33.33%,#0039A6 33.33% 66.66%,#D52B1E 66.66% 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)"></span><span style="flex:1;min-width:0;font:500 16px/1.2 'Archivo',sans-serif;color:#E6E8EE">Русский</span></button>
+        </div>
+        <div style="font:400 13px/1.5 'Archivo',sans-serif;color:#B4BAC7">Выбранный язык помечен галочкой, а не только цветом флага. Выбор запоминается в <code style="font:500 12px 'Archivo',sans-serif;color:#E6E8EE">localStorage</code> и попадает в ссылку заявки: получатель откроет её на том же языке.</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px">
+    <div style="height:10px;background:repeating-linear-gradient(115deg,#FFDD00 0 16px,#12161C 16px 32px);border-radius:2px"></div>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;background:#12161C;border-radius:14px;padding:24px">
+      <div style="font:400 14px/1.55 'Archivo',sans-serif;color:#B4BAC7;max-width:60ch">Токены в CSS — <code style="font:500 13px 'Archivo',sans-serif;color:#FFDD00">styles.css</code> и <code style="font:500 13px 'Archivo',sans-serif;color:#FFDD00">tokens/</code>. Правила, тон копирайта и обоснования решений — <code style="font:500 13px 'Archivo',sans-serif;color:#FFDD00">readme.md</code>.</div>
+      <a href="RavonRoad%20Design%20System.dc.html" style="text-decoration:none;background:#FFDD00;color:#12161C;font:700 15px 'Archivo',sans-serif;border-radius:12px;padding:16px 20px;min-height:52px;display:grid;place-items:center">← Foundations</a>
+    </div>
+  </section>
+</main>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:900},&quot;showInternalStatuses&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Демонстрация&quot;,&quot;label&quot;:&quot;Внутренние статусы&quot;},&quot;showRussian&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Демонстрация&quot;,&quot;label&quot;:&quot;Русские дубли&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      showInternalStatuses: this.props.showInternalStatuses ?? true,
+      showRussian: this.props.showRussian ?? true
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { formatNumber } from '../../shared/format/number'
 import { useI18n } from '../../shared/i18n/useI18n'
 import { basemapStyle, MAX_ZOOM, MIN_ZOOM } from '../../shared/map/basemap'
-import { TASHKENT_BOUNDS, type Bounds } from '../../shared/map/tashkent'
+import { coverZoom, TASHKENT_BOUNDS, type Bounds } from '../../shared/map/tashkent'
 import { LoadingState } from '../../shared/ui/state/LoadingState'
 import { StatusMark } from '../../shared/ui/status/StatusMark'
 import { isMapStatus, MARKER_LOOK, type MapStatus } from './markers'
@@ -158,10 +158,32 @@ export default function ReportMap({
       // Поворот выключен: заявкам он ничего не даёт, а вернуть карту на север
       // без компаса житель уже не сможет.
       dragRotate: false,
-      attributionControl: { compact: true },
+      // Подписи на карте нет вовсе: ODbL требует указать источник, но не требует делать
+      // это поверх самой карты. Строка «© OpenStreetMap» стоит в подвале страницы
+      // (`AppFooter`) — требование выполнено, а все четыре угла карты остаются рабочими:
+      // переключатель «карта / список», кнопка геопозиции и пины ничем не закрыты.
+      attributionControl: false,
     })
     instance.touchZoomRotate.disableRotation()
     map.current = instance
+
+    // За границей экстракта данных нет — там чёрное поле, которое читается как поломка,
+    // а не как край города. Поэтому окну не дают выйти за нарисованное: `maxBounds`
+    // держит камеру внутри экстракта, а нижний зум считается так, чтобы город закрывал
+    // окно целиком. Оба числа зависят от размера окна, поэтому пересчитываются на
+    // каждом `resize`: на телефоне поворот экрана меняет их вдвое.
+    instance.setMaxBounds([
+      [TASHKENT_BOUNDS.minLon, TASHKENT_BOUNDS.minLat],
+      [TASHKENT_BOUNDS.maxLon, TASHKENT_BOUNDS.maxLat],
+    ])
+    const fitFloor = (): void => {
+      const zoom = coverZoom(TASHKENT_BOUNDS, root.clientWidth, root.clientHeight)
+      // Нулевой размер окна даёт ноль — ставить его нижней границей нельзя: карта
+      // отъехала бы в целый мир на первый же кадр до раскладки.
+      if (zoom > 0) instance.setMinZoom(Math.min(zoom, MAX_ZOOM))
+    }
+    fitFloor()
+    instance.on('resize', fitFloor)
 
     const reportBounds = (): void => {
       const bounds = instance.getBounds()
@@ -321,8 +343,10 @@ export default function ReportMap({
                   а не сообщает их состояние. Смесь статусов внутри одним цветом
                   не описывается, и попытка описать её врала бы. */}
               <span
-                className="t-label grid h-[var(--cluster-size)] min-w-[var(--cluster-size)] place-items-center rounded-[var(--r-pill)] bg-[var(--asphalt-700)] px-[var(--s-2)] text-[var(--asphalt-0)] tabular-nums shadow-[var(--e-pin)]"
-                style={{ border: 'var(--pin-border)' }}
+                // Кластер инвертируется вместе с подложкой: на тёмной карте он светлый,
+                // на светлой тёмный. Обводка берёт цвет страницы, а не белый: белое
+                // кольцо вокруг белого кружка на тёмной карте не читается.
+                className="t-label grid h-[var(--cluster-size)] min-w-[var(--cluster-size)] place-items-center rounded-[var(--r-pill)] border-2 border-[var(--surface-page)] bg-[var(--text-1)] px-[var(--s-2)] text-[var(--surface-page)] tabular-nums shadow-[var(--e-pin)]"
               >
                 {formatNumber(entry.count)}
               </span>
@@ -336,16 +360,22 @@ export default function ReportMap({
               className="grid h-full w-full place-items-center"
             >
               <span
-                className="grid place-items-center rounded-[var(--r-pill)] text-[var(--pin-stroke)]"
+                className="grid place-items-center text-[var(--pin-stroke)]"
                 style={{
                   background: MARKER_LOOK[entry.status].color,
+                  borderRadius: 'var(--pin-radius)',
+                  transform: 'rotate(-45deg)',
                   border: selected === entry.number ? 'var(--pin-border-selected)' : 'var(--pin-border)',
                   boxShadow: selected === entry.number ? 'var(--e-pin-selected)' : 'var(--e-pin)',
                   width: selected === entry.number ? 'var(--pin-size-selected)' : 'var(--pin-size)',
                   height: selected === entry.number ? 'var(--pin-size-selected)' : 'var(--pin-size)',
                 }}
               >
-                <StatusMark status={entry.status} />
+                {/* Обратный поворот: капля наклонена, форма статуса — нет. Она носит
+                    смысл, и наклонённая галочка перестаёт быть галочкой. */}
+                <span className="grid place-items-center" style={{ transform: 'rotate(45deg)' }}>
+                  <StatusMark status={entry.status} />
+                </span>
               </span>
             </button>
           ),

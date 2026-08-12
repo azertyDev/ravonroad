@@ -15,3 +15,24 @@ export const STATUS_SHAPE: Record<ReportStatus, StatusShape> = {
   DUPLICATE: 'two-squares',
   OUT_OF_SCOPE: 'slash',
 }
+
+/** Кусок имени токена цвета: `--status-<slug>-tint|ink|line|pin`. Совпадать с именем
+ *  статуса он не обязан и не совпадает — палитра сокращает два самых длинных. */
+export const STATUS_SLUG: Record<ReportStatus, string> = {
+  NEW: 'new',
+  ACCEPTED: 'accepted',
+  IN_PROGRESS: 'progress',
+  DONE: 'done',
+  REJECTED: 'rejected',
+  DUPLICATE: 'duplicate',
+  OUT_OF_SCOPE: 'outofscope',
+}
+
+/** Внутренние статусы: на публичной карте их нет вовсе, а там, где они всё-таки видны
+ *  (страница заявки), дизайн-система помечает их приёмом, а не только цветом —
+ *  пунктирной обводкой. Смысл пометки: «этого нет на публичной карте». */
+export const INTERNAL_STATUSES: ReadonlySet<ReportStatus> = new Set<ReportStatus>([
+  'REJECTED',
+  'DUPLICATE',
+  'OUT_OF_SCOPE',
+])

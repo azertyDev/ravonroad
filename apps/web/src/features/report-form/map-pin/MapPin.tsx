@@ -44,7 +44,9 @@ export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
         // Поворот выключен: выбору точки он ничего не даёт, а вернуть карту на север
         // без компаса житель уже не сможет.
         dragRotate: false,
-        attributionControl: { compact: true },
+        // Подпись OSM стоит в подвале страницы (`AppFooter`), а не поверх карты:
+        // здесь каждый угол нужен под пин и подсказку.
+        attributionControl: false,
       })
     map.touchZoomRotate.disableRotation()
     // Первый тайл приходит через несколько секунд: PMTiles читает заголовок, каталог
@@ -56,17 +58,29 @@ export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
     // терять нельзя — при дейтеранопии статусы различаются ею, а не цветом
     // (colors.css). Переменные в inline-стилях читаются живыми, и смена темы
     // доезжает до пина сама.
+    // Два элемента, а не один, и это не украшение. Внешний отдаётся MapLibre, и на нём
+    // не должно быть ни одного собственного преобразования: `rotate` — отдельное
+    // свойство, применяемое ДО `transform`, поэтому написанный маркером
+    // `translate(539px, 97px)` выполнялся в повёрнутой на 45° системе координат.
+    // Пин уезжал на триста пикселей выше карты и ходил по диагонали: курсор вправо —
+    // пин вверх. Форму поэтому поворачивает внутренний элемент.
     const pin = document.createElement('div')
-    // Позицию задаёт Marker: он пишет свой transform, и наш здесь был бы стёрт.
     pin.style.width = 'var(--pin-size-selected)'
     pin.style.height = 'var(--pin-size-selected)'
-    pin.style.background = 'var(--status-new-pin)'
-    pin.style.border = 'var(--pin-border-selected)'
-    pin.style.borderRadius = 'var(--r-pill) var(--r-pill) var(--r-1) var(--r-pill)'
-    pin.style.boxShadow = 'var(--e-pin-selected)'
     pin.style.cursor = 'grab'
     // Иначе палец, потянувший пин, прокрутит страницу вместо перетаскивания.
     pin.style.touchAction = 'none'
+
+    const drop = document.createElement('div')
+    drop.style.width = '100%'
+    drop.style.height = '100%'
+    drop.style.background = 'var(--status-new-pin)'
+    drop.style.border = 'var(--pin-border-selected)'
+    // Та же капля, что на публичной карте: жёсткий угол внизу слева, повёрнутый вниз.
+    drop.style.borderRadius = 'var(--pin-radius)'
+    drop.style.rotate = '-45deg'
+    drop.style.boxShadow = 'var(--e-pin-selected)'
+    pin.append(drop)
 
     const entity = new Marker({ element: pin, anchor: 'bottom', draggable: true })
       .setLngLat([start.longitude, start.latitude])
@@ -91,7 +105,9 @@ export default function MapPin({ archiveUrl, value, onChange }: MapPinProps) {
   }, [value])
 
   return (
-    <div className="relative h-[240px] w-full overflow-hidden rounded-[var(--r-3)] border border-[var(--border-1)]">
+    // Выше макета (150 на телефоне): точку ставят пальцем, и на 150 пикселях видно
+    // два квартала — прицелиться в конкретную яму невозможно.
+    <div className="relative h-[280px] w-full overflow-hidden rounded-[var(--r-4)] border border-[var(--border-1)] md:h-[340px]">
       <div ref={container} className="h-full w-full" />
       {!drawn && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center bg-[var(--surface-sunken)]">

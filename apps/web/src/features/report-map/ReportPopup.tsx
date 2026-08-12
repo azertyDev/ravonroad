@@ -4,6 +4,7 @@ import { catalogKeys, fetchDistricts, localizedName } from '../../entities/catal
 import { fetchReportDetail, reportKeys } from '../../entities/report/api'
 import { apiErrorCode } from '../../shared/api/client'
 import { useI18n } from '../../shared/i18n/useI18n'
+import { Glyph } from '../../shared/ui/icon/Glyph'
 import { ErrorState } from '../../shared/ui/state/ErrorState'
 import { LoadingState } from '../../shared/ui/state/LoadingState'
 import { StatusMark } from '../../shared/ui/status/StatusMark'
@@ -92,7 +93,7 @@ export function ReportPopup({ number, onClose }: ReportPopupProps) {
         aria-label={t('map.close')}
         className="ml-auto grid h-[var(--touch-min)] w-[var(--touch-min)] shrink-0 place-items-center rounded-[var(--r-2)] text-[var(--text-2)]"
       >
-        ✕
+        <Glyph name="close" />
       </button>
     </aside>
   )

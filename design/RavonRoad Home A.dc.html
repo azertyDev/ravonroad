@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #E9EAEF; color: #1D222A; font-family: 'Manrope', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  p { text-wrap: pretty; }
+  a { color: #1D222A; text-decoration-color: #FFDD00; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  a:hover { color: #2B313C; text-decoration-color: #B89C00; }
+  ::selection { background: #FFDD00; color: #12161C; }
+</style>
+</helmet>
+
+<div style="padding:32px 24px 56px;display:grid;gap:20px;justify-items:center">
+  <div style="width:100%;max-width:640px;display:grid;gap:10px">
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+      <span style="font:700 11px/1.2 'Manrope',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#545C6E">Вариант A</span>
+      <span style="font:600 11px/1 'Manrope',sans-serif;padding:6px 8px;border-radius:6px;background:#12161C;color:#FFDD00">Literata + Manrope</span>
+      <span style="font:600 11px/1 'Manrope',sans-serif;padding:6px 8px;border-radius:6px;background:#FFFFFF;border:1px solid #D2D6DF;color:#3E4553">{{ fontProof }}</span>
+    </div>
+    <h1 style="margin:0;font:700 26px/1.15 'Literata',Georgia,serif;letter-spacing:-.01em;color:#12161C">Соседи</h1>
+    <p style="margin:0;font:400 15px/1.55 'Manrope',sans-serif;color:#545C6E">Главная перестаёт быть картой с обвязкой и становится рассказом кампании. Серифный заголовок вместо гротеска, моно только на номерах, крупные фотографии «до/после» вместо цифр. Карта — блок, а не фон.</p>
+  </div>
+
+  <div style="width:390px;height:844px;border-radius:28px;overflow:hidden;background:#FBFBFD;box-shadow:0 8px 40px rgba(18,22,28,.18);border:1px solid #D2D6DF;display:grid;grid-template-rows:auto 1fr auto">
+
+    <div style="padding:44px 20px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#FBFBFD">
+      <div style="font:800 17px/1 'Manrope',sans-serif;letter-spacing:-.02em;color:#12161C">RavonRoad</div>
+      <button type="button" lang="uz" title="Oʻzbekcha" aria-label="Til · Oʻzbekcha" style="min-height:44px;min-width:44px;padding:11px 12px;border:none;border-radius:14px;background:#F2F3F7;display:inline-flex;align-items:center;gap:8px;cursor:pointer"><span aria-hidden="true" style="width:24px;height:17px;border-radius:3px;overflow:hidden;position:relative;flex:none;background:linear-gradient(#0099B5 0 32%,#CE1126 32% 34.5%,#FFFFFF 34.5% 65.5%,#CE1126 65.5% 68%,#1EB53A 68% 100%);box-shadow:inset 0 0 0 1px rgba(18,22,28,.2)"><span style="position:absolute;left:3px;top:2px;width:6px;height:6px;border-radius:50%;background:#FFFFFF"></span><span style="position:absolute;left:4.8px;top:2px;width:6px;height:6px;border-radius:50%;background:#0099B5"></span></span><span aria-hidden="true" style="width:7px;height:7px;border-right:2px solid #545C6E;border-bottom:2px solid #545C6E;transform:rotate(45deg);flex:none;margin-top:-4px"></span></button>
+    </div>
+
+    <div style="overflow:auto">
+      <div style="padding:8px 20px 24px;display:grid;gap:20px">
+        <h2 style="margin:0;font:700 33px/1.14 'Literata',Georgia,serif;letter-spacing:-.015em;color:#12161C">Toshkent yoʻllarini oʻzimiz taʼmirlaymiz</h2>
+        <p style="margin:0;font:400 17px/1.55 'Manrope',sans-serif;color:#3E4553">Siz chuqurni xaritada belgilaysiz — volontyorlar brigadasi borib tuzatadi. Davlat organlari ishtirok etmaydi.</p>
+
+        <div style="display:grid;gap:12px">
+          <div style="display:flex;gap:5px;align-items:flex-end">
+            <span style="min-width:52px;padding:12px 6px;background:#F2F3F7;border-radius:12px;font:800 40px/1 'Manrope',sans-serif;font-variant-numeric:tabular-nums;color:#12161C;text-align:center">3</span>
+            <span style="min-width:52px;padding:12px 6px;background:#F2F3F7;border-radius:12px;font:800 40px/1 'Manrope',sans-serif;font-variant-numeric:tabular-nums;color:#12161C;text-align:center">4</span>
+            <span style="min-width:52px;padding:12px 6px;background:#F2F3F7;border-radius:12px;font:800 40px/1 'Manrope',sans-serif;font-variant-numeric:tabular-nums;color:#12161C;text-align:center">7</span>
+            <span style="min-width:52px;padding:12px 6px;background:#FFDD00;border-radius:12px;font:800 40px/1 'Manrope',sans-serif;font-variant-numeric:tabular-nums;color:#12161C;text-align:center">1</span>
+          </div>
+          <div>
+            <div style="height:10px;border-radius:5px;background:#E6E8EE;position:relative;overflow:hidden"><span style="position:absolute;inset:0 65.3% 0 0;background:#12161C;border-radius:5px"></span></div>
+            <div style="margin-top:8px;font:500 15px/1.4 'Manrope',sans-serif;color:#3E4553">chuqur taʼmirlandi · 10 000 gacha yoʻl bor</div>
+          </div>
+        </div>
+
+        <div style="display:grid;gap:12px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+            <h3 style="margin:0;font:600 20px/1.25 'Literata',Georgia,serif;color:#12161C">Shu hafta</h3>
+            <span style="font:600 14px/1.2 'Manrope',sans-serif;color:#545C6E">+128</span>
+          </div>
+          <div style="border:1px solid #E6E8EE;border-radius:18px;overflow:hidden;background:#FFFFFF">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;background:#E6E8EE">
+              <div style="aspect-ratio:1/1;background:repeating-linear-gradient(115deg,#E6E8EE 0 8px,#D8DCE4 8px 16px);display:grid;place-items:center;font:500 10px/1.3 'Manrope',sans-serif;color:#545C6E;text-align:center">photo · oldin</div>
+              <div style="aspect-ratio:1/1;background:repeating-linear-gradient(115deg,#DCEFF0 0 8px,#CDE7E9 8px 16px);display:grid;place-items:center;font:500 10px/1.3 'Manrope',sans-serif;color:#0A5D62;text-align:center">photo · keyin</div>
+            </div>
+            <div style="padding:14px 16px;display:grid;gap:6px">
+              <div style="font:600 17px/1.3 'Manrope',sans-serif;color:#12161C">Amir Temur shoh koʻchasi 88</div>
+              <div style="font:400 14px/1.45 'Manrope',sans-serif;color:#545C6E">Yunusobod · 4 kunda · brigada 4</div>
+              <span style="justify-self:start;margin-top:2px;display:inline-flex;align-items:center;gap:7px;background:#E2F5F6;border:1px solid #B7E1E3;border-radius:999px;padding:6px 11px;font:600 13px/1.2 'Manrope',sans-serif;color:#0A5D62"><span style="width:11px;height:6px;border-left:2px solid #0A5D62;border-bottom:2px solid #0A5D62;transform:rotate(-45deg);margin-bottom:2px;flex:none"></span>Taʼmirlandi</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;gap:10px">
+          <h3 style="margin:0;font:600 20px/1.25 'Literata',Georgia,serif;color:#12161C">Sizning atrofingizda</h3>
+          <div style="position:relative;height:190px;border-radius:18px;overflow:hidden;border:1px solid #E6E8EE;background:#EDEEF1;background-image:linear-gradient(#FFFFFF,#FFFFFF),linear-gradient(#FFFFFF,#FFFFFF),linear-gradient(#DFE2E8,#DFE2E8),linear-gradient(#DDE9DC,#DDE9DC);background-size:100% 12px,10px 100%,100% 2px,110px 90px;background-position:0 46%,30% 0,0 24%,8% 58%;background-repeat:no-repeat">
+            <div style="position:absolute;left:72px;top:52px;width:30px;height:30px;background:#D8368F;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><span style="width:11px;height:11px;border:2.5px solid #FFFFFF;border-radius:50%"></span></div>
+            <div style="position:absolute;left:196px;top:38px;width:30px;height:30px;background:#EE6A21;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><span style="width:10px;height:10px;background:#FFFFFF"></span></div>
+            <div style="position:absolute;left:136px;top:110px;width:30px;height:30px;background:#2F5FD0;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><span style="display:flex;gap:3px"><span style="width:2.5px;height:12px;background:#FFFFFF"></span><span style="width:2.5px;height:12px;background:#FFFFFF"></span></span></div>
+            <div style="position:absolute;left:262px;top:118px;width:30px;height:30px;background:#0F9FA6;border:2px solid #FFFFFF;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(18,22,28,.35);display:grid;place-items:center"><span style="width:12px;height:7px;border-left:2.5px solid #FFFFFF;border-bottom:2.5px solid #FFFFFF;margin-bottom:2px"></span></div>
+            <div style="position:absolute;left:36px;top:126px;width:34px;height:34px;border-radius:50%;background:#12161C;border:2px solid #FFFFFF;display:grid;place-items:center;font:700 13px/1 'Manrope',sans-serif;color:#FFFFFF">14</div>
+            <div style="position:absolute;left:12px;bottom:12px;right:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(251,251,253,.95);border-radius:12px;padding:10px 12px">
+              <span style="font:600 14px/1.3 'Manrope',sans-serif;color:#12161C">Mirzo Ulugʻbek tumani · 412 ta</span>
+              <span style="font:700 14px/1.3 'Manrope',sans-serif;color:#3E4553">Xaritani ochish →</span>
+            </div>
+          </div>
+        </div>
+
+        <p style="margin:0;font:400 14px/1.5 'Manrope',sans-serif;color:#545C6E">Loyihani volontyorlar yuritadi. Har bir chuqur — bitta odamning xabari.</p>
+      </div>
+    </div>
+
+    <div style="padding:14px 20px 26px;display:grid;gap:8px;background:#FBFBFD;border-top:1px solid #E6E8EE">
+      <button type="button" style="min-height:56px;width:100%;border:none;border-radius:16px;background:#FFDD00;font:800 17px/1.2 'Manrope',sans-serif;color:#12161C;cursor:pointer" style-active="background:#E6C400;transform:translateY(1px)">Chuqur haqida xabar berish</button>
+      <div style="font:500 13px/1.4 'Manrope',sans-serif;color:#545C6E;text-align:center">Roʻyxatdan oʻtish shart emas · 30 soniya</div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { fontProof: 'проверка глифов…' };
+  componentDidMount() {
+    const run = () => {
+      let ok = null;
+      try {
+        ok = document.fonts.check('16px "Literata"', 'Ulugʻbek') && document.fonts.check('16px "Manrope"', 'Ulugʻbek Чиланзар');
+      } catch (e) { ok = null; }
+      this.setState({ fontProof: ok === null ? '? глифы ʻ ʼ' : ok ? '✓ ʻ ʼ + кириллица' : '✕ нет ʻ ʼ' });
+    };
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(run); else run();
+  }
+  renderVals() { return { fontProof: this.state.fontProof }; }
+}
+
+</script>
+</body>
+</html>

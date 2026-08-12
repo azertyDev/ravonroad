@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "./shared/styles/tokens/index.css";
 
+/* Порог десктопной раскладки — 1100, как размечено на Desktop C, а не 1024 из
+   умолчаний Tailwind. Одна строка вместо переименования `lg:` в четырёх файлах. */
+@theme {
+  --breakpoint-lg: 1100px;
+}
+
 @layer base {
   body {
     font: var(--t-body);
@@ -9,17 +15,52 @@
     -webkit-text-size-adjust: 100%;
   }
 
-  /* Фокус виден на каждом шаге обхода с клавиатуры (PRD §8.2). */
+  /* Tailwind v4 в preflight ставит кнопкам `cursor: default` — по спецификации, но
+     против привычки: на сайте, где половина действий это `button` (фильтры, чипы,
+     переключатели, «отправить»), стрелка над ними читается как «сюда нельзя».
+     Правило одно на весь интерфейс, а не класс на каждой кнопке, и снято с
+     заблокированных — там `not-allowed` от того же preflight остаётся верным. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+
+  /* Фокус виден на каждом шаге обхода с клавиатуры (PRD §8.2). Кольцо двойное:
+     контур асфальтом плюс жёлтый ореол. Одного контура мало — на жёлтой кнопке
+     чёрная линия сливается с её же обводкой, а на асфальте теряется сама. */
   :focus-visible {
     outline: var(--focus-outline);
     outline-offset: var(--focus-outline-offset);
+    box-shadow: var(--focus-shadow);
   }
 }
 
 /* Шрифтовые шорткаты дизайн-системы. Раскладка — Tailwind, типографика — токены:
    иначе кегли и межстрочные разъезжаются по компонентам. */
-.t-display { font: var(--t-display); }
-.t-h1 { font: var(--t-h1); }
+/* Трекинг идёт рядом с `font`, а не внутри: шорткат его не переносит, а в плакатном
+   ключе заголовок без отрицательного трекинга выглядит разряженным. */
+.t-display {
+  font: var(--t-display);
+  letter-spacing: var(--t-display-tracking);
+}
+
+.t-h1 {
+  font: var(--t-h1);
+  letter-spacing: var(--t-h1-tracking);
+}
+
+.t-h2 {
+  font: var(--t-h2);
+  letter-spacing: var(--t-h2-tracking);
+}
+
+.t-h3 { font: var(--t-h3); }
+
+/* Тот же кегль, что у body. Класс всё равно нужен: внутри блока, который задал
+   свой шрифт, — плашки, заголовка, кнопки — наследование даёт не его. */
+.t-body { font: var(--t-body); }
 .t-body-l { font: var(--t-body-l); }
 .t-caption { font: var(--t-caption); }
 
@@ -36,13 +77,63 @@
   text-transform: uppercase;
 }
 
+/* Заголовок раздела: «Holat tarixi», «Toifa», «Holat». Капслок, но 700, а не 800 —
+   он стоит над блоком, а не внутри поля, и не должен спорить с содержимым. */
+.t-section {
+  font: var(--t-section);
+  letter-spacing: var(--t-section-tracking);
+  text-transform: uppercase;
+}
+
+/* Имя шага формы рядом с жёлтым номером. */
+.t-step {
+  font: var(--t-step);
+  letter-spacing: var(--t-step-tracking);
+  text-transform: uppercase;
+}
+
+/* Основная кнопка. */
+.t-cta {
+  font: var(--t-cta);
+  letter-spacing: var(--t-cta-tracking);
+  text-transform: uppercase;
+}
+
+/* Вторичная кнопка и имя статуса в истории заявки. */
+.t-action {
+  font: var(--t-action);
+  letter-spacing: var(--t-action-tracking);
+  text-transform: uppercase;
+}
+
+/* Плашка-переключатель прячет свой input под sr-only, поэтому кольцо фокуса рисует
+   она сама: иначе обход с клавиатуры проходит по группе вслепую. */
+.chip-focus:has(:focus-visible) {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+  box-shadow: var(--focus-shadow);
+}
+
+/* Плашка: капслок кеглем 13 — статусы, подписи шкалы, компактные кнопки. */
+.t-chip {
+  font: var(--t-chip);
+  letter-spacing: var(--t-chip-tracking);
+  text-transform: uppercase;
+}
+
 .t-counter {
   font: var(--t-counter);
   letter-spacing: var(--t-counter-tracking);
   font-variant-numeric: var(--numeric);
 }
 
-/* Анимаций пока нет, но карта из 003 приносит и движение пинов, и нижний лист.
+/* Единственная бесконечная анимация в системе (readme › Visual foundations):
+   спиннер отправки и загрузки фотографии. */
+@keyframes rr-spin {
+  to { transform: rotate(1turn); }
+}
+
+/* Карта из 003 приносит и движение пинов, и нижний лист.
    Правило стоит здесь, а не в каждом будущем компоненте: настройку системы человек
    выставил заранее и не обязан ждать, пока мы вспомним про неё в очередном срезе
    (WCAG 2.3.3). Не ноль, а 0.01 ms — иначе не сработает onTransitionEnd. */

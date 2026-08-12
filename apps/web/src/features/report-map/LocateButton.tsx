@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { catalogKeys, fetchDistricts } from '../../entities/catalog/api'
 import { useI18n } from '../../shared/i18n/useI18n'
+import { Glyph } from '../../shared/ui/icon/Glyph'
 import type { Bounds } from '../../shared/map/tashkent'
 import { around, insideAny } from './bbox'
 
@@ -55,13 +56,16 @@ export function LocateButton({ onLocated }: LocateButtonProps) {
   }
 
   return (
-    <div className="flex flex-col items-start gap-[var(--s-2)]">
+    <div className="flex flex-col items-end gap-[var(--s-2)]">
+      {/* Кружок с прицелом, а не кнопка с подписью: она стоит поверх карты в углу,
+          и подпись там отнимает у карты полосу. Имя действия — в aria-label. */}
       <button
         type="button"
         onClick={locate}
-        className="t-label inline-flex min-h-[var(--touch-base)] items-center rounded-[var(--r-2)] border border-[var(--border-2)] bg-[var(--surface-card)] px-[var(--s-4)] shadow-[var(--e-2)]"
+        aria-label={state === 'pending' ? t('map.locating') : t('map.locate')}
+        className="grid h-[52px] w-[52px] place-items-center rounded-[var(--r-pill)] border border-[var(--border-1)] bg-[var(--surface-card)] text-[var(--text-1)] shadow-[var(--e-fab)] hover:bg-[var(--surface-control-hover)]"
       >
-        {state === 'pending' ? t('map.locating') : t('map.locate')}
+        <Glyph name="locate" size={20} />
       </button>
 
       {/* role="status", а не просто текст: подсказка появляется после нажатия, и без
@@ -69,7 +73,7 @@ export function LocateButton({ onLocated }: LocateButtonProps) {
       {(state === 'denied' || state === 'outside') && (
         <p
           role="status"
-          className="t-caption max-w-[28ch] rounded-[var(--r-2)] bg-[var(--surface-card)] px-[var(--s-3)] py-[var(--s-2)] text-[var(--text-2)] shadow-[var(--e-2)]"
+          className="t-caption max-w-[28ch] rounded-[var(--r-2)] bg-[var(--surface-card)] px-[var(--s-3)] py-[var(--s-2)] text-right text-[var(--text-2)] shadow-[var(--e-2)]"
         >
           {state === 'denied' ? t('map.locate.denied') : errorText('OUTSIDE_TASHKENT')}
         </p>

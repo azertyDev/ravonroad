@@ -9,16 +9,53 @@ export const MAX_ZOOM = 19
 
 /** Подложка обязана молчать: единственные яркие пятна на ней — пины заявок. Цвета сняты
  *  со шкалы asphalt (shared/styles/tokens/colors.css), числами, а не переменными:
- *  стиль MapLibre — это JSON, до CSS он не дотягивается. Тема здесь одна, светлая:
- *  тёмная подложка потребовала бы второго набора и переключения по prefers-color-scheme,
- *  а карта тут — фон под пины, а не предмет разглядывания. */
-const OUTSIDE = '#E6E8EE' // asphalt-100 — за границей города данных нет
-const EARTH = '#F8F9FB' // surface-sunken — город светлее окраины, и край данных виден сам
-const GREEN = '#E7EDE7'
-const WATER = '#CCDCE8'
-const BUILDING = '#E6E8EE' // asphalt-100
-const ROAD = '#B4BAC7' // asphalt-300 — на ступень темнее кварталов, иначе сетка улиц
-const BOUNDARY = '#8F97A8' // asphalt-400  не читается на 240 пикселях высоты
+ *  стиль MapLibre — это JSON, до CSS он не дотягивается.
+ *
+ *  Наборов два. Раньше был один, светлый, и объяснялось это тем, что карта — фон под
+ *  пины, а не предмет разглядывания. В плакатном ключе фон страницы стал тёмным, и
+ *  белое окно карты посреди него перестало быть фоном: оно светится ярче всего на
+ *  экране и перебивает и заголовок, и счётчик.
+ *
+ *  Тема выбирается в момент создания карты и живёт до перезагрузки: сменить палитру
+ *  у MapLibre можно только через `setStyle`, а это выброшенный и заново собранный стиль
+ *  поверх уже скачанных тайлов. Смена системной темы посреди сеанса — редкость, ради
+ *  которой этого не делают; страница переоткроется с новой палитрой сама. */
+interface Basemap {
+  outside: string
+  earth: string
+  green: string
+  water: string
+  building: string
+  road: string
+  boundary: string
+}
+
+const LIGHT: Basemap = {
+  outside: '#E6E8EE', // asphalt-100 — за границей города данных нет
+  earth: '#F8F9FB', // surface-sunken — город светлее окраины, и край данных виден сам
+  green: '#E7EDE7',
+  water: '#CCDCE8',
+  building: '#E6E8EE', // asphalt-100
+  road: '#B4BAC7', // asphalt-300 — на ступень темнее кварталов, иначе сетка улиц
+  boundary: '#8F97A8', // asphalt-400  не читается на 240 пикселях высоты
+}
+
+/** Тёмный набор держит тот же порядок светлот, только перевёрнутый: кварталы светлее
+ *  земли, дороги светлее кварталов. Белая обводка пина остаётся белой и здесь — она
+ *  рассчитана на обе подложки и на спутник. */
+const DARK: Basemap = {
+  outside: '#12161C', // asphalt-950 — та же подложка, что у страницы
+  earth: '#171B22', // basemap-dark
+  green: '#1F2A24',
+  water: '#1B2733',
+  building: '#232833',
+  road: '#333A46',
+  boundary: '#545C6E', // asphalt-500
+}
+
+function palette(): Basemap {
+  return matchMedia('(prefers-color-scheme: dark)').matches ? DARK : LIGHT
+}
 
 /** Зелень OSM приходит десятком видов; красить каждый по-своему значит спорить с пином. */
 const GREEN_KINDS = [
@@ -53,6 +90,8 @@ addProtocol('pmtiles', new Protocol().tile)
  *  потому, что они спорили бы с пинами.
  *  Восемь слоёв снизу вверх; `places` и `pois` в тайлах есть и не отрисованы намеренно. */
 export function basemapStyle(archiveUrl: string): NonNullable<MapOptions['style']> {
+  const { outside, earth, green, water, building, road, boundary } = palette()
+
   return {
     version: 8,
     sources: {
@@ -65,13 +104,13 @@ export function basemapStyle(archiveUrl: string): NonNullable<MapOptions['style'
       },
     },
     layers: [
-      { id: 'outside', type: 'background', paint: { 'background-color': OUTSIDE } },
+      { id: 'outside', type: 'background', paint: { 'background-color': outside } },
       {
         id: 'earth',
         type: 'fill',
         source: 'basemap',
         'source-layer': 'earth',
-        paint: { 'fill-color': EARTH },
+        paint: { 'fill-color': earth },
       },
       {
         id: 'green',
@@ -79,14 +118,14 @@ export function basemapStyle(archiveUrl: string): NonNullable<MapOptions['style'
         source: 'basemap',
         'source-layer': 'landuse',
         filter: ['match', ['get', 'kind'], GREEN_KINDS, true, false],
-        paint: { 'fill-color': GREEN },
+        paint: { 'fill-color': green },
       },
       {
         id: 'water',
         type: 'fill',
         source: 'basemap',
         'source-layer': 'water',
-        paint: { 'fill-color': WATER },
+        paint: { 'fill-color': water },
       },
       {
         id: 'waterway',
@@ -95,7 +134,7 @@ export function basemapStyle(archiveUrl: string): NonNullable<MapOptions['style'
         'source-layer': 'water',
         filter: ['match', ['get', 'kind'], WATERWAY_KINDS, true, false],
         paint: {
-          'line-color': WATER,
+          'line-color': water,
           'line-width': ['interpolate', ['linear'], ['zoom'], 11, 0.5, 16, 3, 19, 8],
         },
       },
@@ -105,7 +144,7 @@ export function basemapStyle(archiveUrl: string): NonNullable<MapOptions['style'
         source: 'basemap',
         'source-layer': 'buildings',
         minzoom: 14,
-        paint: { 'fill-color': BUILDING },
+        paint: { 'fill-color': building },
       },
       {
         id: 'roads',
@@ -115,7 +154,7 @@ export function basemapStyle(archiveUrl: string): NonNullable<MapOptions['style'
         filter: ['!=', ['get', 'kind'], 'rail'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': ROAD,
+          'line-color': road,
           // Ширина по классу дороги. Зум допустим только внутри `interpolate`, поэтому
           // класс разбирается на каждой остановке, а не множителем снаружи.
           'line-width': [
@@ -140,7 +179,7 @@ export function basemapStyle(archiveUrl: string): NonNullable<MapOptions['style'
         source: 'basemap',
         'source-layer': 'boundaries',
         paint: {
-          'line-color': BOUNDARY,
+          'line-color': boundary,
           'line-width': 1,
           'line-dasharray': [3, 2],
           'line-opacity': 0.7,

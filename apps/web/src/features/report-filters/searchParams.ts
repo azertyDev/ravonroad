@@ -15,9 +15,21 @@ export interface ReportSearch {
   from?: string
   to?: string
   dateField?: 'done'
+  /** Куда навести карту при открытии — не фильтр, а прицел: «показать на карте»
+   *  со страницы заявки (Desktop C › экран 3). В набор заявок не входит и в `toFilters`
+   *  не попадает, поэтому смена фильтра его не сохраняет: человек уже посмотрел. */
+  lat?: number
+  lon?: number
 }
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/
+
+/** Координата из адреса: только конечное число в пределах круга. Мусор отбрасывается
+ *  молча — карта откроется на городе, а не на ошибке. */
+function degrees(value: unknown, limit: number): number | undefined {
+  const parsed = typeof value === 'number' ? value : Number(text(value))
+  return Number.isFinite(parsed) && Math.abs(parsed) <= limit ? parsed : undefined
+}
 
 function text(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined
@@ -45,6 +57,10 @@ export function validateReportSearch(raw: Record<string, unknown>): ReportSearch
     // Единственное непустое значение поля даты: `created` — умолчание, и держать его
     // в адресе значит только удлинять ссылку.
     ...(text(raw['dateField']) === 'done' ? { dateField: 'done' as const } : {}),
+    // Половина прицела бесполезна: без второй координаты наводить карту не на что.
+    ...(degrees(raw['lat'], 90) === undefined || degrees(raw['lon'], 180) === undefined
+      ? {}
+      : { lat: degrees(raw['lat'], 90), lon: degrees(raw['lon'], 180) }),
   }
 }
 
@@ -68,6 +84,19 @@ export function toSearch(filters: ReportFilters): ReportSearch {
     to: filters.to ?? undefined,
     dateField: filters.dateField,
   })
+}
+
+/** Сколько фильтров включено — число на кнопке «Фильтры» (Desktop C › строка над картой).
+ *  Статусы считаются поштучно: снимают их тоже по одному. Поле даты не считается —
+ *  оно уточняет период, а само по себе ничего не отбирает. */
+export function countFilters(filters: ReportFilters): number {
+  return (
+    filters.status.length +
+    (filters.category === null ? 0 : 1) +
+    (filters.district === null ? 0 : 1) +
+    (filters.from === null ? 0 : 1) +
+    (filters.to === null ? 0 : 1)
+  )
 }
 
 export function isEmptyFilters(filters: ReportFilters): boolean {
