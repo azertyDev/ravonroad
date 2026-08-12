@@ -281,33 +281,36 @@ export function ReportForm({ onCreated, onCancel }: ReportFormProps) {
           <legend className="mb-[var(--s-2)] w-full">
             <StepHeader step="05" label={t('form.step.contacts')} optional />
           </legend>
-          {/* Пояснение рядом с полями, а не в подвале: решение «оставлять ли телефон»
-              принимается в момент заполнения (PRD §9.2.1). */}
+          {/* Два поля в строку: оба короткие и необязательные, а в столбик они делали
+              из «можно ничего не писать» самый длинный шаг формы (Form C). Подписи —
+              плейсхолдерами в самих полях, их формат и есть подпись: `+998`, `@telegram`. */}
+          <div className="flex flex-col gap-[var(--s-3)] sm:flex-row">
+            <input
+              id="phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              aria-label={t('form.contacts.phone')}
+              placeholder={t('form.contacts.phonePlaceholder')}
+              className={`${FIELD} flex-1`}
+              value={contactPhone}
+              onChange={(event) => setContactPhone(event.target.value)}
+            />
+            <input
+              id="telegram"
+              autoComplete="off"
+              aria-label={t('form.contacts.telegram')}
+              placeholder={t('form.contacts.telegramPlaceholder')}
+              className={`${FIELD} flex-1`}
+              value={contactTelegram}
+              onChange={(event) => setContactTelegram(event.target.value)}
+            />
+          </div>
+
+          {/* Пояснение под полями: до них оно читается как условие, после — как обещание,
+              а решение «оставлять ли телефон» принимается уже над самим полем
+              (PRD §9.2.1, Form C). */}
           <p className="t-caption text-[var(--text-2)]">{t('form.contacts.notice')}</p>
-
-          <label className="t-caption" htmlFor="phone">
-            {t('form.contacts.phone')}
-          </label>
-          <input
-            id="phone"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            className={FIELD}
-            value={contactPhone}
-            onChange={(event) => setContactPhone(event.target.value)}
-          />
-
-          <label className="t-caption" htmlFor="telegram">
-            {t('form.contacts.telegram')}
-          </label>
-          <input
-            id="telegram"
-            autoComplete="off"
-            className={FIELD}
-            value={contactTelegram}
-            onChange={(event) => setContactTelegram(event.target.value)}
-          />
         </fieldset>
         </div>
 

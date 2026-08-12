@@ -91,6 +91,10 @@ export function Sheet({ title, subtitle, onClose, children, footer, fill = false
         fill ? 'inset-0 h-full' : 'h-[var(--sheet-full)] rounded-t-[16px]'
       }`}
     >
+      {/* Та же лента, что по кромке страницы: окно — продолжение той же дорожной
+          разметки, а не всплывшая поверх неё панель (Form C). */}
+      <div aria-hidden="true" className="h-[8px] shrink-0 bg-[image:var(--hazard-tape)]" />
+
       <div className="flex flex-col gap-[var(--s-3)] px-[var(--gutter)] pt-[var(--s-4)] pb-[var(--s-4)]">
         {/* Хват листа. Декоративный: тянуть его мы не умеем, но без него край листа
             читается как обрезанная страница, а не как поднятая панель. */}
@@ -103,7 +107,10 @@ export function Sheet({ title, subtitle, onClose, children, footer, fill = false
         <div className="flex items-start justify-between gap-[var(--s-3)]">
           <div className="flex min-w-0 flex-col gap-[var(--s-1)]">
             <h2 className="t-h2 uppercase">{title}</h2>
-            {subtitle !== undefined && <p className="t-section text-[var(--text-2)]">{subtitle}</p>}
+            {/* Подзаголовок обычным регистром, а не капслоком секции: здесь это фраза
+                («Регистрация не нужна · 30 секунд»), а капслок в системе носят только
+                короткие служебные ярлыки (Form C, readme › Visual foundations). */}
+            {subtitle !== undefined && <p className="t-body text-[var(--text-2)]">{subtitle}</p>}
           </div>
           <button type="button" onClick={onClose} aria-label={t('map.close')} className={ICON_BUTTON}>
             <Glyph name="close" />

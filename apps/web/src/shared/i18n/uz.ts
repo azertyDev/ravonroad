@@ -137,6 +137,10 @@ export const uzUi = {
   'form.contacts.legend': 'Bogʻlanish uchun, ixtiyoriy',
   'form.contacts.phone': 'Telefon',
   'form.contacts.telegram': 'Telegram',
+  // Плейсхолдер показывает формат и заменяет подпись над полем: «+998» объясняет
+  // поле точнее, чем слово «Telefon» над ним. Имя поля остаётся в `aria-label`.
+  'form.contacts.phonePlaceholder': '+998',
+  'form.contacts.telegramPlaceholder': '@telegram',
   'form.contacts.notice': 'Kontaktlar hech qayerda eʼlon qilinmaydi va faqat ariza yuzasidan aniqlashtirish uchun ishlatiladi.',
   'form.cancel': 'Bekor qilish',
   'form.submit': 'Yuborish',

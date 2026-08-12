@@ -127,6 +127,8 @@ export const ruUi: Record<UiKey, string> = {
   'form.contacts.legend': 'Для связи, необязательно',
   'form.contacts.phone': 'Телефон',
   'form.contacts.telegram': 'Telegram',
+  'form.contacts.phonePlaceholder': '+998',
+  'form.contacts.telegramPlaceholder': '@telegram',
   'form.contacts.notice': 'Контакты нигде не публикуются и нужны только для уточнения по заявке.',
   'form.cancel': 'Отменить',
   'form.submit': 'Отправить',
