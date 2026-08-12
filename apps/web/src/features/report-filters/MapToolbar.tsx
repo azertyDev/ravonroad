@@ -55,9 +55,13 @@ export function MapToolbar({ filters, onChange, onOpen }: MapToolbarProps) {
         )}
       </button>
 
+      {/* Плашки статусов — только на ноутбуке. На 390 их пять, они переносятся
+          на три строки и съедают треть экрана до карты; в макете телефон показывает
+          одну кнопку «Фильтры» со счётчиком, а сами статусы живут в листе
+          (Mobile States C › «Лист фильтров»). */}
       {PUBLIC_STATUSES.map((status) => (
+        <span key={status} className="hidden lg:contents">
         <ToggleChip
-          key={status}
           type="checkbox"
           status={status}
           checked={filters.status.includes(status)}
@@ -73,6 +77,7 @@ export function MapToolbar({ filters, onChange, onOpen }: MapToolbarProps) {
         >
           {t(`status.${status}`)}
         </ToggleChip>
+        </span>
       ))}
 
       {scope !== null && (

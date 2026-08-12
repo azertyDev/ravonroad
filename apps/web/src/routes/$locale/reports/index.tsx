@@ -135,8 +135,10 @@ export function ReportListPage() {
                 {/* Подпись в две строки, как в макете: обрезать её нельзя — «Taʼmirlangan»
                     рвётся посреди слова. */}
                 {/* 160, а не по содержимому: «ОТРЕМОНТИРОВАНО» — одно слово, и любая
-                    ширина меньше его длины режет букву, а не переносит строку. */}
-                <span className="t-label w-[160px] shrink-0">{t('home.repairedLabel')}</span>
+                    ширина меньше его длины режет букву, а не переносит строку.
+                    `text-balance` делит подпись пополам: иначе на второй строке
+                    оставалось одинокое «ЯМ» под словом в четырнадцать букв. */}
+                <span className="t-label w-[160px] shrink-0 text-balance">{t('home.repairedLabel')}</span>
                 <span aria-hidden="true" className="flex gap-[var(--s-1)]">
                   {campaignScale(stats.data.done, stats.data.goal).digits.map((digit, index, all) => (
                     <span

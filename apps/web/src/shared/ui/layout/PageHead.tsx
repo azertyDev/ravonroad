@@ -31,11 +31,14 @@ export function PageHead({ title, action }: PageHeadProps) {
           <Glyph name="back" />
         </button>
       ) : (
-        <span className="w-[var(--touch-min)]" />
+        // Заглушка держит номер по центру между двумя кнопками — так строка устроена
+        // на телефоне. На ноутбуке центрировать нечего: кнопки «назад» там обычно нет,
+        // и номер повисал в пустоте между левым краем и действиями.
+        <span className="w-[var(--touch-min)] lg:hidden" />
       )}
       {/* Не заголовок: имя страницы даёт ориентир в теле заявки (ReportSummary),
           и второй h1 с номером спорил бы с ним за роль. */}
-      <span className="t-h3 font-extrabold tabular-nums">{title}</span>
+      <span className="t-h3 font-extrabold tabular-nums lg:mr-auto">{title}</span>
       {action ?? <span className="w-[var(--touch-min)]" />}
     </div>
   )

@@ -37,17 +37,13 @@ export function AppFooter() {
         <p className="t-caption text-[var(--text-2)]">
           {t('footer.volunteers')}{' '}
           {/* Атрибуция OSM переехала сюда с самой карты. Убрать её нельзя — ODbL требует
-              указания источника, — а значок «i» в углу карты закрывал собой то место,
-              ради которого карта и открыта. Строка в подвале выполняет то же требование
-              и стоит на каждом экране, включая те, где карты нет вовсе. */}
-          <a
-            href="https://www.openstreetmap.org/copyright"
-            target="_blank"
-            rel="noreferrer"
-            className="underline decoration-[var(--border-1)] underline-offset-2"
-          >
-            © OpenStreetMap
-          </a>
+              называть источник, — но и вес у неё служебный: подчёркивание и ссылку сняли,
+              осталась серая строка в 12 px. Токен именно `--text-3-sunken`: `--text-3`
+              проходит AA только на белой карточке, а подвал стоит на `--surface-page`
+              (colors.css, contrast.test.ts).
+              Значок «i» в углу карты закрывал собой то место, ради которого карта
+              и открыта, поэтому его там больше нет вовсе. */}
+          <span className="text-[12px] text-[var(--text-3-sunken)]">© OpenStreetMap</span>
         </p>
         {contact !== null && (
           <a

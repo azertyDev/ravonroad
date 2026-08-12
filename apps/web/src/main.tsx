@@ -3,6 +3,7 @@ import { RouterProvider } from '@tanstack/react-router'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { router } from './router'
+import { retryQuery } from './shared/api/retry'
 import { isBrowserSupported, UnsupportedBrowser } from './shared/ui/UnsupportedBrowser'
 import './index.css'
 
@@ -13,6 +14,8 @@ const queryClient = new QueryClient({
       // постоянно: перезапрос на каждом возврате в браузер стоил бы жителю денег
       // (PRD §8.1, SRS §7.5).
       refetchOnWindowFocus: false,
+      // Ответ, который повтором не исправить, повторять нечего: см. `retryQuery`.
+      retry: retryQuery,
     },
   },
 })

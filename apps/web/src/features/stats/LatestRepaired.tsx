@@ -58,7 +58,7 @@ export function LatestRepaired() {
       {/* «+0 ta» на плакате кампании читается как поломка, а не как факт: за неделю
           может не закрыться ничего, и тогда строки нет вовсе. */}
       {week > 0 && (
-        <p className="flex items-baseline justify-between gap-[var(--s-3)] px-[var(--gutter)] pb-[var(--s-3)]">
+        <p className="flex items-baseline justify-between gap-[var(--s-3)] px-[var(--gutter)] pb-[var(--s-3)] lg:px-0">
           <span className="t-section text-[var(--text-2)]">{t('home.lastWeek')}</span>
           <span className="t-chip text-[var(--status-done-ink)]">
             +<span className="tabular-nums">{formatNumber(week)}</span> {tp('map.reports', week)}
@@ -68,8 +68,10 @@ export function LatestRepaired() {
 
       {pair !== null && report !== undefined && (
         <>
-          {/* Пара идёт в край и без рамки — та же подача, что на странице заявки. */}
-          <div className="grid grid-cols-2 gap-[2px] bg-[var(--border-1)]">
+          {/* Пара идёт в край и без рамки — та же подача, что на странице заявки.
+              На ноутбуке «край» — это край колонки, у которой своё поле: снимки, упёртые
+              в кромку окна, читаются как обрезанные, а не как полосой. */}
+          <div className="grid grid-cols-2 gap-[2px] bg-[var(--border-1)] lg:rounded-[var(--r-3)] lg:overflow-hidden">
             <PhotoPlate src={pair.before.previewUrl} alt={t('report.photoAlt')} caption={t('report.before')} />
             <PhotoPlate
               src={pair.after.previewUrl}
@@ -81,7 +83,7 @@ export function LatestRepaired() {
           <Link
             to="/$locale/reports/$number"
             params={{ locale, number: String(report.number) }}
-            className="flex flex-col gap-[var(--s-1)] px-[var(--gutter)] pt-[var(--s-3)]"
+            className="flex flex-col gap-[var(--s-1)] px-[var(--gutter)] pt-[var(--s-3)] lg:px-0"
           >
             <span className="t-h3 font-extrabold text-[var(--text-1)]">
               {report.landmark ?? districtName ?? report.displayNumber}
