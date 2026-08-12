@@ -73,6 +73,7 @@ export function ReportSummary({ report, note }: ReportSummaryProps) {
     width: photo.width,
     height: photo.height,
     alt: photo.kind === 'AFTER' ? t('report.photoAfterAlt') : t('report.photoAlt'),
+    caption: photo.kind === 'AFTER' ? t('report.after') : t('report.before'),
   }))
   const hasMap = desktop && archiveUrl !== undefined && archiveUrl !== ''
 

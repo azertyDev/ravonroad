@@ -164,3 +164,23 @@ fieldset:has(> input[type="file"]:focus-visible) .photo-tile {
     scroll-behavior: auto !important;
   }
 }
+
+/* Подпись «до / после» в просмотрщике снимков. Сверху, а не снизу: снизу её закрывает
+   палец, которым листают, и на плите страницы эти же слова стоят там, где их видно
+   сразу. Плашка светлая на тёмном — единственное место, где цвет не берётся из темы:
+   фон затемнения тёмный в обеих. */
+.pswp-caption {
+  position: absolute;
+  top: calc(var(--s-4) + env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  padding: var(--s-2) var(--s-4);
+  border-radius: var(--r-2);
+  background: rgba(18, 22, 28, 0.72);
+  color: #fbfbfd;
+  font: var(--t-label);
+  letter-spacing: var(--t-label-tracking);
+  text-transform: uppercase;
+  pointer-events: none;
+}
