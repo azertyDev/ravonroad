@@ -110,7 +110,10 @@ export function TrackPage() {
   const report = view.data
 
   return (
-    <article className="flex flex-1 flex-col lg:mx-auto lg:w-full lg:max-w-[820px]">
+    // Ширина и верхнее поле — те же, что у публичной страницы заявки: тело карточки
+    // здесь то же самое, и в 820 пикселях его левая колонка ужималась до трети экрана,
+    // хотя рядом пустовало полокна.
+    <article className="flex flex-1 flex-col lg:mx-auto lg:w-full lg:max-w-[1440px] lg:pt-[var(--s-5)]">
       <PageHead title={report.displayNumber} />
       {!online && <OfflineBar onRetry={() => void view.refetch()} />}
 
