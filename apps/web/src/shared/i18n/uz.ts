@@ -71,7 +71,9 @@ export const uzUi = {
   'map.title': 'Xaritadagi arizalar',
   'map.unavailable': 'Xarita hozircha mavjud emas. Arizalar roʻyxatda koʻrinadi.',
   'map.close': 'Yopish',
-  'map.empty.title': 'Bu hududda chuqur yoʻq',
+  // Не «в этом районе»: пусто бывает и от фильтра по статусу, и от дат, а район
+  // при этом не выбран вовсе — тогда прежний текст показывал на пустое место.
+  'map.empty.title': 'Bu shartlar boʻyicha chuqur yoʻq',
   'map.empty.hint': 'Filtrlarni boʻshating yoki xaritani boshqa tumanga suring.',
   'map.wholeCity': 'Butun Toshkent',
   'report.history': 'Holatlar tarixi',
