@@ -150,16 +150,13 @@ export function PhotoPicker({ photos, onChange, error }: PhotoPickerProps) {
                 aria-disabled={busy}
                 className={`${TILE} aspect-[3/4] gap-[var(--s-2)] rounded-[var(--r-4)] p-[var(--s-3)]`}
               >
+                {/* Только плюс, без подписи: что делает плитка со знаком «плюс» под
+                    заголовком «Фото», объяснять словом не требуется, а строка под ним
+                    занимала треть плитки. Имя действия осталось у глифа — скринридер
+                    читает его вслух. */}
                 <span className="grid h-[40px] w-[40px] place-items-center rounded-[var(--r-4)] bg-[var(--accent)] text-[var(--text-on-accent)]">
-                  <Glyph name="plus" size={18} label={t('form.photos.add')} />
+                  <Glyph name="plus" size={18} label={busy ? t('form.photos.working') : t('form.photos.add')} />
                 </span>
-                {/* Подпись только на первом, пустом месте: рядом с уже снятыми
-                    фотографиями «сделать снимок» под каждым плюсом читается как шум. */}
-                {photos.length === 0 && (
-                  <span className="t-caption text-center text-[var(--text-1)]">
-                    {busy ? t('form.photos.working') : t('form.photos.capture')}
-                  </span>
-                )}
               </label>
             </li>
           )}
