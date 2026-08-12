@@ -30,3 +30,28 @@ export function parseCoordinate(text: string): number | null {
 export function formatCoordinate(value: number): string {
   return value.toFixed(PRECISION)
 }
+
+/** Метров в градусе широты. По долготе столько же только на экваторе, дальше меридианы
+ *  сходятся — поэтому шаг по долготе делится на косинус широты. */
+const METERS_PER_DEGREE = 111_320
+
+/** Шаг пина стрелкой. Пять метров — примерно длина ямы: мельче не нужно, крупнее
+ *  промахивается мимо соседней. Shift переносит через квартал. */
+export const NUDGE_STEP_M = 5
+export const NUDGE_FAST_M = 50
+
+/** Сдвигает точку на заданное число метров: восток по долготе, север по широте.
+ *
+ *  Существует ради клавиатуры. Пин двигают мышью или пальцем, а этих способов нет
+ *  ни у человека за клавиатурой, ни при треморе — и точка обязательна для отправки,
+ *  то есть без такого пути заявку просто не подать.
+ *
+ *  Косинус берётся у исходной широты: на масштабе города поправка от самого сдвига
+ *  меньше сантиметра, а формула остаётся читаемой. */
+export function nudge(point: Point, eastM: number, northM: number): Point {
+  const scale = Math.cos((point.latitude * Math.PI) / 180)
+  return {
+    latitude: roundCoordinate(point.latitude + northM / METERS_PER_DEGREE),
+    longitude: roundCoordinate(point.longitude + eastM / (METERS_PER_DEGREE * scale)),
+  }
+}

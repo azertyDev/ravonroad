@@ -21,10 +21,10 @@ type Locating = 'idle' | 'pending' | 'denied'
 /** Выбор точки: карта и кнопка «моё местоположение» поверх одного состояния (US-007).
  *
  *  Числовых полей широты и долготы здесь больше нет — их убрали по решению владельца
- *  продукта: пара координат в форме для жителя это шум, а не подстраховка. Цена решения
- *  названа прямо: перетаскивание пина недоступно с клавиатуры, и человеку, который
- *  не пользуется мышью, остаётся только «моё местоположение». Понадобится вернуть —
- *  это поля, а не переделка: состояние здесь одно и то же.
+ *  продукта: пара координат в форме для жителя это шум, а не подстраховка. Путь без
+ *  мыши при этом обязан остаться, поэтому сам пин фокусируется и ходит стрелками
+ *  (`MapPin`): «моё местоположение» им не замена — оно требует защищённого контекста
+ *  и разрешения, которых у человека может не быть.
  *
  *  Отказ в геопозиции форму не блокирует: точка ставится пальцем по карте. */
 export function PointPicker({ value, onChange, error }: PointPickerProps) {
@@ -73,7 +73,7 @@ export function PointPicker({ value, onChange, error }: PointPickerProps) {
       {archiveUrl !== undefined && archiveUrl !== '' && (
         <div className="relative">
           <Suspense fallback={null}>
-            <MapPin archiveUrl={archiveUrl} value={value} onChange={onChange} />
+            <MapPin archiveUrl={archiveUrl} value={value} onChange={onChange} keyboardLabel={t('form.point.pin')} />
           </Suspense>
         </div>
       )}
@@ -84,6 +84,10 @@ export function PointPicker({ value, onChange, error }: PointPickerProps) {
       </button>
 
       {locating === 'denied' && <p className="t-caption text-[var(--text-2)]">{t('form.point.denied')}</p>}
+
+      {/* Про стрелки написано текстом, а не только в `aria-label` пина: человек
+          за клавиатурой видит подсказку так же, как скринридер её читает. */}
+      <p className="t-caption text-[var(--text-2)]">{t('form.point.keyboardHint')}</p>
 
       {error !== undefined && (
         <p id={errorId} className="t-caption text-[var(--status-rejected-ink)]">

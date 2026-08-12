@@ -87,7 +87,10 @@ export function Sheet({ title, subtitle, onClose, children, footer, fill = false
         if (dismissedByBackdrop(pressedBackdrop.current, event.target, dialog.current)) onClose()
         pressedBackdrop.current = false
       }}
-      className={`fixed inset-x-0 bottom-0 top-auto m-0 grid max-h-none w-full max-w-none grid-rows-[auto_1fr_auto] overflow-hidden border-t border-[var(--border-1)] bg-[var(--surface-page)] p-0 text-[var(--text-1)] backdrop:bg-[rgba(18,22,28,.72)] md:inset-0 md:m-auto md:h-auto md:max-h-[85dvh] md:w-[min(900px,92vw)] md:rounded-[var(--r-4)] md:border ${
+      // Четыре строки, а не три: лента, шапка, прокручиваемое содержимое, подвал.
+      // С тремя лента занимала первую `auto`, шапка получала `1fr` и растягивалась
+      // на всю свободную высоту окна — под заголовком зияла пустота в треть экрана.
+      className={`fixed inset-x-0 bottom-0 top-auto m-0 grid max-h-none w-full max-w-none grid-rows-[auto_auto_1fr_auto] overflow-hidden border-t border-[var(--border-1)] bg-[var(--surface-page)] p-0 text-[var(--text-1)] backdrop:bg-[rgba(18,22,28,.72)] md:inset-0 md:m-auto md:h-auto md:max-h-[85dvh] md:w-[min(900px,92vw)] md:rounded-[var(--r-4)] md:border ${
         fill ? 'inset-0 h-full' : 'h-[var(--sheet-full)] rounded-t-[16px]'
       }`}
     >

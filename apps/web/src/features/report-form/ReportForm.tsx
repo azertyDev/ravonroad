@@ -249,7 +249,12 @@ export function ReportForm({ onCreated, onCancel }: ReportFormProps) {
             даёт браузеру нарисовать его так, как принято на этом устройстве —
             с поиском по первой букве и колесом выбора на телефоне. */}
         <div className="flex flex-col gap-[var(--s-3)]">
-          <StepHeader step="04" label={t('form.step.category')} />
+          {/* Видимая подпись связана с полем, а не подменена `aria-label`: имя контрола
+              обязано совпадать с тем, что человек видит, иначе голосовое управление
+              «нажми Тип» списка не находит. Как у ориентира выше. */}
+          <label htmlFor="category">
+            <StepHeader step="04" label={t('form.step.category')} />
+          </label>
           <CatalogState query={categories} />
           <select
             id="category"
@@ -260,7 +265,6 @@ export function ReportForm({ onCreated, onCancel }: ReportFormProps) {
             className={invalid === 'category' ? FIELD_INVALID : FIELD}
             value={categoryCode}
             onChange={(event) => setCategoryCode(event.target.value)}
-            aria-label={t('form.category.label')}
             aria-describedby={invalid === 'category' ? 'category-error' : undefined}
           >
             {/* Пустое значение остаётся в списке: без него первая категория выглядела бы
