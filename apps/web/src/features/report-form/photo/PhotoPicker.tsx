@@ -105,16 +105,12 @@ export function PhotoPicker({ photos, onChange, error }: PhotoPickerProps) {
         }}
         className={dragging ? 'rounded-[var(--r-4)] outline-2 outline-dashed outline-[var(--accent)]' : ''}
       >
-      {photos.length === 0 ? (
-        <label htmlFor={inputId} className={`${TILE} min-h-[128px] gap-[var(--s-3)] rounded-[var(--r-4)] p-[var(--s-4)]`}>
-          <span className="grid h-[48px] w-[48px] place-items-center rounded-[var(--r-4)] bg-[var(--accent)] text-[var(--text-on-accent)]">
-            <Glyph name="plus" size={20} />
-          </span>
-          <span className="t-step text-[var(--text-1)]">{busy ? t('form.photos.working') : t('form.photos.capture')}</span>
-          <span className="t-caption text-center text-[var(--text-2)]">{t('form.photos.formats')}</span>
-        </label>
-      ) : (
-        <ul className="grid grid-cols-3 gap-[var(--s-2)]">
+      {/* Три места в ряду видны с первого кадра, ещё до единственного снимка (Form C).
+          Раньше пустая форма показывала одну зону во всю ширину, и она превращалась
+          в ряд из трёх только после первой фотографии: сетка прыгала ровно в тот момент,
+          когда человек ждал подтверждения, что файл взяли. Сколько снимков просят,
+          видно сразу и по числу мест, и по счётчику в заголовке. */}
+      <ul className="grid grid-cols-3 gap-[var(--s-2)]">
           {photos.map((photo, index) => (
             <li key={photo.id} className="relative aspect-[3/4] overflow-hidden rounded-[var(--r-4)]">
               <img src={previews[index]} alt="" className="h-full w-full object-cover" />
@@ -152,14 +148,31 @@ export function PhotoPicker({ photos, onChange, error }: PhotoPickerProps) {
               <label
                 htmlFor={inputId}
                 aria-disabled={busy}
-                className={`${TILE} aspect-[3/4] rounded-[var(--r-4)]`}
+                className={`${TILE} aspect-[3/4] gap-[var(--s-2)] rounded-[var(--r-4)] p-[var(--s-3)]`}
               >
-                <Glyph name="plus" size={18} label={t('form.photos.add')} />
+                <span className="grid h-[40px] w-[40px] place-items-center rounded-[var(--r-4)] bg-[var(--accent)] text-[var(--text-on-accent)]">
+                  <Glyph name="plus" size={18} label={t('form.photos.add')} />
+                </span>
+                {/* Подпись только на первом, пустом месте: рядом с уже снятыми
+                    фотографиями «сделать снимок» под каждым плюсом читается как шум. */}
+                {photos.length === 0 && (
+                  <span className="t-caption text-center text-[var(--text-1)]">
+                    {busy ? t('form.photos.working') : t('form.photos.capture')}
+                  </span>
+                )}
               </label>
             </li>
           )}
+          {/* Свободные места дорисовываются пустыми: три плитки в ряду обязаны стоять
+              всегда, иначе ряд перестраивается на каждом снимке. */}
+          {Array.from({ length: MAX_PHOTOS_PER_REPORT - photos.length - (busy ? 1 : 0) - (full ? 0 : 1) }, (_, index) => (
+            <li
+              key={`rest-${index}`}
+              aria-hidden="true"
+              className="aspect-[3/4] rounded-[var(--r-4)] border-2 border-dashed border-[var(--border-1)] opacity-50"
+            />
+          ))}
         </ul>
-      )}
 
       {/* Подсказка стоит под сеткой всегда, а не только на пустой форме: ограничение
           по размеру и формату нужно знать перед вторым снимком так же, как перед первым. */}

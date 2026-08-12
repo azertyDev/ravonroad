@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { catalogKeys, fetchDistricts } from '../../entities/catalog/api'
 import type { ReportFilters as Filters } from '../../entities/report/api'
 import { MapToolbar } from '../../features/report-filters/MapToolbar'
+import { useReportForm } from '../../features/report-form/ReportFormDialog'
 import { ReportFilters } from '../../features/report-filters/ReportFilters'
 import { toFilters, toSearch, validateReportSearch } from '../../features/report-filters/searchParams'
 import { around } from '../../features/report-map/bbox'
@@ -26,6 +27,7 @@ import { CTA, GUTTER } from '../../shared/ui/control/styles'
  *  между ними обязан его сохранять (SRS §7.3). */
 export function HomePage() {
   const { locale, t } = useI18n()
+  const openForm = useReportForm()
   // `strict: false`: экран рисуется и под главной, и под формой, поэтому привязать
   // чтение к одному из двух маршрутов нельзя. Разбор всё равно свой — тот же, что
   // у маршрута, и мусор из адреса он уже отбросил.
@@ -122,9 +124,9 @@ export function HomePage() {
       {/* На ноутбуке действие стоит в шапке и второй раз внизу не нужно: в макете
           подвал занимает строка о волонтёрах, а не кнопка (Desktop C). */}
       <ActionBar caption={t('home.ctaCaption')} className="order-3 lg:hidden">
-        <Link to="/$locale/new" params={{ locale }} className={CTA}>
+        <button type="button" onClick={openForm} className={CTA}>
           {t('home.cta')}
-        </Link>
+        </button>
       </ActionBar>
     </div>
   )

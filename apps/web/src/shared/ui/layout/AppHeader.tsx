@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { useReportForm } from '../../../features/report-form/ReportFormDialog'
 import { LocaleSwitcher } from '../../i18n/LocaleSwitcher'
 import { useI18n } from '../../i18n/useI18n'
 import { COMPACT_ACCENT } from '../control/styles'
@@ -14,6 +15,7 @@ import { Glyph } from '../icon/Glyph'
  *  что сайт на узбекском, ровно в тот момент, когда начинает её заполнять. */
 export function AppHeader() {
   const { locale, t } = useI18n()
+  const openForm = useReportForm()
 
   return (
     <header className="mx-auto flex w-full max-w-[720px] shrink-0 items-center justify-between gap-[var(--s-3)] px-[var(--gutter)] pt-[var(--s-6)] pb-[var(--s-3)] lg:max-w-none lg:border-b lg:border-[var(--border-1)] lg:px-[var(--s-6)] lg:py-[var(--s-3)]">
@@ -40,10 +42,10 @@ export function AppHeader() {
             в наборе классов кнопки, и в одном слое он перебивал `hidden` — на 390 px
             кнопка оставалась в шапке и наезжала на марку. Правило в медиазапросе
             выигрывает у безусловного независимо от порядка в атрибуте. */}
-        <Link to="/$locale/new" params={{ locale }} className={`${COMPACT_ACCENT} max-lg:hidden`}>
+        <button type="button" onClick={openForm} className={`${COMPACT_ACCENT} max-lg:hidden`}>
           <Glyph name="plus" size={14} />
           {t('home.cta')}
-        </Link>
+        </button>
       </div>
     </header>
   )

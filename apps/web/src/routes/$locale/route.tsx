@@ -1,5 +1,6 @@
 import { Outlet, useParams } from '@tanstack/react-router'
 import { useEffect } from 'react'
+import { ReportFormProvider } from '../../features/report-form/ReportFormDialog'
 import { HTML_LANG, isLocale } from '../../shared/i18n/locale'
 import { AppLayout } from '../../shared/ui/layout/AppLayout'
 
@@ -13,9 +14,13 @@ export function LocaleLayout() {
     if (isLocale(locale)) document.documentElement.lang = HTML_LANG[locale]
   }, [locale])
 
+  // Окно формы висит на уровне локали, а не маршрута: кнопка «сообщить о яме» есть
+  // на каждом экране, и ни один из них не должен из-под человека уезжать.
   return (
-    <AppLayout>
-      <Outlet />
-    </AppLayout>
+    <ReportFormProvider>
+      <AppLayout>
+        <Outlet />
+      </AppLayout>
+    </ReportFormProvider>
   )
 }

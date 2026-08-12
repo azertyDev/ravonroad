@@ -6,6 +6,7 @@ import { ReportCard } from '../../../entities/report/ReportCard'
 import { ReportRow, ROW_COLUMNS } from '../../../entities/report/ReportRow'
 import { fetchReportList, fetchReportMap, reportKeys, type ReportFilters as Filters } from '../../../entities/report/api'
 import { MapToolbar } from '../../../features/report-filters/MapToolbar'
+import { useReportForm } from '../../../features/report-form/ReportFormDialog'
 import { ReportFilters } from '../../../features/report-filters/ReportFilters'
 import { countFilters, toFilters, toSearch } from '../../../features/report-filters/searchParams'
 import { CITY_BBOX } from '../../../features/report-map/bbox'
@@ -40,6 +41,7 @@ const LIST_STALE_TIME = 30_000
  *  «сколько всего» не требуется (SRS §4.3 — `total` в списке всегда `null`). */
 export function ReportListPage() {
   const { locale, t, tp } = useI18n()
+  const openForm = useReportForm()
   // Таблица живёт только на ноутбуке, и карта на нём уступает ей место целиком
   // (Desktop C › экран 1b). Классом `lg:hidden` этого не сделать: спрятанная карта
   // всё равно создаётся и тянет тайлы.
@@ -243,9 +245,9 @@ export function ReportListPage() {
           что и на главной: панель принадлежит телефону, где кнопка живёт под большим
           пальцем, а в шапке её нет. */}
       <ActionBar caption={t('home.ctaCaption')} className="order-4 lg:hidden">
-        <Link to="/$locale/new" params={{ locale }} className={CTA}>
+        <button type="button" onClick={openForm} className={CTA}>
           {t('home.cta')}
-        </Link>
+        </button>
       </ActionBar>
     </div>
   )

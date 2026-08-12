@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { fetchReportDetail, reportKeys } from '../../../entities/report/api'
+import { useReportForm } from '../../../features/report-form/ReportFormDialog'
 import { ReportSummary } from '../../../entities/report/ReportSummary'
 import { apiErrorCode } from '../../../shared/api/client'
 import { useI18n } from '../../../shared/i18n/useI18n'
@@ -33,6 +34,7 @@ export function ReportDetailPage() {
   const { number } = useParams({ from: '/$locale/reports/$number' })
   // Локаль берётся у хука, а не у параметров: он уже проверил её как `'uz' | 'ru'`.
   const { locale, t, errorText } = useI18n()
+  const openForm = useReportForm()
   const online = useOnline()
   const [copied, setCopied] = useState(false)
   const parsed = Number(number)
@@ -109,10 +111,10 @@ export function ReportDetailPage() {
                 <Glyph name="copy" size={14} />
                 {copied ? t('report.copied') : t('report.copyLink')}
               </button>
-              <Link to="/$locale/new" params={{ locale }} className={COMPACT_ACCENT}>
+              <button type="button" onClick={openForm} className={COMPACT_ACCENT}>
                 <Glyph name="plus" size={14} />
                 {t('report.newReport')}
-              </Link>
+              </button>
             </span>
           </>
         }
