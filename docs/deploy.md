@@ -118,6 +118,20 @@ git clone --depth 1 -b dev https://github.com/azertyDev/ravonroad.git /opt/ravon
 /opt/ravonroad/deploy/bootstrap-dev.sh
 ```
 
+### Переменные, которые задают адреса
+
+Три разных адреса, и путать их дорого:
+
+| Переменная | Кто читает | Что означает |
+| --- | --- | --- |
+| `PUBLIC_ORIGIN` | compose → `WEB_ORIGIN` api | origin, которому api разрешает CORS |
+| `PUBLIC_SITE_URL` | api | адрес сайта в ссылках бота: номер `RR-3471` в карточке группы ведёт на `/uz/reports/3471`. На стенде это `https://<TLS_DOMAIN>` — имя, на которое выпущен сертификат, иначе волонтёр получит предупреждение браузера вместо страницы заявки |
+| `TLS_DOMAIN` | edge, `issue-cert.sh` | домен сертификата. Пусто — edge работает по http |
+
+Значение `PUBLIC_SITE_URL` на dev пишет `bootstrap-dev.sh`, собирая его из `TLS_DOMAIN`.
+На проде оно появится вместе с доменом кампании. Переменная обязательная: без неё api
+не поднимется — молча отправлять карточки с битыми ссылками хуже, чем упасть на старте.
+
 Что делает `bootstrap-dev.sh`: обновляет клон, проверяет compose-файлы, достаёт пять
 секретов из Secret Manager (`ravonroad-dev-telegram-bot-token`,
 `ravonroad-dev-telegram-group-id`, `ravonroad-dev-telegram-webhook-secret`,

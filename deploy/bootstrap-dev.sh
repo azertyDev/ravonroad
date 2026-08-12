@@ -16,6 +16,10 @@ GHCR_REPO=${GHCR_REPO:-ghcr.io/azertydev/ravonroad}
 PUBLIC_ORIGIN=${PUBLIC_ORIGIN:-http://34.46.68.126}
 # sslip.io резолвит <ip>.sslip.io в сам ip — домен для сертификата, не покупая домен.
 TLS_DOMAIN=${TLS_DOMAIN:-34.46.68.126.sslip.io}
+# Адрес сайта для ссылок из бота. Собирается из TLS_DOMAIN, а не пишется рядом руками:
+# сертификат выпущен ровно на это имя, и ссылка обязана вести туда же, иначе волонтёр
+# получит предупреждение браузера вместо страницы заявки.
+PUBLIC_SITE_URL=${PUBLIC_SITE_URL:-https://$TLS_DOMAIN}
 # Экстракт карты. Имя файла содержит дату сборки: новый экстракт — новое значение здесь
 # и новое значение переменной репозитория VITE_MAP_PMTILES_URL в GitHub Actions.
 MAP_PMTILES_DEFAULT=https://storage.googleapis.com/ravonroad-dev-photos/map/tashkent-20260810.pmtiles
@@ -77,6 +81,8 @@ else
 
 NODE_ENV=production
 PUBLIC_ORIGIN=$PUBLIC_ORIGIN
+# Адрес сайта в ссылках карточек бота. То же имя, что у сертификата ниже.
+PUBLIC_SITE_URL=$PUBLIC_SITE_URL
 
 POSTGRES_USER=ravonroad
 POSTGRES_PASSWORD=$POSTGRES_PASSWORD

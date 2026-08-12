@@ -22,6 +22,7 @@ export async function startTestApp(): Promise<TestApp> {
   applyStorageEnv(storage)
   process.env['DATABASE_URL'] = TEST_DATABASE_URL
   process.env['WEB_ORIGIN'] ??= 'http://localhost:5173'
+  process.env['PUBLIC_SITE_URL'] ??= 'https://ravonroad.test'
   // TELEGRAM_* обязательны с 004: без них приложение не поднимается вовсе. Тесты бота
   // ставят свои значения до вызова (см. test/support/telegram.ts), остальным нужен
   // только факт наличия — в группу они не ходят.

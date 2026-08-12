@@ -9,6 +9,11 @@
 export interface Env {
   DATABASE_URL: string
   WEB_ORIGIN: string
+  /** Адрес публичного сайта. Из него собираются ссылки на страницу заявки — в карточке
+   *  бота и в digest. Отдельно от `WEB_ORIGIN`, потому что тот отвечает за CORS: адрес
+   *  `pnpm dev` (`localhost:5173`) в ссылке, которую откроет волонтёр с телефона,
+   *  бесполезен. */
+  PUBLIC_SITE_URL: string
   API_PORT: number
   /** Одновременных запросов на приёме заявок. Восемь на проде, два на dev (SRS §12.2). */
   INTAKE_CONCURRENCY: number
@@ -91,6 +96,7 @@ export function validateEnv(source: Record<string, unknown>): Env {
   const env: Env = {
     DATABASE_URL: requireString(source, 'DATABASE_URL', errors),
     WEB_ORIGIN: requireString(source, 'WEB_ORIGIN', errors),
+    PUBLIC_SITE_URL: requireString(source, 'PUBLIC_SITE_URL', errors),
     API_PORT: DEFAULT_API_PORT,
     INTAKE_CONCURRENCY: DEFAULT_INTAKE_CONCURRENCY,
     DB_POOL: DEFAULT_DB_POOL,
