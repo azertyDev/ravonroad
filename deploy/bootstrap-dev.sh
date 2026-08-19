@@ -95,11 +95,15 @@ POSTGRES_DB=ravonroad
 # IMAGE_TAG появится после первой успешной выкатки, PREVIOUS_IMAGE_TAG — после второй.
 GHCR_REPO=$GHCR_REPO
 
-# Фото на dev — Google Cloud Storage через S3-совместимый XML API, подпись SigV4.
+# Фотографии лежат на диске стенда, в томе photos (ADR-0009). Путь — точка монтирования
+# внутри контейнера, а не на хосте.
+MEDIA_ROOT=/var/lib/ravonroad/photos
+
+# Ключи нужны только deploy/backup.sh: дампы базы и ночная копия фотографий уходят
+# в Google Cloud Storage через его S3-совместимый XML API, подпись SigV4.
 S3_ENDPOINT=https://storage.googleapis.com
 S3_REGION=us-central1
 S3_BUCKET=ravonroad-dev-photos
-S3_PUBLIC_BASE_URL=https://storage.googleapis.com/ravonroad-dev-photos
 S3_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID
 S3_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY
 

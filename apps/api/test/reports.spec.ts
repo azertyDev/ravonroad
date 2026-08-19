@@ -17,7 +17,6 @@ beforeAll(async () => {
 beforeEach(async () => {
   await truncateData(prisma)
   app.storage.objects.clear()
-  app.storage.requests.length = 0
   app.storage.failing = false
 })
 
@@ -99,8 +98,9 @@ describe('POST /api/reports — геозабор (US-017, AC-3)', () => {
 
     expect(await prisma.report.count()).toBe(0)
     // Геозабор стоит до загрузки: заявка вне города не стоит нам ни одного объекта.
+    // Ни одного файла на диске: пустое хранилище и есть доказательство того, что до записи
+    // байтов дело не дошло.
     expect(app.storage.objects.size).toBe(0)
-    expect(app.storage.requests.filter((request) => request.method === 'PUT')).toHaveLength(0)
   })
 })
 

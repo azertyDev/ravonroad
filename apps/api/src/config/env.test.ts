@@ -5,12 +5,7 @@ const complete = {
   DATABASE_URL: 'postgresql://ravonroad:ravonroad@localhost:5432/ravonroad?schema=public',
   WEB_ORIGIN: 'http://localhost:5173',
   PUBLIC_SITE_URL: 'http://localhost',
-  S3_ENDPOINT: 'https://storage.googleapis.com',
-  S3_REGION: 'us-central1',
-  S3_BUCKET: 'ravonroad-dev-photos',
-  S3_ACCESS_KEY_ID: 'key',
-  S3_SECRET_ACCESS_KEY: 'secret',
-  S3_PUBLIC_BASE_URL: 'https://storage.googleapis.com/ravonroad-dev-photos',
+  MEDIA_ROOT: '/var/lib/ravonroad/photos',
   TELEGRAM_BOT_TOKEN: '1234:token',
   TELEGRAM_GROUP_CHAT_ID: '-1001234567890',
   TELEGRAM_WEBHOOK_SECRET: 'secret',
@@ -37,7 +32,7 @@ describe('validateEnv', () => {
 
   it('требует хранилище фотографий: без него заявка не принимается вовсе', () => {
     // Узнать об этом на старте процесса дешевле, чем на первой фотографии от жителя.
-    expect(() => validateEnv(without('S3_BUCKET'))).toThrow(/S3_BUCKET is required/)
+    expect(() => validateEnv(without('MEDIA_ROOT'))).toThrow(/MEDIA_ROOT is required/)
   })
 
   it('требует доступ к Telegram: без него модерация встаёт молча', () => {

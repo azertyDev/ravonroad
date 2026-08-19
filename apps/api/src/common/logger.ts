@@ -42,6 +42,10 @@ export interface LogFields {
   reason?: string
   error?: string
   count?: number
+  /** Сколько сирот подмёл сборщик `incoming/` (ADR-0009). Отдельно от `count`, потому
+   *  что событие редкое и в нём это единственное число: слитое с `count` оно потерялось бы
+   *  среди частых событий при поиске по логу. */
+  removed?: number
   /** Четыре числа события `queue_depth` (SRS §10.3). */
   photoQueue?: number
   deliveryQueue?: number

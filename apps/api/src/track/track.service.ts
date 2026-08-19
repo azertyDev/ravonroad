@@ -2,7 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common'
 import type { TrackView } from '@ravonroad/shared-types'
 import { ApiException } from '../common/api-error'
 import { logEvent } from '../common/logger'
-import { S3Service } from '../media/s3.service'
+import { PhotoStorage } from '../media/photo-storage'
 import { PrismaService } from '../prisma/prisma.service'
 import { DETAIL_SELECT, mapDetail } from '../reports/detail.mapper'
 
@@ -10,7 +10,7 @@ import { DETAIL_SELECT, mapDetail } from '../reports/detail.mapper'
 export class TrackService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly s3: S3Service,
+    private readonly storage: PhotoStorage,
   ) {}
 
   /** Токен — единственная capability в системе (SRS §9.2). Он даёт причину отказа,
@@ -31,7 +31,7 @@ export class TrackService {
     if (report === null) throw this.notFound()
 
     return {
-      ...mapDetail(report, (key) => this.s3.publicUrl(key)),
+      ...mapDetail(report, (key) => this.storage.publicUrl(key)),
       statusReason: report.statusReason,
       statusReasonText: report.statusReasonText,
       duplicateOfNumber: report.duplicateOf?.publicNumber ?? null,

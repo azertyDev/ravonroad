@@ -1,7 +1,7 @@
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { ConfigService } from '@nestjs/config'
-import { S3Service } from '../../src/media/s3.service'
+import { PhotoStorage } from '../../src/media/photo-storage'
 import type { PrismaService } from '../../src/prisma/prisma.service'
 import { UndoService } from '../../src/reports/undo.service'
 import { BotApiClient } from '../../src/telegram/bot-api.client'
@@ -189,7 +189,7 @@ export async function resetTelegramTables(prisma: PrismaService): Promise<void> 
  *  тот же приём, что в `photo-worker.spec.ts`. */
 export function buildOutboxWorker(prisma: PrismaService): OutboxWorker {
   const config = new ConfigService()
-  const cards = new CardRenderer(prisma, new S3Service(config), new UndoService(), config)
+  const cards = new CardRenderer(prisma, new PhotoStorage(config), new UndoService(), config)
   return new OutboxWorker(prisma, new BotApiClient(config), cards, new DigestService(config), new DuplicatesService())
 }
 

@@ -3,7 +3,7 @@ import type { CreateReportResponse } from '@ravonroad/shared-types'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { PhotoWorker } from '../src/media/photo.worker'
 import { ProcessService } from '../src/media/process.service'
-import { S3Service } from '../src/media/s3.service'
+import { PhotoStorage } from '../src/media/photo-storage'
 import { startTestApp, type TestApp } from './support/app'
 import { createTestPrisma, truncateData } from './support/database'
 import { makeJpeg } from './support/photos'
@@ -20,8 +20,8 @@ let otherJpeg: Buffer
 /** Воркер собирается руками, а не берётся из приложения: тест гоняет его шагами.
  *  Ждать секундного таймера значило бы мерить сон, а не поведение очереди. */
 function buildWorker(): PhotoWorker {
-  const s3 = new S3Service(new ConfigService())
-  return new PhotoWorker(prisma, new ProcessService(s3), s3, new ConfigService())
+  const photos = new PhotoStorage(new ConfigService())
+  return new PhotoWorker(prisma, new ProcessService(photos), photos, new ConfigService())
 }
 
 async function drain(): Promise<number> {

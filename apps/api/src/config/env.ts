@@ -2,8 +2,10 @@
  *
  * Проверяются только переменные, которые код действительно читает.
  *
- * `S3_*` обязательны с 002: без хранилища заявка не принимается вовсе, и узнать об этом
- * лучше на старте процесса, чем на первой фотографии от жителя. `TELEGRAM_*` обязательны
+ * `MEDIA_ROOT` обязателен с 002: без хранилища заявка не принимается вовсе, и узнать
+ * об этом лучше на старте процесса, чем на первой фотографии от жителя. Проверяется здесь
+ * только заданность пути; право записи в него — уже в `PhotoStorage.onModuleInit`,
+ * потому что заданный, но чужой каталог ломает ровно так же (ADR-0009). `TELEGRAM_*` обязательны
  * с 004 по той же причине: без них модерация не работает, а карточки молча копятся
  * в очереди — отказ, который заметят через часы. */
 export interface Env {
@@ -25,12 +27,9 @@ export interface Env {
    *  но при задержке хранилища в 200 мс запас исчезает — тогда их становится два,
    *  и это одна переменная, а не правка кода (SRS §5.4). */
   PHOTO_WORKERS: number
-  S3_ENDPOINT: string
-  S3_REGION: string
-  S3_BUCKET: string
-  S3_ACCESS_KEY_ID: string
-  S3_SECRET_ACCESS_KEY: string
-  S3_PUBLIC_BASE_URL: string
+  /** Каталог с фотографиями. Внутри контейнера это точка монтирования тома, а не путь
+   *  внутри образа: образ пересоздаётся каждой выкаткой, снимки жителей — нет. */
+  MEDIA_ROOT: string
   TELEGRAM_BOT_TOKEN: string
   /** Группа волонтёров. Одна на среду, идентификатор supergroup со знаком минус. */
   TELEGRAM_GROUP_CHAT_ID: string
@@ -101,12 +100,7 @@ export function validateEnv(source: Record<string, unknown>): Env {
     INTAKE_CONCURRENCY: DEFAULT_INTAKE_CONCURRENCY,
     DB_POOL: DEFAULT_DB_POOL,
     PHOTO_WORKERS: DEFAULT_PHOTO_WORKERS,
-    S3_ENDPOINT: requireString(source, 'S3_ENDPOINT', errors),
-    S3_REGION: requireString(source, 'S3_REGION', errors),
-    S3_BUCKET: requireString(source, 'S3_BUCKET', errors),
-    S3_ACCESS_KEY_ID: requireString(source, 'S3_ACCESS_KEY_ID', errors),
-    S3_SECRET_ACCESS_KEY: requireString(source, 'S3_SECRET_ACCESS_KEY', errors),
-    S3_PUBLIC_BASE_URL: requireString(source, 'S3_PUBLIC_BASE_URL', errors),
+    MEDIA_ROOT: requireString(source, 'MEDIA_ROOT', errors),
     TELEGRAM_BOT_TOKEN: requireString(source, 'TELEGRAM_BOT_TOKEN', errors),
     TELEGRAM_GROUP_CHAT_ID: requireString(source, 'TELEGRAM_GROUP_CHAT_ID', errors),
     TELEGRAM_WEBHOOK_SECRET: requireString(source, 'TELEGRAM_WEBHOOK_SECRET', errors),

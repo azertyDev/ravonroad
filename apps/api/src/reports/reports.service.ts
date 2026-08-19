@@ -12,7 +12,7 @@ import { AbuseService, type AbuseSignalDraft } from './abuse.service'
 import { DuplicatesService } from '../geo/duplicates.service'
 import { GeoService } from '../geo/geo.service'
 import { incomingKey } from '../media/object-keys'
-import { S3Service } from '../media/s3.service'
+import { PhotoStorage } from '../media/photo-storage'
 import { PrismaService } from '../prisma/prisma.service'
 import type { CreateReportInput } from './create-report.input'
 import { sniffImageType } from './sniffer'
@@ -62,7 +62,7 @@ export class ReportsService {
     private readonly prisma: PrismaService,
     private readonly geo: GeoService,
     private readonly duplicates: DuplicatesService,
-    private readonly s3: S3Service,
+    private readonly storage: PhotoStorage,
     private readonly abuse: AbuseService,
   ) {}
 
@@ -139,7 +139,7 @@ export class ReportsService {
       photoCount: photos.length,
       reportsThisHour,
     })
-    const rawKeys = await this.storeRawPhotos(photos, types)
+    const rawKeys = await this.storeRawPhotos(photos)
 
     const report = await this.insertReport({
       input,
@@ -297,15 +297,19 @@ export class ReportsService {
     }
   }
 
-  /** Сырые байты уходят в `incoming/` одним PUT на файл — ноль процессорного времени.
+  /** Сырые байты уходят в `incoming/` одной записью на файл — ноль процессорного времени.
    *  Хранилище недоступно → `503`: заявка не создаётся, клиент сохраняет черновик
-   *  и повторяет с тем же ключом (SRS §4.2). */
-  private async storeRawPhotos(photos: UploadedPhoto[], types: (string | null)[]): Promise<string[]> {
+   *  и повторяет с тем же ключом (SRS §4.2).
+   *
+   *  Определённый по magic bytes тип сюда больше не передаётся: он нужен был S3, чтобы
+   *  вернуть заголовок при чтении, а сырой файл наружу не отдаётся никогда. Проверку
+   *  типа это не отменяет — она выше и отклоняет заявку до записи (SRS §5.3 п.2). */
+  private async storeRawPhotos(photos: UploadedPhoto[]): Promise<string[]> {
     try {
       return await Promise.all(
-        photos.map(async (photo, index) => {
+        photos.map(async (photo) => {
           const key = incomingKey()
-          await this.s3.putRaw(key, photo.buffer, types[index] ?? 'application/octet-stream')
+          await this.storage.putRaw(key, photo.buffer)
           return key
         }),
       )

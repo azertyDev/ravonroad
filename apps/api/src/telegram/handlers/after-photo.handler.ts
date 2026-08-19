@@ -2,7 +2,7 @@ import { Injectable, type OnModuleDestroy } from '@nestjs/common'
 import { MAX_PHOTOS_PER_REPORT, type ReportStatus } from '@ravonroad/shared-types'
 import type { Prisma } from '../../generated/prisma/client'
 import { incomingKey } from '../../media/object-keys'
-import { S3Service } from '../../media/s3.service'
+import { PhotoStorage } from '../../media/photo-storage'
 import { PrismaService } from '../../prisma/prisma.service'
 import { applyTransition } from '../../reports/transitions'
 import { BotApiClient } from '../bot-api.client'
@@ -45,7 +45,7 @@ export class AfterPhotoHandler implements OnModuleDestroy {
   constructor(
     private readonly prisma: PrismaService,
     private readonly bot: BotApiClient,
-    private readonly s3: S3Service,
+    private readonly storage: PhotoStorage,
     private readonly cards: CardUpdater,
   ) {}
 
@@ -202,7 +202,7 @@ export class AfterPhotoHandler implements OnModuleDestroy {
         const response = await fetch(this.bot.fileUrl(path), { signal: AbortSignal.timeout(15_000) })
         if (!response.ok) throw new Error(`file download failed: ${response.status}`)
         const key = incomingKey()
-        await this.s3.putRaw(key, Buffer.from(await response.arrayBuffer()), 'image/jpeg')
+        await this.storage.putRaw(key, Buffer.from(await response.arrayBuffer()))
         keys.push(key)
       } catch (error) {
         logEvent('warn', 'photo_rejected', { error: error instanceof Error ? error.message : String(error) })

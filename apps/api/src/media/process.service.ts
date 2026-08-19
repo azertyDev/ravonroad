@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { Injectable } from '@nestjs/common'
 import sharp from 'sharp'
 import { photoKey, previewKey } from './object-keys'
-import { S3Service } from './s3.service'
+import { PhotoStorage } from './photo-storage'
 
 /** Длинная сторона итогового изображения (PRD §7.1). */
 const FULL_SIZE = 1600
@@ -34,7 +34,7 @@ export interface ProcessedPhoto {
 
 @Injectable()
 export class ProcessService {
-  constructor(private readonly s3: S3Service) {}
+  constructor(private readonly storage: PhotoStorage) {}
 
   /** Перекодирует сырое изображение и кладёт результат под контент-адресуемые ключи.
    *
@@ -49,7 +49,7 @@ export class ProcessService {
    *  `.rotate()` вызывается до `resize` и применяет ориентацию к пикселям, поэтому после
    *  удаления тега ориентации фотография не переворачивается (PRD §7.1). */
   async process(rawKey: string): Promise<ProcessedPhoto> {
-    const raw = await this.s3.getObject(rawKey)
+    const raw = await this.storage.getObject(rawKey)
 
     const pipeline = sharp(raw, { limitInputPixels: LIMIT_INPUT_PIXELS }).rotate()
     const full = await pipeline
@@ -73,9 +73,9 @@ export class ProcessService {
 
     // Ключ определяется содержимым, поэтому существующий объект — те же самые байты.
     // Пропуск загрузки экономит две операции на каждом повторно присланном файле.
-    if (!(await this.s3.exists(objectKey))) {
-      await this.s3.putImage(objectKey, full.data)
-      await this.s3.putImage(preview400, preview)
+    if (!(await this.storage.exists(objectKey))) {
+      await this.storage.putImage(objectKey, full.data)
+      await this.storage.putImage(preview400, preview)
     }
 
     return {
