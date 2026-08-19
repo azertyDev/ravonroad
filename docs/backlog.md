@@ -90,7 +90,7 @@
 | T-060 | Кнопка удаления контактов на `/z/<token>` (US-014) | `003-public-map` | `feat/003-contacts-delete-button` | S |  | T-059 |
 | T-061 | Маркеры семи статусов на карте: отдельный `DONE` и маркер реестра `OUT_OF_SCOPE` (PRD §6.1, US-032) | `003-public-map` | `feat/003-status-markers` | S |  | T-053, T-015 |
 | T-062 | Пустое состояние, ошибка и отсутствие сети на карте и в списке (PRD §8.4) | `003-public-map` | `feat/003-empty-error-offline` | S |  | T-055 |
-| T-063 | ⚠ E2E: три сценария SRS §11.4 | `003-public-map` | `feat/003-e2e-scenarios` | M |  | T-060, T-043 |
+| T-063 | ⏸ **Отложена** до живого прода: E2E, три сценария SRS §11.4 | `003-public-map` | `feat/003-e2e-scenarios` | M |  | T-060, T-043 |
 | T-064 | Миграции `moderator`, `telegram_outbox`, `processed_update`, `bot_prompt`, `moderation_batch` (SRS §2.8, §2.10–§2.12, §2.15) | `004-telegram-bot` | `feat/004-telegram-tables` | M |  | T-022, T-024 |
 | T-065 | Сверить и добить колонки `report` под переходы: `telegram_*_message_id`, `duplicate_of_id`, `status_reason*`, `publication_url`, `done_at` (SRS §2.2) | `004-telegram-bot` | `feat/004-report-transition-columns` | S |  | T-064 |
 | T-066 | Первичный засев `moderator` из `TELEGRAM_MODERATOR_IDS` и документированный сниппет правки состава (ADR-0005, SRS §2.8) | `004-telegram-bot` | `feat/004-moderator-seed` | S |  | T-064 |
