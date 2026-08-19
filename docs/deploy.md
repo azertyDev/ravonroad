@@ -8,7 +8,7 @@
 | --- | --- | --- | --- |
 | local | ноутбук | `docker-compose.dev.yml` | `http://localhost` |
 | dev | GCE e2-micro, 1 ГБ, us-central1 | `docker-compose.dev.yml` | `http://34.46.68.126` |
-| prod | VPS AHOST, 2 ГБ | `docker-compose.prod.yml` | пока не поднят |
+| prod | Contabo Cloud VPS 4, 8 ГБ, регион EU | `docker-compose.prod.yml` | `http://169.58.202.96`, стек не поднят |
 
 ## Локально
 
@@ -112,6 +112,11 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
 На машине уже должны быть Docker, docker compose, swap и `gcloud`, залогиненный под
 сервисным аккаунтом с доступом к секретам проекта `ravonroad-dev`.
 
+**На проде `gcloud` нет и не будет**: машина стоит у Contabo, Secret Manager проекта
+`ravonroad-dev` к ней отношения не имеет. `bootstrap-dev.sh` — скрипт dev-стенда, на
+проде он не запускается, и `/opt/ravonroad/.env` там пишется руками из этого файла.
+Свой скрипт прод получит вместе со своим workflow выкатки.
+
 ```sh
 sudo mkdir -p /opt/ravonroad && sudo chown deploy:deploy /opt/ravonroad
 git clone --depth 1 -b dev https://github.com/azertyDev/ravonroad.git /opt/ravonroad
@@ -193,7 +198,7 @@ COMPOSE_OVERLAY=docker-compose.dev.yml /opt/ravonroad/deploy/backup.sh
 
 | | dev | prod |
 | --- | --- | --- |
-| Память | 1 ГБ, лимиты 560 МБ при ~604 МБ доступных (SRS §12.2) | 2 ГБ, лимиты 1312 МБ (SRS §12.1) |
+| Память | 1 ГБ, лимиты 560 МБ при ~604 МБ доступных (SRS §12.2) | 8 ГБ, лимиты те же 1312 МБ (SRS §12.1) |
 | Оверлей | `docker-compose.dev.yml` | `docker-compose.prod.yml` |
 | `build:` в compose | остаётся: локальная сборка идёт этим же оверлеем | снят через `!reset null` |
 | Порт 5432 | наружу закрыт, на хост отдан на `127.0.0.1` | не публикуется вовсе |
@@ -204,4 +209,4 @@ COMPOSE_OVERLAY=docker-compose.dev.yml /opt/ravonroad/deploy/backup.sh
 | Всплеск §1.6 | не воспроизводится, dev — среда разработки | проверяется один раз до анонса |
 
 Прод-выкатки пока нет: `deploy-dev.yml` ходит только на dev. Прод получит свой workflow
-и свои секреты, когда машина AHOST поднимется.
+и свои секреты, когда машина Contabo поднимется.
