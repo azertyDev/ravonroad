@@ -106,9 +106,13 @@ echo "==> выкатываю $TAG (предыдущий: ${PREVIOUS:-нет})"
 # произвольной давности, и «развёрнут <sha>» было бы неправдой.
 # Сами скрипты deploy/ здесь не обновляются: git переписал бы файл, который в этот
 # момент исполняется, и bash дочитал бы его с середины. Скрипты обновляет bootstrap.
+sync_compose() {
+  git fetch --depth 1 origin "$1"
+  git checkout FETCH_HEAD -- docker-compose.yml "$COMPOSE_OVERLAY"
+}
+
 echo "==> синхронизирую compose-файлы с $TAG"
-git fetch --depth 1 origin "$TAG"
-git checkout FETCH_HEAD -- docker-compose.yml "$COMPOSE_OVERLAY"
+sync_compose "$TAG"
 
 use_tag "$TAG"
 prune_images
@@ -150,6 +154,12 @@ if [ -z "$PREVIOUS" ]; then
 fi
 
 echo "==> откатываюсь на $PREVIOUS"
+# Compose откатывается вместе с образами. Иначе старый образ поднимается под новым
+# конфигом — и это не теория: 19.08.2026 переезд фотографий на диск убрал из compose
+# переменные `S3_*`, откат вернул образ, который их требует, и стенд ушёл в цикл
+# перезапусков с пустым `{}` в логе. Выглядело как «откат тоже не поднялся», хотя
+# и код, и конфиг по отдельности были рабочими.
+sync_compose "$PREVIOUS"
 use_tag "$PREVIOUS"
 pull_images
 # Миграции при откате не отыгрываются: они только вперёд. Откат кода поверх уже накатанной

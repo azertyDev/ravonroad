@@ -23,6 +23,13 @@ RUN pnpm install --frozen-lockfile --prod --ignore-scripts --filter @ravonroad/a
 COPY --from=build --chown=node:node /app/packages/shared-types/dist packages/shared-types/dist
 COPY --from=build --chown=node:node /app/apps/api/dist apps/api/dist
 
+# Каталог фотографий создаётся в образе и принадлежит node (ADR-0009). Смысл не в самом
+# каталоге — его создаёт и приложение, — а во владельце: docker инициализирует **новый**
+# именованный том содержимым образа по этому пути, включая права. Без этой строки свежий
+# том достаётся root, а процесс работает под node, и первая же выкатка на чистую машину
+# падает с EACCES на mkdir. Ровно так и случилось на стенде 19.08.2026.
+RUN mkdir -p /var/lib/ravonroad/photos && chown -R node:node /var/lib/ravonroad
+
 USER node
 WORKDIR /app/apps/api
 EXPOSE 3000
