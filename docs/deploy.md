@@ -93,17 +93,30 @@ Workflow проверяет это до ssh, но проверка стоит з
 ### Подготовка прод-машины
 
 `bootstrap-dev.sh` на проде **не работает**: он берёт секреты из Secret Manager проекта
-`ravonroad-dev`, а у Contabo своего GCP нет. Прод готовится вручную:
+`ravonroad-dev`, а у Contabo своего GCP нет. У прода свой скрипт — секреты он получает
+из окружения того, кто его запускает:
 
 ```sh
 sudo mkdir -p /opt/ravonroad && sudo chown deploy:deploy /opt/ravonroad
 git clone --depth 1 -b dev https://github.com/azertyDev/ravonroad.git /opt/ravonroad
+
+ TELEGRAM_BOT_TOKEN=… TELEGRAM_GROUP_CHAT_ID=… TELEGRAM_WEBHOOK_SECRET=… \
+ TLS_DOMAIN=169.58.202.96.sslip.io \
+ /opt/ravonroad/deploy/bootstrap-prod.sh
 ```
 
-Дальше `/opt/ravonroad/.env` с правами 600 по образцу `.env.example`, обязательно
-с `COMPOSE_OVERLAY=docker-compose.prod.yml` и `GHCR_REPO`. Первая выкатка откатываться
-никуда не будет: `PREVIOUS_IMAGE_TAG` ещё пуст, и при провале стек останется лежать
-с понятным сообщением.
+Ведущий пробел перед командой — не опечатка: с ним строка не попадает в историю shell.
+
+Скрипт пишет `.env` с правами 600, генерирует пароль Postgres на месте и поднимает базу,
+создавая том. Повторный запуск ничего не перетирает; `--force` перевыпускает файл,
+**перенося прежний пароль Postgres** — том уже проинициализирован им.
+
+Ключи S3 он не требует: с переездом фотографий на диск (ADR-0009) они нужны только
+`backup.sh`, и прод поднимается без них. Дописать их всё равно придётся — до первого
+прогона `backup.sh` копий фотографий не существует.
+
+Первая выкатка откатываться никуда не будет: `PREVIOUS_IMAGE_TAG` ещё пуст, и при провале
+стек останется лежать с понятным сообщением.
 
 #### Выключение паролей в ssh: имя файла решает
 
