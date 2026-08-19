@@ -105,6 +105,32 @@ git clone --depth 1 -b dev https://github.com/azertyDev/ravonroad.git /opt/ravon
 никуда не будет: `PREVIOUS_IMAGE_TAG` ещё пуст, и при провале стек останется лежать
 с понятным сообщением.
 
+#### Выключение паролей в ssh: имя файла решает
+
+Образ Contabo кладёт в `/etc/ssh/sshd_config.d/` свой `50-cloud-init.conf`
+с `PasswordAuthentication yes`. **sshd берёт первое встреченное значение параметра**,
+а файлы читаются по алфавиту — значит собственный запрет в `99-*.conf` не применяется
+никогда, молча. Проверка глазами показывает `PasswordAuthentication no` в своём файле
+и создаёт полную уверенность, что пароли выключены.
+
+Поэтому файл называется `01-ravonroad.conf`, а проверяется **действующая** конфигурация,
+а не содержимое своего файла:
+
+```sh
+sshd -T | grep -iE '^passwordauthentication|^permitrootlogin'
+```
+
+Ответ обязан быть `passwordauthentication no` и `permitrootlogin without-password`.
+Контрольный выстрел с ноутбука — попытка войти именно паролем:
+
+```sh
+ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no root@<ip>
+# ожидаемое: Permission denied (publickey).
+```
+
+На dev-стенде этой ловушки нет: образ GCE кладёт единственный `90_google_keyexchange.conf`
+и парольный вход выключает сам.
+
 ### Продление сертификата
 
 Cron на прод-машине, под root:
