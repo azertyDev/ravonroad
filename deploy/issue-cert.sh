@@ -23,6 +23,12 @@ set +a
 
 : "${TLS_DOMAIN:?TLS_DOMAIN не задан в .env}"
 : "${COMPOSE_OVERLAY:?COMPOSE_OVERLAY не задан в .env: docker-compose.prod.yml или docker-compose.dev.yml}"
+# Проверки имён образов стоят ЗДЕСЬ, а не перед перезапуском edge ниже. Иначе скрипт
+# сначала идёт к Let's Encrypt и только потом падает на пустом IMAGE_TAG — а неудачная
+# проверка владения не бесплатна: их не больше пяти в час на имя. До первой выкатки
+# (когда IMAGE_TAG ещё пуст) еженедельный cron тратил бы попытку каждый раз впустую.
+: "${GHCR_REPO:?GHCR_REPO не задан в .env}"
+: "${IMAGE_TAG:?IMAGE_TAG не задан в .env — сначала выкатка, потом сертификат}"
 LETSENCRYPT_DIR=${LETSENCRYPT_DIR:-$APP_DIR/letsencrypt}
 CERTBOT_WEBROOT=${CERTBOT_WEBROOT:-$APP_DIR/certbot-webroot}
 
@@ -41,10 +47,8 @@ docker run --rm \
 
 echo "==> перезапускаю edge, чтобы он подхватил сертификат"
 # Имена образов обязаны быть в окружении: без них compose берёт значение по умолчанию
-# `ravonroad-edge:local` и уходит собирать образ на месте, а `docker build` на машине
-# с 1 ГБ запрещён (SRS §12.2 п.1). Тег берётся тот же, что развёрнут сейчас.
-: "${GHCR_REPO:?GHCR_REPO не задан в .env}"
-: "${IMAGE_TAG:?IMAGE_TAG не задан в .env — сначала выкатка, потом сертификат}"
+# `ravonroad-edge:local` и уходит собирать образ на месте, а `docker build` на серверах
+# запрещён (SRS §12.2 п.1). Тег берётся тот же, что развёрнут сейчас; проверен выше.
 export API_IMAGE="$GHCR_REPO-api:$IMAGE_TAG"
 export EDGE_IMAGE="$GHCR_REPO-edge:$IMAGE_TAG"
 export MIGRATE_IMAGE="$GHCR_REPO-migrate:$IMAGE_TAG"
