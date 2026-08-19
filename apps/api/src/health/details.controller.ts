@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common'
 import { queueDepths } from '../common/queue-depths'
-import { S3Service } from '../media/s3.service'
+import { PhotoStorage } from '../media/photo-storage'
 import { PrismaService } from '../prisma/prisma.service'
 import { WebhookHealthService, type WebhookState } from '../telegram/webhook-health.service'
 import { HealthService, type DbState } from './health.service'
@@ -13,8 +13,8 @@ import { HealthService, type DbState } from './health.service'
  *  Лимита у эндпоинта тоже нет и он не нужен (SRS §9.5): внешние проверки кэшируются
  *  на 60 секунд, а всё, что остаётся, — один запрос к БД из подзапросов по счётчикам.
  *
- *  `/ready` намеренно не смотрит ни на S3, ни на Telegram: чужой сбой не должен выключать
- *  работающий сервис. Их состояние видно **здесь** — и только здесь. */
+ *  `/ready` намеренно не смотрит ни на хранилище, ни на Telegram: чужой сбой не должен
+ *  выключать работающий сервис. Их состояние видно **здесь** — и только здесь. */
 const PROBE_CACHE_MS = 60_000
 
 /** `null` означает «прочитать не удалось», а не ноль: БД лежит — числа взять неоткуда,
@@ -34,8 +34,14 @@ export interface HealthDetails {
   uptimeS: number
   /** `slow` — ответила только со второй попытки: занята, а не мертва (SRS §10.1). */
   db: DbState
-  /** Кэш 60 с: страница диагностики не должна сама стать нагрузкой на хранилище. */
-  s3: 'up' | 'down'
+  /** Право записи в `MEDIA_ROOT`, кэш 60 с: страница диагностики не должна сама стать
+   *  нагрузкой на диск. `down` — том только на чтение, чужой uid или кончившееся место
+   *  (ADR-0009). */
+  storage: 'up' | 'down'
+  /** Свободное место под фотографиями, МБ; `null` — прочитать не удалось. С переездом
+   *  снимков на диск это первый ресурс, который кончится: 15 ГБ при цели кампании
+   *  в 10 000 ям, и кончается он тихо (SRS §12.2 п.5). */
+  diskFreeMb: number | null
   telegram: WebhookState
   queues: QueueSummary
   /** Секунды с последнего обработанного апдейта; `null` — апдейтов не было вовсе.
@@ -51,20 +57,21 @@ interface Cached<T> {
 
 @Controller('health')
 export class HealthDetailsController {
-  private s3Probe: Cached<boolean> | null = null
+  private storageProbe: Cached<boolean> | null = null
 
   constructor(
     private readonly health: HealthService,
     private readonly prisma: PrismaService,
-    private readonly s3: S3Service,
+    private readonly storage: PhotoStorage,
     private readonly webhook: WebhookHealthService,
   ) {}
 
   @Get('details')
   async getDetails(): Promise<HealthDetails> {
-    const [db, s3Up, telegram] = await Promise.all([
+    const [db, storageUp, diskFreeMb, telegram] = await Promise.all([
       this.health.probeDatabase(),
-      this.s3Reachable(),
+      this.storageWritable(),
+      this.diskFreeMb(),
       this.webhook.state(),
     ])
     const dbUp = db !== 'down'
@@ -75,10 +82,11 @@ export class HealthDetailsController {
     const lastUpdateAgeS = dbUp ? await this.lastUpdateAgeS() : null
 
     return {
-      status: db === 'up' && s3Up && telegram.webhook === 'ok' ? 'ok' : 'degraded',
+      status: db === 'up' && storageUp && telegram.webhook === 'ok' ? 'ok' : 'degraded',
       uptimeS: this.health.uptimeS(),
       db,
-      s3: s3Up ? 'up' : 'down',
+      storage: storageUp ? 'up' : 'down',
+      diskFreeMb,
       telegram,
       queues: {
         photo: queues?.photoQueue ?? null,
@@ -92,12 +100,21 @@ export class HealthDetailsController {
     }
   }
 
-  private async s3Reachable(): Promise<boolean> {
+  private async storageWritable(): Promise<boolean> {
     const now = Date.now()
-    if (this.s3Probe !== null && now - this.s3Probe.at < PROBE_CACHE_MS) return this.s3Probe.value
-    const value = await this.s3.bucketReachable()
-    this.s3Probe = { at: now, value }
+    if (this.storageProbe !== null && now - this.storageProbe.at < PROBE_CACHE_MS) {
+      return this.storageProbe.value
+    }
+    const value = await this.storage.writable()
+    this.storageProbe = { at: now, value }
     return value
+  }
+
+  /** Не кэшируется в отличие от пробы записи: чтение `statfs` не создаёт файлов
+   *  и стоит один системный вызов. */
+  private async diskFreeMb(): Promise<number | null> {
+    const bytes = await this.storage.freeBytes()
+    return bytes === null ? null : Math.round(bytes / 1024 / 1024)
   }
 
   private async lastUpdateAgeS(): Promise<number | null> {

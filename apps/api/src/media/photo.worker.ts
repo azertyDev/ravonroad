@@ -4,7 +4,7 @@ import { logEvent } from '../common/logger'
 import { logQueueDepths, queueDepths } from '../common/queue-depths'
 import { PrismaService } from '../prisma/prisma.service'
 import { ProcessService } from './process.service'
-import { S3Service } from './s3.service'
+import { PhotoStorage } from './photo-storage'
 
 /** Очередь опрашивается раз в секунду. `LISTEN/NOTIFY` убрал бы эту задержку, но добавил
  *  бы выделенное соединение и обработку переподключений; при цели «превью через несколько
@@ -29,6 +29,17 @@ const MAX_ATTEMPTS = 5
  *  в минуту её читают. */
 const DEPTH_LOG_INTERVAL_MS = 60_000
 
+/** Сироты в `incoming/` подметаются раз в час, старше суток. Раньше это делало
+ *  lifecycle-правило бакета одной строкой конфигурации; с переездом на диск правило
+ *  исчезло вместе с бакетом, и сборщик пришлось написать (ADR-0009).
+ *
+ *  Сутки, а не час: сырой файл живёт минуты, но повтор после падения процесса отложен
+ *  на пять минут аренды, а при пяти попытках с backoff последняя приходится почти
+ *  на час. Подмести файл, за которым воркер ещё вернётся, — значит превратить
+ *  восстановимую ошибку в потерянную фотографию. */
+const SWEEP_INTERVAL_MS = 60 * 60 * 1000
+const INCOMING_TTL_MS = 24 * 60 * 60 * 1000
+
 interface ClaimedPhoto {
   id: number
   report_id: number
@@ -45,7 +56,7 @@ export class PhotoWorker implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly prisma: PrismaService,
     private readonly process: ProcessService,
-    private readonly s3: S3Service,
+    private readonly storage: PhotoStorage,
     private readonly config: ConfigService,
   ) {}
 
@@ -67,6 +78,27 @@ export class PhotoWorker implements OnModuleInit, OnModuleDestroy {
       timer.unref()
       this.timers.push(timer)
     }
+
+    // Один на процесс, а не на воркер: подметать один каталог несколькими таймерами
+    // незачем, и параллельные проходы гонялись бы за одними файлами.
+    const sweeper = setInterval(() => {
+      this.sweep().catch((error: unknown) => {
+        logEvent('error', 'incoming_sweep_failed', {
+          error: error instanceof Error ? error.message : String(error),
+        })
+      })
+    }, SWEEP_INTERVAL_MS)
+    sweeper.unref()
+    this.timers.push(sweeper)
+  }
+
+  /** Публичный по той же причине, что `tick`: тест обязан уметь позвать проход сам,
+   *  а не ждать час. Молчит, когда удалять нечего, — строка «удалено 0» раз в час
+   *  съедала бы лог, в котором ищут отказы. */
+  async sweep(): Promise<number> {
+    const removed = await this.storage.sweepIncoming(INCOMING_TTL_MS)
+    if (removed > 0) logEvent('warn', 'incoming_swept', { removed })
+    return removed
   }
 
   onModuleDestroy(): void {
@@ -148,7 +180,7 @@ export class PhotoWorker implements OnModuleInit, OnModuleDestroy {
       // Сырой объект больше не нужен. Не удалить его не страшно — lifecycle-правило
       // бакета чистит `incoming/` старше суток, — поэтому неудача здесь не откатывает
       // уже готовую фотографию.
-      await this.s3.deleteObject(photo.raw_key).catch(() => undefined)
+      await this.storage.deleteObject(photo.raw_key).catch(() => undefined)
       await this.enqueueCard(photo.report_id)
     } catch (error) {
       await this.fail(photo, error instanceof Error ? error.message : 'unknown error')

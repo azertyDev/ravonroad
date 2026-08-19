@@ -33,7 +33,7 @@
 | Frontend | React 19, Vite, TypeScript, TanStack Router, TanStack Query, Tailwind |
 | Backend | NestJS, модульный монолит — один сервис; Telegram-бот это модуль внутри него |
 | БД | PostgreSQL + PostGIS, Prisma |
-| Фото | Cloupard S3 (внешнее S3-совместимое). MinIO не используется ни в одной среде |
+| Фото | Диск сервера, том `photos`, раздача через nginx по `/media/photos/` (ADR-0009). Внешнее S3-совместимое хранилище осталось только под резервные копии `deploy/backup.sh`. MinIO не используется ни в одной среде |
 | Карты | MapLibre GL v5 + собственный PMTiles-экстракт в бакете (ADR-0008). Геокодер не используется |
 | Локали | uz-латиница по умолчанию, ru вторая. Обе с префиксом в URL: `/uz/...`, `/ru/...` |
 | CI/CD | GitHub Actions, публичный репозиторий, образы в GHCR. GitLab не используется |

@@ -2,27 +2,32 @@ import { createHash } from 'node:crypto'
 import { ConfigService } from '@nestjs/config'
 import sharp from 'sharp'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { statSync } from 'node:fs'
+import { join } from 'node:path'
 import { incomingKey } from '../src/media/object-keys'
 import { ProcessService } from '../src/media/process.service'
-import { S3Service } from '../src/media/s3.service'
+import { PhotoStorage } from '../src/media/photo-storage'
 import { applyStorageEnv, startFakeStorage, type FakeStorage } from './support/storage'
 import { makeJpeg, makeJpegWithExif } from './support/photos'
 
 let storage: FakeStorage
 let processor: ProcessService
-let s3: S3Service
+let photos: PhotoStorage
 
 async function upload(bytes: Buffer): Promise<string> {
   const key = incomingKey()
-  await s3.putRaw(key, bytes, 'image/jpeg')
+  await photos.putRaw(key, bytes)
   return key
 }
 
 beforeAll(async () => {
   storage = await startFakeStorage()
   applyStorageEnv(storage)
-  s3 = new S3Service(new ConfigService())
-  processor = new ProcessService(s3)
+  // Ссылки на фотографии собираются из адреса сайта; приложения здесь нет, ставим сами.
+  process.env['PUBLIC_SITE_URL'] = 'http://localhost'
+  photos = new PhotoStorage(new ConfigService())
+  await photos.onModuleInit()
+  processor = new ProcessService(photos)
 })
 
 afterAll(async () => {
@@ -80,19 +85,20 @@ describe('ProcessService (SRS §5.3, §9.6)', () => {
     expect(result.objectKey).toBe(`photos/${result.sha256.slice(0, 2)}/${result.sha256}.jpg`)
   })
 
-  it('не загружает повторно то, что уже лежит под этим ключом', async () => {
-    // Ключ определяется содержимым, поэтому второй PUT записал бы те же байты
-    // поверх тех же байт — две операции хранилища впустую на каждом повторе.
+  it('не перезаписывает то, что уже лежит под этим ключом', async () => {
+    // Ключ определяется содержимым, поэтому вторая запись положила бы те же байты
+    // поверх тех же байт. На диске это видно по времени изменения файла: оно обязано
+    // остаться прежним, иначе каждый повторно присланный снимок переписывает сам себя.
     const source = await makeJpeg(900, 700)
-    await processor.process(await upload(source))
-    const putsAfterFirst = storage.requests.filter((request) => request.method === 'PUT').length
+    const first = await processor.process(await upload(source))
+    const file = join(storage.root, first.objectKey)
+    const writtenAt = statSync(file).mtimeMs
 
+    await new Promise((resolve) => setTimeout(resolve, 10))
     const second = await processor.process(await upload(source))
-    const putsAfterSecond = storage.requests.filter((request) => request.method === 'PUT').length
 
-    // Только PUT сырого файла второй загрузки; изображение и превью не переписывались.
-    expect(putsAfterSecond - putsAfterFirst).toBe(1)
-    expect(second.sha256).toBeDefined()
+    expect(statSync(file).mtimeMs).toBe(writtenAt)
+    expect(second.objectKey).toBe(first.objectKey)
   })
 
   it('отклоняет декомпрессионную бомбу вместо того, чтобы её разворачивать', async () => {

@@ -7,7 +7,7 @@ import {
   type ReportStatus,
 } from '@ravonroad/shared-types'
 import { ApiException } from '../common/api-error'
-import { S3Service } from '../media/s3.service'
+import { PhotoStorage } from '../media/photo-storage'
 import { PrismaService } from '../prisma/prisma.service'
 import { decodeCursor, encodeCursor } from './cursor'
 import { DETAIL_SELECT, mapDetail } from './detail.mapper'
@@ -30,7 +30,7 @@ const NEARBY_LIMIT = 3
 export class PublicReportsService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly s3: S3Service,
+    private readonly storage: PhotoStorage,
     private readonly points: PointsCache,
   ) {}
 
@@ -105,7 +105,7 @@ export class PublicReportsService {
         landmark: row.landmark,
         latitude: row.latitude.toNumber(),
         longitude: row.longitude.toNumber(),
-        previewUrl: ready === undefined ? null : this.s3.publicUrl(ready.previewKey as string),
+        previewUrl: ready === undefined ? null : this.storage.publicUrl(ready.previewKey as string),
         photosPending: row.photos.some((photo) => photo.state !== 'READY'),
         photoCount: row.photos.length,
         createdAt: row.createdAt.toISOString(),
@@ -144,6 +144,6 @@ export class PublicReportsService {
       { number: report.publicNumber, latitude: report.latitude.toNumber(), longitude: report.longitude.toNumber() },
       NEARBY_LIMIT,
     )
-    return mapDetail(report, (key) => this.s3.publicUrl(key), nearby)
+    return mapDetail(report, (key) => this.storage.publicUrl(key), nearby)
   }
 }

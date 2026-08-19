@@ -91,7 +91,7 @@ describe('/health/details (SRS §10.1)', () => {
     expect(response.status).toBe(200)
 
     const body = (await response.json()) as Record<string, unknown>
-    expect(body).toMatchObject({ db: 'up', s3: 'up' })
+    expect(body).toMatchObject({ db: 'up', storage: 'up' })
     expect(body['queues']).toMatchObject({ photo: 0, delivery: 0, moderation: 0, photoFailed: 0 })
     expect(body['telegram']).toMatchObject({ pendingUpdates: 0 })
     expect(typeof body['uptimeS']).toBe('number')

@@ -50,12 +50,9 @@ services:
       # Адрес сайта для ссылок из бота: номер заявки в карточке ведёт на её страницу.
       PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-http://localhost}
       # Хранилище фотографий обязательно с 002: без него заявка не принимается вовсе.
-      S3_ENDPOINT: ${S3_ENDPOINT}
-      S3_REGION: ${S3_REGION}
-      S3_BUCKET: ${S3_BUCKET}
-      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
-      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
-      S3_PUBLIC_BASE_URL: ${S3_PUBLIC_BASE_URL}
+      # Это точка монтирования тома, а не путь в образе: образ пересоздаётся каждой
+      # выкаткой, снимки жителей — нет (ADR-0009).
+      MEDIA_ROOT: /var/lib/ravonroad/photos
       # Бот — модуль внутри api (ADR-0002), поэтому доступ к Telegram нужен именно ему,
       # и он обязателен: без него модерация встаёт молча, а карточки копятся в очереди.
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
@@ -75,6 +72,10 @@ services:
       # libvips не поднимает пул потоков: обработка идёт по одной фотографии за раз,
       # и пик памяти остаётся ~15 МБ поверх базовой, а не кратным числу ядер (SRS §5.7).
       VIPS_CONCURRENCY: 1
+    volumes:
+      # Единственный контейнер с правом записи в фотографии. edge монтирует тот же том
+      # только на чтение: раздача не должна уметь ничего удалять.
+      - photos:/var/lib/ravonroad/photos
     depends_on:
       db:
         condition: service_healthy
@@ -105,10 +106,9 @@ services:
       # Относительный путь до CSP не доходит вовсе: его покрывает `'self'`, а лишний
       # мусор в директиве убирает 10-csp-origins.envsh.
       MAP_PMTILES_URL: ${VITE_MAP_PMTILES_URL:-/map/tashkent-20260810.pmtiles}
-      # Тот же адрес, что api кладёт в ссылки на фотографии: из него собирается img-src.
-      # Переменная в .env одна на обе стороны — разъедутся, и карточка заявки покажет
-      # битую картинку вместо фото ямы.
-      PHOTO_ORIGIN: ${S3_PUBLIC_BASE_URL:-}
+      # PHOTO_ORIGIN больше не задаётся: фотографии лежат на нашем же origin и в img-src
+      # их покрывает 'self' (ADR-0009). Переменная осталась в 10-csp-origins.envsh —
+      # пустая она обрабатывается штатно, а внешнее хранилище когда-нибудь вернётся.
       # Домен сертификата. Пусто — контейнер работает по http, как раньше.
       TLS_DOMAIN: ${TLS_DOMAIN:-}
     ports:
@@ -119,6 +119,9 @@ services:
       - ${LETSENCRYPT_DIR:-./.letsencrypt}:/etc/letsencrypt:ro
       # Каталог ACME-проверки общий с certbot: файл кладёт он, отдаёт nginx.
       - ${CERTBOT_WEBROOT:-./.certbot}:/var/www/certbot
+      # Фотографии: только чтение. Раздаёт их nginx, а не api — иначе каждый снимок
+      # стоил бы памяти процесса, которой на всплеске нет (ADR-0009).
+      - photos:/srv/photos:ro
     depends_on:
       api:
         condition: service_started
@@ -144,3 +147,6 @@ services:
 
 volumes:
   db-data:
+  # Переживает пересоздание контейнеров и выкатки. Единственная копия фотографий
+  # на машине — ночную копию в GCS делает deploy/backup.sh (SRS §10.5).
+  photos:

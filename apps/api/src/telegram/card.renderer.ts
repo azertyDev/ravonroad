@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import type { ReportStatus } from '@ravonroad/shared-types'
-import { S3Service } from '../media/s3.service'
+import { PhotoStorage } from '../media/photo-storage'
 import { PrismaService } from '../prisma/prisma.service'
 import { OUT_OF_SCOPE_REASONS, REJECT_REASONS, isTerminal, transitionsFrom } from '../reports/transitions'
 import { UndoService } from '../reports/undo.service'
@@ -122,7 +122,7 @@ export class CardRenderer {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly s3: S3Service,
+    private readonly storage: PhotoStorage,
     private readonly undo: UndoService,
     config: ConfigService,
   ) {
@@ -182,7 +182,7 @@ export class CardRenderer {
       createdAt: report.createdAt,
       districtName: report.district.nameUz,
       categoryName: report.category.nameUz,
-      photoUrls: report.photos.flatMap((photo) => (photo.objectKey === null ? [] : [this.s3.publicUrl(photo.objectKey)])),
+      photoUrls: report.photos.flatMap((photo) => (photo.objectKey === null ? [] : [this.storage.publicUrl(photo.objectKey)])),
       abuseRules: report.abuseSignals.map((signal) => signal.rule),
       nearbyNumbers: report.duplicateCandidates.map((candidate) => candidate.publicNumber),
       statusReason: report.statusReason,

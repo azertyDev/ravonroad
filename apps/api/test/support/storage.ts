@@ -1,110 +1,113 @@
-import { createServer, type Server } from 'node:http'
-import type { AddressInfo } from 'node:net'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, statSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join, relative, sep } from 'node:path'
 
-export interface RecordedStorageRequest {
-  method: string
-  path: string
-  contentType: string | undefined
-  cacheControl: string | undefined
-  contentDisposition: string | undefined
-  authorization: string | undefined
+/** Публичный адрес сайта в тестах. Из него `PhotoStorage` собирает ссылки на фотографии:
+ *  отдельного адреса хранилища больше нет (ADR-0009). */
+const SITE_URL = 'http://localhost'
+
+/** Каталог промежуточных файлов внутри хранилища. Знать о нём тесту приходится: именно
+ *  его увод в сторону изображает отказ диска — см. `failing`. */
+const TMP_DIR = '.tmp'
+
+/** Содержимое хранилища как карта «ключ → байты». Читается с диска на каждое обращение,
+ *  а не кэшируется: между двумя строками теста файл кладёт воркер, и снимок состояния
+ *  устарел бы ровно там, где тест его и проверяет. */
+export interface StoredObjects {
+  get: (key: string) => Buffer | undefined
+  has: (key: string) => boolean
+  clear: () => void
+  readonly size: number
 }
 
 export interface FakeStorage {
-  endpoint: string
-  bucket: string
-  publicBaseUrl: string
-  /** Содержимое бакета: ключ → байты. */
-  objects: Map<string, Buffer>
-  requests: RecordedStorageRequest[]
-  /** Пока `true`, каждый запрос получает 503 — так проверяется недоступность хранилища. */
+  /** Корень хранилища. Он же уезжает в `MEDIA_ROOT`. */
+  root: string
+  /** Читается из окружения, а не запоминается при создании: адрес сайта ставит тот,
+   *  кто поднимает приложение, и подменять его хранилищу нечего — ссылки на фотографии
+   *  теперь живут на том же origin (ADR-0009). */
+  readonly publicBaseUrl: string
+  objects: StoredObjects
+  /** Пока `true`, любая запись падает — так проверяется недоступность хранилища. */
   failing: boolean
   close: () => Promise<void>
 }
 
-const BUCKET = 'ravonroad-test-photos'
-
-/** Хранилище заменяется локальным сервером на `node:http` — тем же приёмом, каким SRS §11.3
- *  заменяет Telegram. Проверяется наша граница: метод, путь, заголовки и подпись реального
- *  клиента AWS. Долговечность самого S3 — гарантия провайдера, а не наш код (SRS §11.5). */
-export async function startFakeStorage(): Promise<FakeStorage> {
-  const objects = new Map<string, Buffer>()
-  const requests: RecordedStorageRequest[] = []
-  const state = { failing: false }
-
-  const server: Server = createServer((request, response) => {
-    const chunks: Buffer[] = []
-    request.on('data', (chunk: Buffer) => chunks.push(chunk))
-    request.on('end', () => {
-      // Клиент AWS дописывает к адресу ?x-id=PutObject; для ключа это шум.
-      const path = (request.url ?? '').split('?')[0] ?? ''
-      const key = path.replace(`/${BUCKET}/`, '')
-      requests.push({
-        method: request.method ?? '',
-        path,
-        contentType: request.headers['content-type'],
-        cacheControl: request.headers['cache-control'],
-        contentDisposition: request.headers['content-disposition'],
-        authorization: request.headers['authorization'],
-      })
-
-      if (state.failing) {
-        response.writeHead(503).end()
-        return
-      }
-      // HEAD по бакету, а не по объекту: так `/health/details` проверяет доступность
-      // хранилища целиком (SRS §10.1).
-      if (request.method === 'HEAD' && (path === `/${BUCKET}` || path === `/${BUCKET}/`)) {
-        response.writeHead(200).end()
-        return
-      }
-      if (request.method === 'PUT') {
-        objects.set(key, Buffer.concat(chunks))
-        response.writeHead(200).end()
-        return
-      }
-      if (request.method === 'DELETE') {
-        objects.delete(key)
-        response.writeHead(204).end()
-        return
-      }
-      const body = objects.get(key)
-      if (body === undefined) {
-        response.writeHead(404).end()
-        return
-      }
-      response.writeHead(200, { 'content-length': String(body.byteLength) })
-      response.end(request.method === 'HEAD' ? undefined : body)
-    })
-  })
-
-  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
-  const { port } = server.address() as AddressInfo
-  const endpoint = `http://127.0.0.1:${port}`
-
-  return {
-    endpoint,
-    bucket: BUCKET,
-    publicBaseUrl: `${endpoint}/${BUCKET}`,
-    objects,
-    requests,
-    get failing() {
-      return state.failing
-    },
-    set failing(value: boolean) {
-      state.failing = value
-    },
-    close: () => new Promise<void>((resolve) => server.close(() => resolve())),
+function walk(root: string, dir: string, keys: string[]): void {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name === TMP_DIR) continue
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) walk(root, full, keys)
+    else keys.push(relative(root, full).split(sep).join('/'))
   }
 }
 
-/** Кладёт адреса хранилища в окружение до сборки приложения: `S3_*` обязательны
- *  с этого среза, и без них процесс не поднимается вовсе. */
+/** Хранилище — это каталог во временной файловой системе, и подменять в нём нечего:
+ *  с переездом на диск (ADR-0009) настоящая реализация и есть файловые операции.
+ *  Прежний фейк на `node:http` изображал S3 и проверял подпись SigV4 — проверять стало
+ *  нечего, а долговечность диска гарантирует не наш код (SRS §11.5). */
+export async function startFakeStorage(): Promise<FakeStorage> {
+  const root = mkdtempSync(join(tmpdir(), 'ravonroad-photos-'))
+  mkdirSync(join(root, TMP_DIR), { recursive: true })
+  // Соседний путь, а не файл внутри корня: `objects.clear()` подметает корень целиком,
+  // и маркер, лежащий внутри, он же и удалял бы — отказ переставал сниматься, а падать
+  // начинали все последующие тесты файла, причём далеко от места поломки.
+  const disabled = `${root}-tmp-off`
+
+  const objects: StoredObjects = {
+    get(key) {
+      const file = join(root, key)
+      return existsSync(file) && statSync(file).isFile() ? readFileSync(file) : undefined
+    },
+    has(key) {
+      const file = join(root, key)
+      return existsSync(file) && statSync(file).isFile()
+    },
+    clear() {
+      for (const entry of readdirSync(root)) {
+        if (entry === TMP_DIR) continue
+        rmSync(join(root, entry), { recursive: true, force: true })
+      }
+    },
+    get size() {
+      const keys: string[] = []
+      walk(root, root, keys)
+      return keys.length
+    },
+  }
+
+  return {
+    root,
+    get publicBaseUrl() {
+      return `${(process.env['PUBLIC_SITE_URL'] ?? SITE_URL).replace(/\/+$/, '')}/media`
+    },
+    objects,
+    /** Отказ изображается уводом каталога промежуточных файлов, а не правами доступа:
+     *  под root права не значат ничего, и тест, зелёный на ноутбуке, молча перестал бы
+     *  проверять отказ в контейнере CI. Запись идёт через `.tmp` — нет каталога,
+     *  нет записи, и это верно для любого пользователя. */
+    get failing() {
+      return existsSync(disabled)
+    },
+    set failing(value: boolean) {
+      const tmp = join(root, TMP_DIR)
+      if (value && existsSync(tmp)) renameSync(tmp, disabled)
+      if (!value && existsSync(disabled)) renameSync(disabled, tmp)
+    },
+    close: () => {
+      rmSync(root, { recursive: true, force: true })
+      rmSync(disabled, { recursive: true, force: true })
+      return Promise.resolve()
+    },
+  }
+}
+
+/** Кладёт путь хранилища в окружение до сборки приложения: `MEDIA_ROOT` обязателен
+ *  с 002, и без него процесс не поднимается вовсе.
+ *
+ *  `PUBLIC_SITE_URL` здесь **не трогается**, хотя ссылки на фотографии теперь собираются
+ *  из него: адрес сайта ставит тот, кто поднимает приложение, и подмена его хранилищем
+ *  ломала бы проверки ссылок в карточках бота — они сверяют полный адрес. */
 export function applyStorageEnv(storage: FakeStorage): void {
-  process.env['S3_ENDPOINT'] = storage.endpoint
-  process.env['S3_REGION'] = 'us-central1'
-  process.env['S3_BUCKET'] = storage.bucket
-  process.env['S3_ACCESS_KEY_ID'] = 'test-key'
-  process.env['S3_SECRET_ACCESS_KEY'] = 'test-secret'
-  process.env['S3_PUBLIC_BASE_URL'] = storage.publicBaseUrl
+  process.env['MEDIA_ROOT'] = storage.root
 }
