@@ -80,6 +80,9 @@ else
 # только TELEGRAM_MODERATOR_IDS; остальное перевыпускается повторным запуском --force.
 
 NODE_ENV=production
+# Какой оверлей лимитов брать. У deploy.sh значения по умолчанию нет намеренно:
+# перепутанный оверлей ломает машину тихо (SRS §12.1, §12.2).
+COMPOSE_OVERLAY=docker-compose.dev.yml
 PUBLIC_ORIGIN=$PUBLIC_ORIGIN
 # Адрес сайта в ссылках карточек бота. То же имя, что у сертификата ниже.
 PUBLIC_SITE_URL=$PUBLIC_SITE_URL

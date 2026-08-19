@@ -31,8 +31,13 @@ set -a
 . "$ENV_FILE"
 set +a
 : "${GHCR_REPO:?GHCR_REPO не задан в .env}"
+# Оверлей лимитов задаётся явно и значения по умолчанию не имеет. Угаданный неверно,
+# он тихо поднимает прод с dev-лимитами (api в 256 МБ на восьмигигабайтной машине)
+# или dev с прод-лимитами (1312 МБ там, где доступно 604) — в первом случае деградация
+# без единой ошибки в логе, во втором OOM. Пишется в .env при подготовке сервера.
+: "${COMPOSE_OVERLAY:?COMPOSE_OVERLAY не задан в .env: docker-compose.prod.yml или docker-compose.dev.yml}"
 
-compose() { docker compose -f docker-compose.yml -f docker-compose.dev.yml "$@"; }
+compose() { docker compose -f docker-compose.yml -f "$COMPOSE_OVERLAY" "$@"; }
 
 # Правит переменную в .env на месте: значение либо заменяется, либо дописывается.
 # Ключи здесь только свои, из этого же скрипта, поэтому экранирование не нужно.
@@ -103,7 +108,7 @@ echo "==> выкатываю $TAG (предыдущий: ${PREVIOUS:-нет})"
 # момент исполняется, и bash дочитал бы его с середины. Скрипты обновляет bootstrap.
 echo "==> синхронизирую compose-файлы с $TAG"
 git fetch --depth 1 origin "$TAG"
-git checkout FETCH_HEAD -- docker-compose.yml docker-compose.dev.yml
+git checkout FETCH_HEAD -- docker-compose.yml "$COMPOSE_OVERLAY"
 
 use_tag "$TAG"
 prune_images
@@ -158,5 +163,5 @@ if health_ok; then
 fi
 
 echo "!!! откат на $PREVIOUS тоже не поднялся — стек лежит, нужен человек." >&2
-echo "!!! логи: docker compose -f docker-compose.yml -f docker-compose.dev.yml logs --tail=200" >&2
+echo "!!! логи: docker compose -f docker-compose.yml -f $COMPOSE_OVERLAY logs --tail=200" >&2
 exit 1

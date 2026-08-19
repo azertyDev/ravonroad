@@ -1,0 +1,63 @@
+name: deploy-prod
+
+# Прод выкатывается только руками. Автоматической выкатки у него нет намеренно: dev
+# получает каждый мерж, а прод — то, что на dev уже поработало. Ничего не собирается
+# заново, тег берётся из GHCR, куда его положил `build` при push в `dev`.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: полный sha коммита (40 символов), образы которого уже собраны
+        required: true
+
+permissions:
+  contents: read
+
+# Две выкатки одновременно на одну машину — гонка за .env и compose-файлы.
+# cancel-in-progress: false — прерванный посередине деплой оставил бы стек между версиями.
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Нужен ради deploy/known_hosts.prod: ключ хоста лежит в репозитории, а не
+      # снимается ssh-keyscan перед выкаткой, как на dev. У прода адрес постоянный,
+      # и доверять первому ответу сети незачем.
+      - uses: actions/checkout@v4
+
+      # `build` тегирует образы полным sha (`git rev-parse HEAD`), а из интерфейса
+      # GitHub копируется короткий. Короткий тег даёт `not found` уже на сервере,
+      # посреди выкатки, и выглядит как пропавший образ. Дешевле упасть здесь.
+      - name: Проверить, что тег — полный sha
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          echo "$TAG" | grep -Eq '^[0-9a-f]{40}$' \
+            || { echo "тег '$TAG' не похож на полный sha из 40 hex-символов" >&2; exit 1; }
+
+      - name: Подготовить ssh
+        env:
+          KEY: ${{ secrets.PROD_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/id_prod
+          chmod 600 ~/.ssh/id_prod
+          cat deploy/known_hosts.prod >> ~/.ssh/known_hosts
+
+      # Красный health-check внутри deploy.sh = ненулевой код выхода ssh = красный
+      # workflow. Откат при провале делает сам скрипт, здесь ловить нечего.
+      - name: Выкатить ${{ inputs.tag }}
+        env:
+          TAG: ${{ inputs.tag }}
+          HOST: ${{ secrets.PROD_SSH_HOST }}
+          USER_NAME: ${{ secrets.PROD_SSH_USER }}
+        run: |
+          ssh -i ~/.ssh/id_prod \
+            -o StrictHostKeyChecking=yes \
+            -o BatchMode=yes \
+            -o ConnectTimeout=15 \
+            "$USER_NAME@$HOST" \
+            "/opt/ravonroad/deploy/deploy.sh $TAG"

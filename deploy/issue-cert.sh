@@ -22,6 +22,7 @@ set -a
 set +a
 
 : "${TLS_DOMAIN:?TLS_DOMAIN не задан в .env}"
+: "${COMPOSE_OVERLAY:?COMPOSE_OVERLAY не задан в .env: docker-compose.prod.yml или docker-compose.dev.yml}"
 LETSENCRYPT_DIR=${LETSENCRYPT_DIR:-$APP_DIR/letsencrypt}
 CERTBOT_WEBROOT=${CERTBOT_WEBROOT:-$APP_DIR/certbot-webroot}
 
@@ -48,7 +49,7 @@ export API_IMAGE="$GHCR_REPO-api:$IMAGE_TAG"
 export EDGE_IMAGE="$GHCR_REPO-edge:$IMAGE_TAG"
 export MIGRATE_IMAGE="$GHCR_REPO-migrate:$IMAGE_TAG"
 
-docker compose -f "$APP_DIR/docker-compose.yml" -f "$APP_DIR/docker-compose.dev.yml" \
+docker compose -f "$APP_DIR/docker-compose.yml" -f "$APP_DIR/$COMPOSE_OVERLAY" \
   --project-directory "$APP_DIR" up -d --force-recreate --no-deps edge
 
 echo "==> проверяю https"
